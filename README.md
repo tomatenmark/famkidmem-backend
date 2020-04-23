@@ -1,4 +1,4 @@
-# FamKidVid (Familien-Kindheits-Erinnerungen)
+# FamKidMem (Familien-Kindheits-Erinnerungen)
 Web-Frontend, Web-Backend and Desktop-CMS for Family Kid Memories (Online version for 'selbstgedrehte videos')
 
 #what
