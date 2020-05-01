@@ -48,6 +48,7 @@ public class UserServiceTest {
     public void shouldLogin(){
         String accessToken = null;
         Exception exception = null;
+        String oldLoginHashHash = userRepository.findByUsername(testUser.getUsername()).get().getLoginHashHash();
 
         try {
             accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
@@ -55,10 +56,12 @@ public class UserServiceTest {
             exception = ex;
         }
 
+        String newLoginHashHash = userRepository.findByUsername(testUser.getUsername()).get().getLoginHashHash();
         assertThat(accessToken).isNotNull();
         assertThat(exception).isNull();
         assertThat(sessionRepository.findByAccessToken(accessToken).isPresent()).isTrue();
         assertThat(sessionRepository.findByAccessToken(accessToken).get().getAccessToken()).isEqualTo(accessToken);
+        assertThat(newLoginHashHash).isNotEqualTo(oldLoginHashHash);
     }
 
     @Test
