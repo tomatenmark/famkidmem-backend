@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mherrmann.famkidmem.backend.body.RequestBodyLogin;
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
+import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangeValue;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedLogout;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.SessionRepository;
@@ -23,7 +24,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.OPTIONAL;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -55,8 +59,8 @@ public class UserControllerTest {
 
     @After
     public void teardown(){
-        userRepository.deleteAll();
         sessionRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
@@ -126,6 +130,42 @@ public class UserControllerTest {
         assertThat(details).isEqualTo("You are not allowed to do this: logout");
     }
 
+    @Test
+    public void shouldChangeUserName() throws Exception {
+        String accessToken = userService.login(testUser.getUserName(), LOGIN_HASH);
+
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/user/change/username")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(createValueChange(accessToken))))
+                .andExpect(status().is(HttpStatus.OK.value()))
+                .andReturn();
+
+        String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        Optional<UserEntity> userOptional = userRepository.findByUserName("newValue");
+        assertThat(message).isEqualTo("ok");
+        assertThat(details).isEqualTo("Successfully changed username");
+        assertThat(userOptional.isPresent()).isTrue();
+    }
+
+    @Test
+    public void shouldFailChangeUserName() throws Exception {
+        userService.login(testUser.getUserName(), LOGIN_HASH);
+
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/user/change/username")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(createValueChange("wrong"))))
+                .andExpect(status().is(HttpStatus.OK.value()))
+                .andReturn();
+
+        String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        Optional<UserEntity> userOptional = userRepository.findByUserName("newValue");
+        assertThat(message).isEqualTo("error");
+        assertThat(details).isEqualTo("You are not allowed to do this: change username");
+        assertThat(userOptional.isPresent()).isFalse();
+    }
+
 
     private void createTestUser(){
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
@@ -144,6 +184,13 @@ public class UserControllerTest {
         RequestBodyAuthorizedLogout logout = new RequestBodyAuthorizedLogout();
         logout.setAccessToken(accessToken);
         return logout;
+    }
+
+    private RequestBodyAuthorizedChangeValue createValueChange(String accessToken){
+        RequestBodyAuthorizedChangeValue valueChange = new RequestBodyAuthorizedChangeValue();
+        valueChange.setAccessToken(accessToken);
+        valueChange.setNewValue("newValue");
+        return valueChange;
     }
 
     private static String asJsonString(final Object obj) {

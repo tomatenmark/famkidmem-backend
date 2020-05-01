@@ -1,6 +1,5 @@
 package de.mherrmann.famkidmem.backend.service;
 
-import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedLogout;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.exception.LoginException;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
@@ -41,8 +40,8 @@ public class UserServiceTest {
 
     @After
     public void teardown(){
-        userRepository.deleteAll();
         sessionRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
@@ -95,7 +94,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldLogoutSingleSession(){
+    public void shouldLogoutSingleSession() {
         String accessToken1 = userService.login(testUser.getUserName(), LOGIN_HASH);
         String accessToken2 = userService.login(testUser.getUserName(), LOGIN_HASH);
         Exception exception = null;
@@ -145,6 +144,38 @@ public class UserServiceTest {
         assertThat(exception).isInstanceOf(SecurityException.class);
         assertThat(sessionRepository.findByAccessToken(accessToken).isPresent()).isTrue();
         assertThat(userRepository.findByUserName(testUser.getUserName()).get().getSessions().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldChangeUserName(){
+        String accessToken = userService.login(testUser.getUserName(), LOGIN_HASH);
+
+        Exception exception = null;
+
+        try {
+            userService.changeUsername(accessToken, "newValue");
+        } catch(SecurityException ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNull();
+        assertThat(userRepository.findByUserName("newValue").isPresent()).isTrue();
+    }
+
+    @Test
+    public void shouldFailChangeUserName(){
+        userService.login(testUser.getUserName(), LOGIN_HASH);
+        Exception exception = null;
+
+        try {
+            userService.changeUsername("wrong", "newValue");
+        } catch(SecurityException ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNotNull();
+        assertThat(exception).isInstanceOf(SecurityException.class);
+        assertThat(userRepository.findByUserName("newValue").isPresent()).isFalse();
     }
 
 

@@ -3,6 +3,7 @@ package de.mherrmann.famkidmem.backend.controller;
 import de.mherrmann.famkidmem.backend.body.RequestBodyLogin;
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
+import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangeValue;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedLogout;
 import de.mherrmann.famkidmem.backend.exception.LoginException;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
@@ -40,6 +41,16 @@ public class UserController {
         try {
             userService.logout(logout.getAccessToken(), logout.isGlobal());
             return ResponseEntity.ok(new ResponseBody("ok", "Logout was successful"));
+        } catch(SecurityException ex){
+            return ResponseEntity.ok(new ResponseBody("error", ex.getMessage(), ex));
+        }
+    }
+
+    @PostMapping(value = "/change/username")
+    public ResponseEntity<ResponseBody> changeUsername(@RequestBody RequestBodyAuthorizedChangeValue valueChange) {
+        try {
+            userService.changeUsername(valueChange.getAccessToken(), valueChange.getNewValue());
+            return ResponseEntity.ok(new ResponseBody("ok", "Successfully changed username"));
         } catch(SecurityException ex){
             return ResponseEntity.ok(new ResponseBody("error", ex.getMessage(), ex));
         }

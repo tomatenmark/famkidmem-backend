@@ -58,6 +58,16 @@ public class UserService {
         }
     }
 
+    public void changeUsername(String accessToken, String newUserName) throws SecurityException {
+        Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
+        if(!sessionOptional.isPresent()){
+            throw new SecurityException("change username");
+        }
+        UserEntity user = sessionOptional.get().getUserEntity();
+        user.setUserName(newUserName);
+        userRepository.save(user);
+    }
+
     private void createNewHash(UserEntity user, String loginHash){
         String newHash = Bcrypt.hash(loginHash);
         user.setLoginHashHash(newHash);
