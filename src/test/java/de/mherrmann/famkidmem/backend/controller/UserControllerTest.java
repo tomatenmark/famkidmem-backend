@@ -3,6 +3,7 @@ package de.mherrmann.famkidmem.backend.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mherrmann.famkidmem.backend.body.RequestBodyLogin;
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
+import de.mherrmann.famkidmem.backend.body.ResponseBodyGet;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangePassword;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangeUsername;
@@ -28,6 +29,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -202,6 +204,38 @@ public class UserControllerTest {
         assertThat(Bcrypt.check("newValue", loginHashHash)).isFalse();
     }
 
+    @Test
+    public void shouldGetUserKey() throws Exception {
+        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
+
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/user/userKey/{accessToken}", accessToken))
+                .andExpect(status().is(HttpStatus.OK.value()))
+                .andReturn();
+
+        String userKey = (String) jsonToGetResponse(mvcResult.getResponse().getContentAsString()).getData();
+        String message = jsonToGetResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToGetResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        assertThat(message).isEqualTo("ok");
+        assertThat(details).isEqualTo("Successfully get: user key");
+        assertThat(userKey).isEqualTo("masterKey");
+    }
+
+    @Test
+    public void shouldFailGetUserKey() throws Exception {
+        userService.login(testUser.getUsername(), LOGIN_HASH);
+
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/user/userKey/{accessToken}", "wrong"))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andReturn();
+
+        String userKey = (String) jsonToGetResponse(mvcResult.getResponse().getContentAsString()).getData();
+        String message = jsonToGetResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToGetResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        assertThat(message).isEqualTo("error");
+        assertThat(details).isEqualTo("You are not allowed to do this: get user key");
+        assertThat(userKey).isNull();
+    }
+
     private void createTestUser(){
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
         testUser = new UserEntity("username", "Name", loginHashHash, "masterKey", false, false);
@@ -247,6 +281,14 @@ public class UserControllerTest {
     private static ResponseBodyLogin jsonToLoginResponse(final String json) {
         try {
             return new ObjectMapper().readValue(json, ResponseBodyLogin.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static ResponseBodyGet jsonToGetResponse(final String json) {
+        try {
+            return new ObjectMapper().readValue(json, ResponseBodyGet.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
