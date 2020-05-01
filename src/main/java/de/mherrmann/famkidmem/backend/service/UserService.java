@@ -84,6 +84,15 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public String getUserKey(String accessToken) throws SecurityException {
+        Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
+        if(!sessionOptional.isPresent()){
+            throw new SecurityException("get user key");
+        }
+        UserEntity user = sessionOptional.get().getUserEntity();
+        return user.getUserKey();
+    }
+
     private void createNewHash(UserEntity user, String loginHash){
         String newHash = Bcrypt.hash(loginHash);
         user.setLoginHashHash(newHash);

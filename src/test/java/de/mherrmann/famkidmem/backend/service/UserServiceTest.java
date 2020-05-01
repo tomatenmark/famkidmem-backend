@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.security.Security;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -221,6 +223,39 @@ public class UserServiceTest {
         assertThat(Bcrypt.check("newValue", loginHashHash)).isFalse();
         assertThat(Bcrypt.check(LOGIN_HASH, loginHashHash)).isTrue();
         assertThat(key).isNotEqualTo("key");
+    }
+
+    @Test
+    public void shouldGetUserKey(){
+        String userKey = "";
+        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
+        Exception exception = null;
+
+        try {
+            userKey = userService.getUserKey(accessToken);
+        } catch (LoginException ex){
+            exception = ex;
+        }
+
+        assertThat(userKey).isEqualTo("masterKey");
+        assertThat(exception).isNull();
+    }
+
+    @Test
+    public void shouldFailGetUserKey(){
+        String userKey = "";
+        userService.login(testUser.getUsername(), LOGIN_HASH);
+        Exception exception = null;
+
+        try {
+            userKey = userService.getUserKey("wrong");
+        } catch (SecurityException ex){
+            exception = ex;
+        }
+
+        assertThat(userKey).isNotEqualTo("masterKey");
+        assertThat(exception).isNotNull();
+        assertThat(exception).isInstanceOf(SecurityException.class);
     }
 
 

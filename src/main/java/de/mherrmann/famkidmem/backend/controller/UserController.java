@@ -2,6 +2,7 @@ package de.mherrmann.famkidmem.backend.controller;
 
 import de.mherrmann.famkidmem.backend.body.RequestBodyLogin;
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
+import de.mherrmann.famkidmem.backend.body.ResponseBodyGet;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangePassword;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangeUsername;
@@ -11,10 +12,7 @@ import de.mherrmann.famkidmem.backend.exception.SecurityException;
 import de.mherrmann.famkidmem.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/user")
@@ -64,6 +62,16 @@ public class UserController {
             return ResponseEntity.ok(new ResponseBody("ok", "Successfully changed password"));
         } catch(SecurityException ex){
             return ResponseEntity.badRequest().body(new ResponseBody("error", ex.getMessage(), ex));
+        }
+    }
+
+    @GetMapping(value = "/userKey/{accessToken}")
+    public ResponseEntity<ResponseBodyGet> changePassword(@PathVariable String accessToken) {
+        try {
+            String userKey = userService.getUserKey(accessToken);
+            return ResponseEntity.ok(new ResponseBodyGet(userKey, "user key"));
+        } catch(SecurityException ex){
+            return ResponseEntity.badRequest().body(new ResponseBodyGet(ex));
         }
     }
 
