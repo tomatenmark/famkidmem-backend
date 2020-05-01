@@ -179,11 +179,9 @@ public class UserControllerTest {
         String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
         String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
         String loginHashHash = userRepository.findByUsername(testUser.getUsername()).get().getLoginHashHash();
-        String key = userRepository.findByUsername(testUser.getUsername()).get().getUserKey();
         assertThat(message).isEqualTo("ok");
         assertThat(details).isEqualTo("Successfully changed password");
         assertThat(Bcrypt.check("newValue", loginHashHash)).isTrue();
-        assertThat(key).isEqualTo("key");
     }
 
     @Test
@@ -199,12 +197,9 @@ public class UserControllerTest {
         String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
         String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
         String loginHashHash = userRepository.findByUsername(testUser.getUsername()).get().getLoginHashHash();
-        String key = userRepository.findByUsername(testUser.getUsername()).get().getUserKey();
         assertThat(message).isEqualTo("error");
         assertThat(details).isEqualTo("You are not allowed to do this: change password");
         assertThat(Bcrypt.check("newValue", loginHashHash)).isFalse();
-        assertThat(Bcrypt.check(LOGIN_HASH, loginHashHash)).isTrue();
-        assertThat(key).isNotEqualTo("key");
     }
 
     private void createTestUser(){

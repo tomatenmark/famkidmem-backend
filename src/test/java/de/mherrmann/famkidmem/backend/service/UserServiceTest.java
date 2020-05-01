@@ -160,6 +160,7 @@ public class UserServiceTest {
 
         assertThat(exception).isNull();
         assertThat(userRepository.findByUsername("newValue").isPresent()).isTrue();
+        assertThat(userRepository.findByUsername("newValue").get().isInit()).isFalse();
     }
 
     @Test
@@ -194,6 +195,7 @@ public class UserServiceTest {
         String key = userRepository.findByUsername(testUser.getUsername()).get().getUserKey();
         assertThat(exception).isNull();
         assertThat(Bcrypt.check("newValue", loginHashHash)).isTrue();
+        assertThat(userRepository.findByUsername(testUser.getUsername()).get().isReset()).isFalse();
         assertThat(key).isEqualTo("key");
     }
 
@@ -222,6 +224,8 @@ public class UserServiceTest {
     private void createTestUser(){
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
         testUser = new UserEntity("username", "Name", loginHashHash, "masterKey", false, false);
+        testUser.setInit(true);
+        testUser.setReset(true);
         userRepository.save(testUser);
     }
 

@@ -65,6 +65,10 @@ public class UserService {
         }
         UserEntity user = sessionOptional.get().getUserEntity();
         user.setUsername(newUsername);
+        if(user.isInit()){
+            user.setInit(false);
+            user.setReset(true);
+        }
         userRepository.save(user);
     }
 
@@ -76,6 +80,7 @@ public class UserService {
         UserEntity user = sessionOptional.get().getUserEntity();
         user.setLoginHashHash(Bcrypt.hash(newLoginHash));
         user.setUserKey(newUserKey);
+        user.setReset(false);
         userRepository.save(user);
     }
 
