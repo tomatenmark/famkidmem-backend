@@ -7,6 +7,8 @@ import de.mherrmann.famkidmem.backend.exception.LoginException;
 import de.mherrmann.famkidmem.backend.repository.SessionRepository;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,8 @@ public class UserService {
 
     private static final long SESSION_TIME_TO_LIVE = 24*60*60*1000;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+
     @Autowired
     public UserService(UserRepository userRepository, SessionRepository sessionRepository) {
         this.userRepository = userRepository;
@@ -31,50 +35,60 @@ public class UserService {
     public String login(String username, String loginHash) throws LoginException {
         Optional<UserEntity> userOptional = userRepository.findByUsername(username);
         if(!userOptional.isPresent()){
+            LOGGER.error("Could not login user. Invalid username {}", username);
             throw new LoginException();
         }
         UserEntity user = userOptional.get();
         String loginHashHash = user.getLoginHashHash();
         if(!Bcrypt.check(loginHash, loginHashHash)){
+            LOGGER.error("Could not login user. Invalid loginHash {}", loginHash);
             throw new LoginException();
         }
         String accessToken = UUID.randomUUID().toString();
         addUserSession(user, accessToken);
         createNewHash(user, loginHash);
+        LOGGER.info("Successfully logged in {} with accessToken {}", user.getUsername(), accessToken);
         return accessToken;
     }
 
     public void logout(String accessToken, boolean global) throws SecurityException {
         Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
         if(!sessionOptional.isPresent()){
+            LOGGER.error("Could not logout user. Invalid accessToken {}", accessToken);
             throw new SecurityException("logout");
         }
         UserSession session = sessionOptional.get();
         if(global){
             UserEntity user = session.getUserEntity();
+            LOGGER.info("Successfully logged out {} from accessToken {}", user.getUsername(), accessToken);
             sessionRepository.deleteAllByUserEntity(user);
         } else {
             sessionRepository.delete(session);
+            LOGGER.info("Successfully logged out {} from all sessions", session.getUserEntity().getUsername());
         }
     }
 
     public void changeUsername(String accessToken, String newUsername) throws SecurityException {
         Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
         if(!sessionOptional.isPresent()){
+            LOGGER.error("Could not change username. Invalid accessToken {}", accessToken);
             throw new SecurityException("change username");
         }
         UserEntity user = sessionOptional.get().getUserEntity();
+        String oldUsername = user.getUsername();
         user.setUsername(newUsername);
         if(user.isInit()){
             user.setInit(false);
             user.setReset(true);
         }
         userRepository.save(user);
+        LOGGER.info("Successfully changed username from {} to {}", oldUsername, newUsername);
     }
 
     public void changePassword(String accessToken, String newLoginHash, String newUserKey) throws SecurityException {
         Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
         if(!sessionOptional.isPresent()){
+            LOGGER.error("Could not change password. Invalid accessToken {}", accessToken);
             throw new SecurityException("change password");
         }
         UserEntity user = sessionOptional.get().getUserEntity();
@@ -82,15 +96,19 @@ public class UserService {
         user.setUserKey(newUserKey);
         user.setReset(false);
         userRepository.save(user);
+        LOGGER.info("Successfully changed password for user {}", user.getUsername());
     }
 
     public String getUserKey(String accessToken) throws SecurityException {
         Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
         if(!sessionOptional.isPresent()){
+            LOGGER.error("Could not get user key. Invalid accessToken {}", accessToken);
             throw new SecurityException("get user key");
         }
         UserEntity user = sessionOptional.get().getUserEntity();
-        return user.getUserKey();
+        String userKey = user.getUserKey();
+        LOGGER.info("Successfully get user key {} for user", userKey, user.getUsername());
+        return userKey;
     }
 
     private void createNewHash(UserEntity user, String loginHash){
