@@ -11,6 +11,6 @@ public interface UserRepository extends CrudRepository<UserEntity, String> {
 
     Optional<UserEntity> findByAccessToken(String accessToken);
     Optional<UserEntity> findById(String id);
-    Optional<UserEntity> findByUserName(String userName);
+    Optional<UserEntity> findByUsername(String username);
     int countAllByAdminIsTrue();
 }

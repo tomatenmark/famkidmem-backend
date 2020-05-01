@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mherrmann.famkidmem.backend.body.RequestBodyLogin;
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
-import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangeValue;
+import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangeUsername;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedLogout;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.SessionRepository;
@@ -27,7 +27,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.OPTIONAL;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -98,7 +97,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldLogout() throws Exception {
-        String accessToken = userService.login(testUser.getUserName(), LOGIN_HASH);
+        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
 
         MvcResult mvcResult = this.mockMvc.perform(post("/api/user/logout")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -115,7 +114,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldFailLogout() throws Exception {
-        String accessToken = userService.login(testUser.getUserName(), LOGIN_HASH);
+        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
 
         MvcResult mvcResult = this.mockMvc.perform(post("/api/user/logout")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -131,8 +130,8 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldChangeUserName() throws Exception {
-        String accessToken = userService.login(testUser.getUserName(), LOGIN_HASH);
+    public void shouldChangeUsername() throws Exception {
+        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
 
         MvcResult mvcResult = this.mockMvc.perform(post("/api/user/change/username")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -142,15 +141,15 @@ public class UserControllerTest {
 
         String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
         String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
-        Optional<UserEntity> userOptional = userRepository.findByUserName("newValue");
+        Optional<UserEntity> userOptional = userRepository.findByUsername("newValue");
         assertThat(message).isEqualTo("ok");
         assertThat(details).isEqualTo("Successfully changed username");
         assertThat(userOptional.isPresent()).isTrue();
     }
 
     @Test
-    public void shouldFailChangeUserName() throws Exception {
-        userService.login(testUser.getUserName(), LOGIN_HASH);
+    public void shouldFailChangeUsername() throws Exception {
+        userService.login(testUser.getUsername(), LOGIN_HASH);
 
         MvcResult mvcResult = this.mockMvc.perform(post("/api/user/change/username")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -160,7 +159,7 @@ public class UserControllerTest {
 
         String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
         String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
-        Optional<UserEntity> userOptional = userRepository.findByUserName("newValue");
+        Optional<UserEntity> userOptional = userRepository.findByUsername("newValue");
         assertThat(message).isEqualTo("error");
         assertThat(details).isEqualTo("You are not allowed to do this: change username");
         assertThat(userOptional.isPresent()).isFalse();
@@ -169,14 +168,14 @@ public class UserControllerTest {
 
     private void createTestUser(){
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("userName", "Name", loginHashHash, "masterKey", false, false);
+        testUser = new UserEntity("username", "Name", loginHashHash, "masterKey", false, false);
         userRepository.save(testUser);
     }
 
     private RequestBodyLogin createLogin(boolean valid){
         RequestBodyLogin login = new RequestBodyLogin();
         login.setLoginHash(valid ? LOGIN_HASH : "wrong");
-        login.setUserName(testUser.getUserName());
+        login.setUsername(testUser.getUsername());
         return login;
     }
 
@@ -186,10 +185,10 @@ public class UserControllerTest {
         return logout;
     }
 
-    private RequestBodyAuthorizedChangeValue createValueChange(String accessToken){
-        RequestBodyAuthorizedChangeValue valueChange = new RequestBodyAuthorizedChangeValue();
+    private RequestBodyAuthorizedChangeUsername createValueChange(String accessToken){
+        RequestBodyAuthorizedChangeUsername valueChange = new RequestBodyAuthorizedChangeUsername();
         valueChange.setAccessToken(accessToken);
-        valueChange.setNewValue("newValue");
+        valueChange.setNewUsername("newValue");
         return valueChange;
     }
 

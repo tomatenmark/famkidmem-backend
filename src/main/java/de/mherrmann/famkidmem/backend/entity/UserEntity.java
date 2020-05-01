@@ -13,7 +13,7 @@ public class UserEntity {
     @Id
     private String id;
 
-    private String userName;
+    private String username;
     private String displayName;
     private String loginHashHash;
     private String master_key;
@@ -29,9 +29,9 @@ public class UserEntity {
 
     public UserEntity(){}
 
-    public UserEntity(String userName, String displayName, String loginHashHash, String master_key, boolean admin, boolean editor) {
+    public UserEntity(String username, String displayName, String loginHashHash, String master_key, boolean admin, boolean editor) {
         this.id = UUID.randomUUID().toString();
-        this.userName = userName;
+        this.username = username;
         this.displayName = displayName;
         this.loginHashHash = loginHashHash;
         this.master_key = master_key;
@@ -47,12 +47,12 @@ public class UserEntity {
         this.id = id;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getDisplayName() {
