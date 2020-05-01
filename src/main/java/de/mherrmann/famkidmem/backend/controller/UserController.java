@@ -33,7 +33,7 @@ public class UserController {
             String accessToken = userService.login(login.getUsername(), login.getLoginHash());
             return ResponseEntity.ok(new ResponseBodyLogin(accessToken));
         } catch(LoginException ex){
-            return ResponseEntity.ok(new ResponseBodyLogin(ex));
+            return ResponseEntity.badRequest().body(new ResponseBodyLogin(ex));
         }
     }
 
@@ -43,7 +43,7 @@ public class UserController {
             userService.logout(logout.getAccessToken(), logout.isGlobal());
             return ResponseEntity.ok(new ResponseBody("ok", "Logout was successful"));
         } catch(SecurityException ex){
-            return ResponseEntity.ok(new ResponseBody("error", ex.getMessage(), ex));
+            return ResponseEntity.badRequest().body(new ResponseBody("error", ex.getMessage(), ex));
         }
     }
 
@@ -53,7 +53,7 @@ public class UserController {
             userService.changeUsername(usernameChange.getAccessToken(), usernameChange.getNewUsername());
             return ResponseEntity.ok(new ResponseBody("ok", "Successfully changed username"));
         } catch(SecurityException ex){
-            return ResponseEntity.ok(new ResponseBody("error", ex.getMessage(), ex));
+            return ResponseEntity.badRequest().body(new ResponseBody("error", ex.getMessage(), ex));
         }
     }
 
@@ -63,7 +63,7 @@ public class UserController {
             userService.changePassword(passwordChange.getAccessToken(), passwordChange.getNewLoginHash(), passwordChange.getNewUserKey());
             return ResponseEntity.ok(new ResponseBody("ok", "Successfully changed password"));
         } catch(SecurityException ex){
-            return ResponseEntity.ok(new ResponseBody("error", ex.getMessage(), ex));
+            return ResponseEntity.badRequest().body(new ResponseBody("error", ex.getMessage(), ex));
         }
     }
 

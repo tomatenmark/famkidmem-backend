@@ -84,7 +84,7 @@ public class UserControllerTest {
         MvcResult mvcResult = this.mockMvc.perform(post("/api/user/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(createLogin(false))))
-                .andExpect(status().is(HttpStatus.OK.value()))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
                 .andReturn();
 
         String ex = jsonToLoginResponse(mvcResult.getResponse().getContentAsString()).getException();
@@ -120,7 +120,7 @@ public class UserControllerTest {
         MvcResult mvcResult = this.mockMvc.perform(post("/api/user/logout")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(createLogout("wrong"))))
-                .andExpect(status().is(HttpStatus.OK.value()))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
                 .andReturn();
 
         String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
@@ -155,7 +155,7 @@ public class UserControllerTest {
         MvcResult mvcResult = this.mockMvc.perform(post("/api/user/change/username")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(createUsernameChange("wrong"))))
-                .andExpect(status().is(HttpStatus.OK.value()))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
                 .andReturn();
 
         String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
@@ -191,7 +191,7 @@ public class UserControllerTest {
         MvcResult mvcResult = this.mockMvc.perform(post("/api/user/change/password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(createPasswordChange("wrong"))))
-                .andExpect(status().is(HttpStatus.OK.value()))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
                 .andReturn();
 
         String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
