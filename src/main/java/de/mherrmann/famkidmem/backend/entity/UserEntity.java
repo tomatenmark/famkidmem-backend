@@ -1,5 +1,8 @@
 package de.mherrmann.famkidmem.backend.entity;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +23,8 @@ public class UserEntity {
     private boolean init; //indicates the user has to change username and password after login
     private boolean reset; //indicates the user has to change password after login
 
-    @OneToMany(mappedBy = "userEntity", fetch = FetchType.EAGER,
-            cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "userEntity")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<UserSession> sessions = new ArrayList<>();
 
     public UserEntity(){}
