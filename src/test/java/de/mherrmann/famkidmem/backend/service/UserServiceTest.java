@@ -50,7 +50,7 @@ public class UserServiceTest {
         Exception exception = null;
 
         try {
-            accessToken = userService.login(testUser.getUserName(), LOGIN_HASH);
+            accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
         } catch (LoginException ex){
             exception = ex;
         }
@@ -83,7 +83,7 @@ public class UserServiceTest {
         Exception exception = null;
 
         try {
-            accessToken = userService.login(testUser.getUserName(), "wrong");
+            accessToken = userService.login(testUser.getUsername(), "wrong");
         } catch (LoginException ex){
             exception = ex;
         }
@@ -95,8 +95,8 @@ public class UserServiceTest {
 
     @Test
     public void shouldLogoutSingleSession() {
-        String accessToken1 = userService.login(testUser.getUserName(), LOGIN_HASH);
-        String accessToken2 = userService.login(testUser.getUserName(), LOGIN_HASH);
+        String accessToken1 = userService.login(testUser.getUsername(), LOGIN_HASH);
+        String accessToken2 = userService.login(testUser.getUsername(), LOGIN_HASH);
         Exception exception = null;
 
         try {
@@ -108,13 +108,13 @@ public class UserServiceTest {
         assertThat(exception).isNull();
         assertThat(sessionRepository.findByAccessToken(accessToken1).isPresent()).isFalse();
         assertThat(sessionRepository.findByAccessToken(accessToken2).isPresent()).isTrue();
-        assertThat(userRepository.findByUserName(testUser.getUserName()).get().getSessions().size()).isEqualTo(1);
+        assertThat(userRepository.findByUsername(testUser.getUsername()).get().getSessions().size()).isEqualTo(1);
     }
 
     @Test
     public void shouldLogoutGlobal() {
-        String accessToken1 = userService.login(testUser.getUserName(), LOGIN_HASH);
-        String accessToken2 = userService.login(testUser.getUserName(), LOGIN_HASH);
+        String accessToken1 = userService.login(testUser.getUsername(), LOGIN_HASH);
+        String accessToken2 = userService.login(testUser.getUsername(), LOGIN_HASH);
         Exception exception = null;
 
         try {
@@ -126,12 +126,12 @@ public class UserServiceTest {
         assertThat(exception).isNull();
         assertThat(sessionRepository.findByAccessToken(accessToken1).isPresent()).isFalse();
         assertThat(sessionRepository.findByAccessToken(accessToken2).isPresent()).isFalse();
-        assertThat(userRepository.findByUserName(testUser.getUserName()).get().getSessions()).isEmpty();
+        assertThat(userRepository.findByUsername(testUser.getUsername()).get().getSessions()).isEmpty();
     }
 
     @Test
     public void shouldFailLogout(){
-        String accessToken = userService.login(testUser.getUserName(), LOGIN_HASH);
+        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
         Exception exception = null;
 
         try {
@@ -143,12 +143,12 @@ public class UserServiceTest {
         assertThat(exception).isNotNull();
         assertThat(exception).isInstanceOf(SecurityException.class);
         assertThat(sessionRepository.findByAccessToken(accessToken).isPresent()).isTrue();
-        assertThat(userRepository.findByUserName(testUser.getUserName()).get().getSessions().size()).isEqualTo(1);
+        assertThat(userRepository.findByUsername(testUser.getUsername()).get().getSessions().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldChangeUserName(){
-        String accessToken = userService.login(testUser.getUserName(), LOGIN_HASH);
+    public void shouldChangeUsername(){
+        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
 
         Exception exception = null;
 
@@ -159,12 +159,12 @@ public class UserServiceTest {
         }
 
         assertThat(exception).isNull();
-        assertThat(userRepository.findByUserName("newValue").isPresent()).isTrue();
+        assertThat(userRepository.findByUsername("newValue").isPresent()).isTrue();
     }
 
     @Test
-    public void shouldFailChangeUserName(){
-        userService.login(testUser.getUserName(), LOGIN_HASH);
+    public void shouldFailChangeUsername(){
+        userService.login(testUser.getUsername(), LOGIN_HASH);
         Exception exception = null;
 
         try {
@@ -175,13 +175,53 @@ public class UserServiceTest {
 
         assertThat(exception).isNotNull();
         assertThat(exception).isInstanceOf(SecurityException.class);
-        assertThat(userRepository.findByUserName("newValue").isPresent()).isFalse();
+        assertThat(userRepository.findByUsername("newValue").isPresent()).isFalse();
+    }
+
+    @Test
+    public void shouldChangePassword(){
+        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
+
+        Exception exception = null;
+
+        try {
+            userService.changePassword(accessToken, "newValue", "key");
+        } catch(SecurityException ex){
+            exception = ex;
+        }
+
+        String loginHashHash = userRepository.findByUsername(testUser.getUsername()).get().getLoginHashHash();
+        String key = userRepository.findByUsername(testUser.getUsername()).get().getUserKey();
+        assertThat(exception).isNull();
+        assertThat(Bcrypt.check("newValue", loginHashHash)).isTrue();
+        assertThat(key).isEqualTo("key");
+    }
+
+    @Test
+    public void shouldFailChangePassword(){
+        userService.login(testUser.getUsername(), LOGIN_HASH);
+
+        Exception exception = null;
+
+        try {
+            userService.changePassword("wrong", "newValue", "key");
+        } catch(SecurityException ex){
+            exception = ex;
+        }
+
+        String loginHashHash = userRepository.findByUsername(testUser.getUsername()).get().getLoginHashHash();
+        String key = userRepository.findByUsername(testUser.getUsername()).get().getUserKey();
+        assertThat(exception).isNotNull();
+        assertThat(exception).isInstanceOf(SecurityException.class);
+        assertThat(Bcrypt.check("newValue", loginHashHash)).isFalse();
+        assertThat(Bcrypt.check(LOGIN_HASH, loginHashHash)).isTrue();
+        assertThat(key).isNotEqualTo("key");
     }
 
 
     private void createTestUser(){
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("userName", "Name", loginHashHash, "masterKey", false, false);
+        testUser = new UserEntity("username", "Name", loginHashHash, "masterKey", false, false);
         userRepository.save(testUser);
     }
 

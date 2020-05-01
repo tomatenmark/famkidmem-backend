@@ -16,7 +16,7 @@ public class UserEntity {
     private String username;
     private String displayName;
     private String loginHashHash;
-    private String master_key;
+    private String userKey;
     private String accessToken;
     private boolean admin;
     private boolean editor;
@@ -29,12 +29,12 @@ public class UserEntity {
 
     public UserEntity(){}
 
-    public UserEntity(String username, String displayName, String loginHashHash, String master_key, boolean admin, boolean editor) {
+    public UserEntity(String username, String displayName, String loginHashHash, String userKey, boolean admin, boolean editor) {
         this.id = UUID.randomUUID().toString();
         this.username = username;
         this.displayName = displayName;
         this.loginHashHash = loginHashHash;
-        this.master_key = master_key;
+        this.userKey = userKey;
         this.admin = admin;
         this.editor = editor;
     }
@@ -71,12 +71,12 @@ public class UserEntity {
         this.loginHashHash = loginHashHash;
     }
 
-    public String getMaster_key() {
-        return master_key;
+    public String getUserKey() {
+        return userKey;
     }
 
-    public void setMaster_key(String master_key) {
-        this.master_key = master_key;
+    public void setUserKey(String userKey) {
+        this.userKey = userKey;
     }
 
     public String getAccessToken() {

@@ -28,8 +28,8 @@ public class UserService {
         this.sessionRepository = sessionRepository;
     }
 
-    public String login(String userName, String loginHash) throws LoginException {
-        Optional<UserEntity> userOptional = userRepository.findByUserName(userName);
+    public String login(String username, String loginHash) throws LoginException {
+        Optional<UserEntity> userOptional = userRepository.findByUsername(username);
         if(!userOptional.isPresent()){
             throw new LoginException();
         }
@@ -58,13 +58,24 @@ public class UserService {
         }
     }
 
-    public void changeUsername(String accessToken, String newUserName) throws SecurityException {
+    public void changeUsername(String accessToken, String newUsername) throws SecurityException {
         Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
         if(!sessionOptional.isPresent()){
             throw new SecurityException("change username");
         }
         UserEntity user = sessionOptional.get().getUserEntity();
-        user.setUserName(newUserName);
+        user.setUsername(newUsername);
+        userRepository.save(user);
+    }
+
+    public void changePassword(String accessToken, String newLoginHash, String newUserKey) throws SecurityException {
+        Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
+        if(!sessionOptional.isPresent()){
+            throw new SecurityException("change password");
+        }
+        UserEntity user = sessionOptional.get().getUserEntity();
+        user.setLoginHashHash(Bcrypt.hash(newLoginHash));
+        user.setUserKey(newUserKey);
         userRepository.save(user);
     }
 

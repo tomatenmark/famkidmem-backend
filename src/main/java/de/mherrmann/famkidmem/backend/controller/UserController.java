@@ -3,7 +3,8 @@ package de.mherrmann.famkidmem.backend.controller;
 import de.mherrmann.famkidmem.backend.body.RequestBodyLogin;
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
-import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangeValue;
+import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangePassword;
+import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangeUsername;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedLogout;
 import de.mherrmann.famkidmem.backend.exception.LoginException;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
@@ -29,7 +30,7 @@ public class UserController {
     @PostMapping(value = "/login")
     public ResponseEntity<ResponseBodyLogin> login(@RequestBody RequestBodyLogin login) {
         try {
-            String accessToken = userService.login(login.getUserName(), login.getLoginHash());
+            String accessToken = userService.login(login.getUsername(), login.getLoginHash());
             return ResponseEntity.ok(new ResponseBodyLogin(accessToken));
         } catch(LoginException ex){
             return ResponseEntity.ok(new ResponseBodyLogin(ex));
@@ -47,10 +48,20 @@ public class UserController {
     }
 
     @PostMapping(value = "/change/username")
-    public ResponseEntity<ResponseBody> changeUsername(@RequestBody RequestBodyAuthorizedChangeValue valueChange) {
+    public ResponseEntity<ResponseBody> changeUsername(@RequestBody RequestBodyAuthorizedChangeUsername usernameChange) {
         try {
-            userService.changeUsername(valueChange.getAccessToken(), valueChange.getNewValue());
+            userService.changeUsername(usernameChange.getAccessToken(), usernameChange.getNewUsername());
             return ResponseEntity.ok(new ResponseBody("ok", "Successfully changed username"));
+        } catch(SecurityException ex){
+            return ResponseEntity.ok(new ResponseBody("error", ex.getMessage(), ex));
+        }
+    }
+
+    @PostMapping(value = "/change/password")
+    public ResponseEntity<ResponseBody> changePassword(@RequestBody RequestBodyAuthorizedChangePassword passwordChange) {
+        try {
+            userService.changePassword(passwordChange.getAccessToken(), passwordChange.getNewLoginHash(), passwordChange.getNewUserKey());
+            return ResponseEntity.ok(new ResponseBody("ok", "Successfully changed password"));
         } catch(SecurityException ex){
             return ResponseEntity.ok(new ResponseBody("error", ex.getMessage(), ex));
         }

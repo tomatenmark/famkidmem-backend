@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mherrmann.famkidmem.backend.body.RequestBodyLogin;
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
+import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangePassword;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangeUsername;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedLogout;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
@@ -135,7 +136,7 @@ public class UserControllerTest {
 
         MvcResult mvcResult = this.mockMvc.perform(post("/api/user/change/username")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(createValueChange(accessToken))))
+                .content(asJsonString(createUsernameChange(accessToken))))
                 .andExpect(status().is(HttpStatus.OK.value()))
                 .andReturn();
 
@@ -153,7 +154,7 @@ public class UserControllerTest {
 
         MvcResult mvcResult = this.mockMvc.perform(post("/api/user/change/username")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(createValueChange("wrong"))))
+                .content(asJsonString(createUsernameChange("wrong"))))
                 .andExpect(status().is(HttpStatus.OK.value()))
                 .andReturn();
 
@@ -165,6 +166,46 @@ public class UserControllerTest {
         assertThat(userOptional.isPresent()).isFalse();
     }
 
+    @Test
+    public void shouldChangePassword() throws Exception {
+        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
+
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/user/change/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(createPasswordChange(accessToken))))
+                .andExpect(status().is(HttpStatus.OK.value()))
+                .andReturn();
+
+        String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        String loginHashHash = userRepository.findByUsername(testUser.getUsername()).get().getLoginHashHash();
+        String key = userRepository.findByUsername(testUser.getUsername()).get().getUserKey();
+        assertThat(message).isEqualTo("ok");
+        assertThat(details).isEqualTo("Successfully changed password");
+        assertThat(Bcrypt.check("newValue", loginHashHash)).isTrue();
+        assertThat(key).isEqualTo("key");
+    }
+
+    @Test
+    public void shouldFailChangePassword() throws Exception {
+        userService.login(testUser.getUsername(), LOGIN_HASH);
+
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/user/change/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(createPasswordChange("wrong"))))
+                .andExpect(status().is(HttpStatus.OK.value()))
+                .andReturn();
+
+        String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        String loginHashHash = userRepository.findByUsername(testUser.getUsername()).get().getLoginHashHash();
+        String key = userRepository.findByUsername(testUser.getUsername()).get().getUserKey();
+        assertThat(message).isEqualTo("error");
+        assertThat(details).isEqualTo("You are not allowed to do this: change password");
+        assertThat(Bcrypt.check("newValue", loginHashHash)).isFalse();
+        assertThat(Bcrypt.check(LOGIN_HASH, loginHashHash)).isTrue();
+        assertThat(key).isNotEqualTo("key");
+    }
 
     private void createTestUser(){
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
@@ -185,11 +226,19 @@ public class UserControllerTest {
         return logout;
     }
 
-    private RequestBodyAuthorizedChangeUsername createValueChange(String accessToken){
-        RequestBodyAuthorizedChangeUsername valueChange = new RequestBodyAuthorizedChangeUsername();
-        valueChange.setAccessToken(accessToken);
-        valueChange.setNewUsername("newValue");
-        return valueChange;
+    private RequestBodyAuthorizedChangeUsername createUsernameChange(String accessToken){
+        RequestBodyAuthorizedChangeUsername usernameChange = new RequestBodyAuthorizedChangeUsername();
+        usernameChange.setAccessToken(accessToken);
+        usernameChange.setNewUsername("newValue");
+        return usernameChange;
+    }
+
+    private RequestBodyAuthorizedChangePassword createPasswordChange(String accessToken){
+        RequestBodyAuthorizedChangePassword passwordChange = new RequestBodyAuthorizedChangePassword();
+        passwordChange.setAccessToken(accessToken);
+        passwordChange.setNewLoginHash("newValue");
+        passwordChange.setNewUserKey("key");
+        return passwordChange;
     }
 
     private static String asJsonString(final Object obj) {
