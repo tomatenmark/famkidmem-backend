@@ -1,5 +1,6 @@
 package de.mherrmann.famkidmem.backend.service;
 
+import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.exception.LoginException;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
@@ -48,95 +49,94 @@ public class UserServiceTest {
 
     @Test
     public void shouldLogin(){
-        String accessToken = null;
+        ResponseBodyLogin login = null;
         Exception exception = null;
         String oldLoginHashHash = userRepository.findByUsername(testUser.getUsername()).get().getLoginHashHash();
 
         try {
-            accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
+            login = userService.login(testUser.getUsername(), LOGIN_HASH);
         } catch (LoginException ex){
             exception = ex;
         }
 
         String newLoginHashHash = userRepository.findByUsername(testUser.getUsername()).get().getLoginHashHash();
-        assertThat(accessToken).isNotNull();
+        assertThat(login).isNotNull();
         assertThat(exception).isNull();
-        assertThat(sessionRepository.findByAccessToken(accessToken).isPresent()).isTrue();
-        assertThat(sessionRepository.findByAccessToken(accessToken).get().getAccessToken()).isEqualTo(accessToken);
+        assertThat(sessionRepository.findByAccessToken(login.getAccessToken()).isPresent()).isTrue();
         assertThat(newLoginHashHash).isNotEqualTo(oldLoginHashHash);
     }
 
     @Test
     public void shouldFailLoginCausedByInvalidUsername(){
-        String accessToken = null;
+        ResponseBodyLogin login = null;
         Exception exception = null;
 
         try {
-            accessToken = userService.login("wrong", LOGIN_HASH);
+            login = userService.login("wrong", LOGIN_HASH);
         } catch (LoginException ex){
             exception = ex;
         }
 
-        assertThat(accessToken).isNull();
+        assertThat(login).isNull();
         assertThat(exception).isNotNull();
         assertThat(exception).isInstanceOf(LoginException.class);
     }
 
     @Test
     public void shouldFailLoginCausedByInvalidLoginHash(){
-        String accessToken = null;
+        ResponseBodyLogin login = null;
         Exception exception = null;
 
         try {
-            accessToken = userService.login(testUser.getUsername(), "wrong");
+            login = userService.login(testUser.getUsername(), "wrong");
         } catch (LoginException ex){
             exception = ex;
         }
 
-        assertThat(accessToken).isNull();
+        assertThat(login).isNull();
         assertThat(exception).isNotNull();
         assertThat(exception).isInstanceOf(LoginException.class);
     }
 
     @Test
     public void shouldLogoutSingleSession() {
-        String accessToken1 = userService.login(testUser.getUsername(), LOGIN_HASH);
-        String accessToken2 = userService.login(testUser.getUsername(), LOGIN_HASH);
+        ResponseBodyLogin login1  = userService.login(testUser.getUsername(), LOGIN_HASH);
+        ResponseBodyLogin login2  = userService.login(testUser.getUsername(), LOGIN_HASH);
         Exception exception = null;
 
         try {
-            userService.logout(accessToken1, false);
+            userService.logout(login1.getAccessToken(), false);
         } catch(SecurityException ex){
             exception = ex;
         }
 
         assertThat(exception).isNull();
-        assertThat(sessionRepository.findByAccessToken(accessToken1).isPresent()).isFalse();
-        assertThat(sessionRepository.findByAccessToken(accessToken2).isPresent()).isTrue();
+        assertThat(sessionRepository.findByAccessToken(login1.getAccessToken()).isPresent()).isFalse();
+        assertThat(sessionRepository.findByAccessToken(login2.getAccessToken()).isPresent()).isTrue();
         assertThat(userRepository.findByUsername(testUser.getUsername()).get().getSessions().size()).isEqualTo(1);
     }
 
     @Test
     public void shouldLogoutGlobal() {
-        String accessToken1 = userService.login(testUser.getUsername(), LOGIN_HASH);
-        String accessToken2 = userService.login(testUser.getUsername(), LOGIN_HASH);
+        ResponseBodyLogin login1  = userService.login(testUser.getUsername(), LOGIN_HASH);
+        ResponseBodyLogin login2  = userService.login(testUser.getUsername(), LOGIN_HASH);
         Exception exception = null;
 
         try {
-            userService.logout(accessToken1, true);
+            userService.logout(login1.getAccessToken(), true);
         } catch(SecurityException ex){
             exception = ex;
         }
 
         assertThat(exception).isNull();
-        assertThat(sessionRepository.findByAccessToken(accessToken1).isPresent()).isFalse();
-        assertThat(sessionRepository.findByAccessToken(accessToken2).isPresent()).isFalse();
+        assertThat(sessionRepository.findByAccessToken(login1.getAccessToken()).isPresent()).isFalse();
+        assertThat(sessionRepository.findByAccessToken(login2.getAccessToken()).isPresent()).isFalse();
         assertThat(userRepository.findByUsername(testUser.getUsername()).get().getSessions()).isEmpty();
     }
 
     @Test
     public void shouldFailLogout(){
-        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
+        ResponseBodyLogin login  = userService.login(testUser.getUsername(), LOGIN_HASH);
         Exception exception = null;
 
         try {
@@ -147,13 +147,13 @@ public class UserServiceTest {
 
         assertThat(exception).isNotNull();
         assertThat(exception).isInstanceOf(SecurityException.class);
-        assertThat(sessionRepository.findByAccessToken(accessToken).isPresent()).isTrue();
+        assertThat(sessionRepository.findByAccessToken(login.getAccessToken()).isPresent()).isTrue();
         assertThat(userRepository.findByUsername(testUser.getUsername()).get().getSessions().size()).isEqualTo(1);
     }
 
     @Test
     public void shouldChangeUsername(){
-        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
+        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH).getAccessToken();
 
         Exception exception = null;
 
@@ -186,12 +186,12 @@ public class UserServiceTest {
 
     @Test
     public void shouldChangePassword(){
-        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
+        ResponseBodyLogin login = userService.login(testUser.getUsername(), LOGIN_HASH);
 
         Exception exception = null;
 
         try {
-            userService.changePassword(accessToken, "newValue", "key");
+            userService.changePassword(login.getAccessToken(), "newValue", "salt", "key");
         } catch(SecurityException ex){
             exception = ex;
         }
@@ -211,7 +211,7 @@ public class UserServiceTest {
         Exception exception = null;
 
         try {
-            userService.changePassword("wrong", "newValue", "key");
+            userService.changePassword("wrong", "newValue", "salt", "key");
         } catch(SecurityException ex){
             exception = ex;
         }
@@ -225,43 +225,10 @@ public class UserServiceTest {
         assertThat(key).isNotEqualTo("key");
     }
 
-    @Test
-    public void shouldGetUserKey(){
-        String userKey = "";
-        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
-        Exception exception = null;
-
-        try {
-            userKey = userService.getUserKey(accessToken);
-        } catch (LoginException ex){
-            exception = ex;
-        }
-
-        assertThat(userKey).isEqualTo("masterKey");
-        assertThat(exception).isNull();
-    }
-
-    @Test
-    public void shouldFailGetUserKey(){
-        String userKey = "";
-        userService.login(testUser.getUsername(), LOGIN_HASH);
-        Exception exception = null;
-
-        try {
-            userKey = userService.getUserKey("wrong");
-        } catch (SecurityException ex){
-            exception = ex;
-        }
-
-        assertThat(userKey).isNotEqualTo("masterKey");
-        assertThat(exception).isNotNull();
-        assertThat(exception).isInstanceOf(SecurityException.class);
-    }
-
 
     private void createTestUser(){
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("username", "Name", loginHashHash, "masterKey", false, false);
+        testUser = new UserEntity("username", "", loginHashHash, "masterKey", false, false);
         testUser.setInit(true);
         testUser.setReset(true);
         userRepository.save(testUser);

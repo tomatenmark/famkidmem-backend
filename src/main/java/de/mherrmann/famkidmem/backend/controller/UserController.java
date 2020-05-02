@@ -28,8 +28,8 @@ public class UserController {
     @PostMapping(value = "/login")
     public ResponseEntity<ResponseBodyLogin> login(@RequestBody RequestBodyLogin login) {
         try {
-            String accessToken = userService.login(login.getUsername(), login.getLoginHash());
-            return ResponseEntity.ok(new ResponseBodyLogin(accessToken));
+            ResponseBodyLogin body = userService.login(login.getUsername(), login.getLoginHash());
+            return ResponseEntity.ok(body);
         } catch(LoginException ex){
             return ResponseEntity.badRequest().body(new ResponseBodyLogin(ex));
         }
@@ -58,20 +58,10 @@ public class UserController {
     @PostMapping(value = "/change/password")
     public ResponseEntity<ResponseBody> changePassword(@RequestBody RequestBodyAuthorizedChangePassword passwordChange) {
         try {
-            userService.changePassword(passwordChange.getAccessToken(), passwordChange.getNewLoginHash(), passwordChange.getNewUserKey());
+            userService.changePassword(passwordChange.getAccessToken(), passwordChange.getNewLoginHash(), passwordChange.getNewPasswordKeySalt(), passwordChange.getNewUserKey());
             return ResponseEntity.ok(new ResponseBody("ok", "Successfully changed password"));
         } catch(SecurityException ex){
             return ResponseEntity.badRequest().body(new ResponseBody("error", ex.getMessage(), ex));
-        }
-    }
-
-    @GetMapping(value = "/userKey/{accessToken}")
-    public ResponseEntity<ResponseBodyGet> changePassword(@PathVariable String accessToken) {
-        try {
-            String userKey = userService.getUserKey(accessToken);
-            return ResponseEntity.ok(new ResponseBodyGet(userKey, "user key"));
-        } catch(SecurityException ex){
-            return ResponseEntity.badRequest().body(new ResponseBodyGet(ex));
         }
     }
 

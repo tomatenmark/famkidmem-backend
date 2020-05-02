@@ -1,5 +1,6 @@
 package de.mherrmann.famkidmem.backend.service;
 
+import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import de.mherrmann.famkidmem.backend.entity.UserSession;
@@ -32,7 +33,7 @@ public class UserService {
         this.sessionRepository = sessionRepository;
     }
 
-    public String login(String username, String loginHash) throws LoginException {
+    public ResponseBodyLogin login(String username, String loginHash) throws LoginException {
         Optional<UserEntity> userOptional = userRepository.findByUsername(username);
         if(!userOptional.isPresent()){
             LOGGER.error("Could not login user. Invalid username {}", username);
@@ -48,7 +49,7 @@ public class UserService {
         addUserSession(user, accessToken);
         createNewHash(user, loginHash);
         LOGGER.info("Successfully logged in {} with accessToken {}", user.getUsername(), accessToken);
-        return accessToken;
+        return new ResponseBodyLogin(accessToken, user.getPasswordKeySalt());
     }
 
     public void logout(String accessToken, boolean global) throws SecurityException {
@@ -85,7 +86,7 @@ public class UserService {
         LOGGER.info("Successfully changed username from {} to {}", oldUsername, newUsername);
     }
 
-    public void changePassword(String accessToken, String newLoginHash, String newUserKey) throws SecurityException {
+    public void changePassword(String accessToken, String newLoginHash, String newPasswordKeySalt, String newUserKey) throws SecurityException {
         Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
         if(!sessionOptional.isPresent()){
             LOGGER.error("Could not change password. Invalid accessToken {}", accessToken);
@@ -94,21 +95,10 @@ public class UserService {
         UserEntity user = sessionOptional.get().getUserEntity();
         user.setLoginHashHash(Bcrypt.hash(newLoginHash));
         user.setUserKey(newUserKey);
+        user.setPasswordKeySalt(newPasswordKeySalt);
         user.setReset(false);
         userRepository.save(user);
         LOGGER.info("Successfully changed password for user {}", user.getUsername());
-    }
-
-    public String getUserKey(String accessToken) throws SecurityException {
-        Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
-        if(!sessionOptional.isPresent()){
-            LOGGER.error("Could not get user key. Invalid accessToken {}", accessToken);
-            throw new SecurityException("get user key");
-        }
-        UserEntity user = sessionOptional.get().getUserEntity();
-        String userKey = user.getUserKey();
-        LOGGER.info("Successfully get user key {} for user", userKey, user.getUsername());
-        return userKey;
     }
 
     private void createNewHash(UserEntity user, String loginHash){

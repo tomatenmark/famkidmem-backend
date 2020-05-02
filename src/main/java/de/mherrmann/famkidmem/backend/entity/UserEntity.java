@@ -14,7 +14,7 @@ public class UserEntity {
     private String id;
 
     private String username;
-    private String displayName;
+    private String passwordKeySalt;
     private String loginHashHash;
     private String userKey;
     private String accessToken;
@@ -29,10 +29,10 @@ public class UserEntity {
 
     public UserEntity(){}
 
-    public UserEntity(String username, String displayName, String loginHashHash, String userKey, boolean admin, boolean editor) {
+    public UserEntity(String username, String passwordKeySalt, String loginHashHash, String userKey, boolean admin, boolean editor) {
         this.id = UUID.randomUUID().toString();
         this.username = username;
-        this.displayName = displayName;
+        this.passwordKeySalt = passwordKeySalt;
         this.loginHashHash = loginHashHash;
         this.userKey = userKey;
         this.admin = admin;
@@ -55,12 +55,12 @@ public class UserEntity {
         this.username = username;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getPasswordKeySalt() {
+        return passwordKeySalt;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void setPasswordKeySalt(String passwordKeySalt) {
+        this.passwordKeySalt = passwordKeySalt;
     }
 
     public String getLoginHashHash() {

@@ -100,24 +100,24 @@ public class UserControllerTest {
 
     @Test
     public void shouldLogout() throws Exception {
-        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
+        ResponseBodyLogin login = userService.login(testUser.getUsername(), LOGIN_HASH);
 
         MvcResult mvcResult = this.mockMvc.perform(post("/api/user/logout")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(createLogout(accessToken))))
+                .content(asJsonString(createLogout(login.getAccessToken()))))
                 .andExpect(status().is(HttpStatus.OK.value()))
                 .andReturn();
 
         String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
         String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
-        assertThat(sessionRepository.findByAccessToken(accessToken).isPresent()).isFalse();
+        assertThat(sessionRepository.findByAccessToken(login.getAccessToken()).isPresent()).isFalse();
         assertThat(message).isEqualTo("ok");
         assertThat(details).isEqualTo("Logout was successful");
     }
 
     @Test
     public void shouldFailLogout() throws Exception {
-        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
+        ResponseBodyLogin login = userService.login(testUser.getUsername(), LOGIN_HASH);
 
         MvcResult mvcResult = this.mockMvc.perform(post("/api/user/logout")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -127,18 +127,18 @@ public class UserControllerTest {
 
         String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
         String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
-        assertThat(sessionRepository.findByAccessToken(accessToken).isPresent()).isTrue();
+        assertThat(sessionRepository.findByAccessToken(login.getAccessToken()).isPresent()).isTrue();
         assertThat(message).isEqualTo("error");
         assertThat(details).isEqualTo("You are not allowed to do this: logout");
     }
 
     @Test
     public void shouldChangeUsername() throws Exception {
-        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
+        ResponseBodyLogin login = userService.login(testUser.getUsername(), LOGIN_HASH);
 
         MvcResult mvcResult = this.mockMvc.perform(post("/api/user/change/username")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(createUsernameChange(accessToken))))
+                .content(asJsonString(createUsernameChange(login.getAccessToken()))))
                 .andExpect(status().is(HttpStatus.OK.value()))
                 .andReturn();
 
@@ -170,11 +170,11 @@ public class UserControllerTest {
 
     @Test
     public void shouldChangePassword() throws Exception {
-        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
+        ResponseBodyLogin login = userService.login(testUser.getUsername(), LOGIN_HASH);
 
         MvcResult mvcResult = this.mockMvc.perform(post("/api/user/change/password")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(createPasswordChange(accessToken))))
+                .content(asJsonString(createPasswordChange(login.getAccessToken()))))
                 .andExpect(status().is(HttpStatus.OK.value()))
                 .andReturn();
 
@@ -202,38 +202,6 @@ public class UserControllerTest {
         assertThat(message).isEqualTo("error");
         assertThat(details).isEqualTo("You are not allowed to do this: change password");
         assertThat(Bcrypt.check("newValue", loginHashHash)).isFalse();
-    }
-
-    @Test
-    public void shouldGetUserKey() throws Exception {
-        String accessToken = userService.login(testUser.getUsername(), LOGIN_HASH);
-
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/user/userKey/{accessToken}", accessToken))
-                .andExpect(status().is(HttpStatus.OK.value()))
-                .andReturn();
-
-        String userKey = (String) jsonToGetResponse(mvcResult.getResponse().getContentAsString()).getData();
-        String message = jsonToGetResponse(mvcResult.getResponse().getContentAsString()).getMessage();
-        String details = jsonToGetResponse(mvcResult.getResponse().getContentAsString()).getDetails();
-        assertThat(message).isEqualTo("ok");
-        assertThat(details).isEqualTo("Successfully get: user key");
-        assertThat(userKey).isEqualTo("masterKey");
-    }
-
-    @Test
-    public void shouldFailGetUserKey() throws Exception {
-        userService.login(testUser.getUsername(), LOGIN_HASH);
-
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/user/userKey/{accessToken}", "wrong"))
-                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
-                .andReturn();
-
-        String userKey = (String) jsonToGetResponse(mvcResult.getResponse().getContentAsString()).getData();
-        String message = jsonToGetResponse(mvcResult.getResponse().getContentAsString()).getMessage();
-        String details = jsonToGetResponse(mvcResult.getResponse().getContentAsString()).getDetails();
-        assertThat(message).isEqualTo("error");
-        assertThat(details).isEqualTo("You are not allowed to do this: get user key");
-        assertThat(userKey).isNull();
     }
 
     private void createTestUser(){
@@ -266,6 +234,7 @@ public class UserControllerTest {
         RequestBodyAuthorizedChangePassword passwordChange = new RequestBodyAuthorizedChangePassword();
         passwordChange.setAccessToken(accessToken);
         passwordChange.setNewLoginHash("newValue");
+        passwordChange.setNewPasswordKeySalt("newSalt");
         passwordChange.setNewUserKey("key");
         return passwordChange;
     }
@@ -281,14 +250,6 @@ public class UserControllerTest {
     private static ResponseBodyLogin jsonToLoginResponse(final String json) {
         try {
             return new ObjectMapper().readValue(json, ResponseBodyLogin.class);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static ResponseBodyGet jsonToGetResponse(final String json) {
-        try {
-            return new ObjectMapper().readValue(json, ResponseBodyGet.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
