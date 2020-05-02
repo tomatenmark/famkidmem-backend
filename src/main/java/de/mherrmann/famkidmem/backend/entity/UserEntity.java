@@ -27,7 +27,7 @@ public class UserEntity {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<UserSession> sessions = new ArrayList<>();
 
-    public UserEntity(){}
+    private UserEntity(){}
 
     public UserEntity(String username, String passwordKeySalt, String loginHashHash, String userKey, boolean admin, boolean editor) {
         this.id = UUID.randomUUID().toString();

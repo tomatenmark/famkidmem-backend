@@ -61,11 +61,11 @@ public class UserService {
         UserSession session = sessionOptional.get();
         if(global){
             UserEntity user = session.getUserEntity();
-            LOGGER.info("Successfully logged out {} from accessToken {}", user.getUsername(), accessToken);
+            LOGGER.info("Successfully logged out {} from all sessions", session.getUserEntity().getUsername());
             sessionRepository.deleteAllByUserEntity(user);
         } else {
             sessionRepository.delete(session);
-            LOGGER.info("Successfully logged out {} from all sessions", session.getUserEntity().getUsername());
+            LOGGER.info("Successfully logged out {} from accessToken {}", session.getUserEntity().getUsername(), accessToken);
         }
     }
 
