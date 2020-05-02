@@ -47,12 +47,10 @@ public class AdminControllerTest {
     private static final String LOGIN_HASH = "loginHash";
 
     private ResponseBodyLogin testLogin;
+    private UserEntity testUser;
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private AdminService adminService;
 
     @Autowired
     private UserRepository userRepository;
@@ -114,6 +112,16 @@ public class AdminControllerTest {
         shouldFailAddUser("Missing value: some display name relations to set while creating new user", addUserRequest);
     }
 
+    @Test
+    public void shouldFailAddUserCausedByNotAdmin() throws Exception {
+        RequestBodyAddUser addUserRequest = createAddUserRequest();
+        UserEntity user = userRepository.findByUsername(testUser.getUsername()).get();
+        user.setAdmin(false);
+        userRepository.save(user);
+
+        shouldFailAddUser("You are not allowed to do this: add user", addUserRequest);
+    }
+
     private void shouldFailAddUser(String expectedDetails, RequestBodyAddUser addUserRequest) throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(post("/api/admin/add-user")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -134,7 +142,7 @@ public class AdminControllerTest {
 
     private void createAdminUser(){
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        UserEntity testUser = new UserEntity("admin", "", loginHashHash, "masterKey", true, false);
+        testUser = new UserEntity("admin", "", loginHashHash, "masterKey", true, false);
         testUser.setInit(false);
         testUser.setReset(false);
         userRepository.save(testUser);

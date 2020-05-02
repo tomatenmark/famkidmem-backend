@@ -30,6 +30,7 @@ public class AdminServiceTest {
     private static final String LOGIN_HASH = "loginHash";
 
     private ResponseBodyLogin testLogin;
+    private UserEntity testUser;
 
     @Autowired
     private UserService userService;
@@ -85,44 +86,37 @@ public class AdminServiceTest {
     public void shouldFailAddUserCausedByInvalidLogin(){
         RequestBodyAddUser addUserRequest = createAddUserRequest();
         addUserRequest.setAccessToken("wrong");
-        Exception exception = null;
 
-        try {
-            adminService.addUser(addUserRequest);
-        } catch (Exception ex){
-            exception = ex;
-        }
-
-        assertThat(exception).isNotNull();
-        assertThat(exception).isInstanceOf(SecurityException.class);
-        assertThat(userRepository.findByUsername("admin").isPresent()).isTrue();
-        assertThat(userRepository.findByUsername("user").isPresent()).isFalse();
-        assertThat(displayNameRelationRepository.count()).isEqualTo(0);
+        shouldFailAddUser(SecurityException.class, addUserRequest);
     }
 
     @Test
     public void shouldFailAddUserCausedByInvalidRelation(){
         RequestBodyAddUser addUserRequest = createAddUserRequest();
         addUserRequest.getDisplayNames().put("invalid", "invalid");
-        Exception exception = null;
 
-        try {
-            adminService.addUser(addUserRequest);
-        } catch (Exception ex){
-            exception = ex;
-        }
-
-        assertThat(exception).isNotNull();
-        assertThat(exception).isInstanceOf(UserNotFoundException.class);
-        assertThat(userRepository.findByUsername("admin").isPresent()).isTrue();
-        assertThat(userRepository.findByUsername("user").isPresent()).isFalse();
-        assertThat(displayNameRelationRepository.count()).isEqualTo(0);
+        shouldFailAddUser(UserNotFoundException.class, addUserRequest);
     }
 
     @Test
     public void shouldFailAddUserCausedByMissingRelation(){
         RequestBodyAddUser addUserRequest = createAddUserRequest();
         addUserRequest.getDisplayNames().remove("admin");
+
+        shouldFailAddUser(MissingValueException.class, addUserRequest);
+    }
+
+    @Test
+    public void shouldFailAddUserCausedByNotAdmin(){
+        RequestBodyAddUser addUserRequest = createAddUserRequest();
+        UserEntity user = userRepository.findByUsername(testUser.getUsername()).get();
+        user.setAdmin(false);
+        userRepository.save(user);
+
+        shouldFailAddUser(SecurityException.class, addUserRequest);
+    }
+
+    private void shouldFailAddUser(Class exceptionClass, RequestBodyAddUser addUserRequest){
         Exception exception = null;
 
         try {
@@ -132,7 +126,7 @@ public class AdminServiceTest {
         }
 
         assertThat(exception).isNotNull();
-        assertThat(exception).isInstanceOf(MissingValueException.class);
+        assertThat(exception).isInstanceOf(exceptionClass);
         assertThat(userRepository.findByUsername("admin").isPresent()).isTrue();
         assertThat(userRepository.findByUsername("user").isPresent()).isFalse();
         assertThat(displayNameRelationRepository.count()).isEqualTo(0);
@@ -140,7 +134,7 @@ public class AdminServiceTest {
 
     private void createAdminUser(){
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        UserEntity testUser = new UserEntity("admin", "", loginHashHash, "masterKey", true, false);
+        testUser = new UserEntity("admin", "", loginHashHash, "masterKey", true, false);
         testUser.setInit(false);
         testUser.setReset(false);
         userRepository.save(testUser);
