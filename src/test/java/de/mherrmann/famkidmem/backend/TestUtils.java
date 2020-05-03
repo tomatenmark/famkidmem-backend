@@ -2,6 +2,7 @@ package de.mherrmann.famkidmem.backend;
 
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
+import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
 import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.Picture;
@@ -65,6 +66,13 @@ public class TestUtils {
         resetPasswordRequest.setPasswordKeySalt("modifiedPasswordKeySalt");
         resetPasswordRequest.setUsername(testUser.getUsername());
         return resetPasswordRequest;
+    }
+
+    public RequestBodyDeleteUser createDeleteUserRequest(ResponseBodyLogin testLogin, UserEntity testUser){
+        RequestBodyDeleteUser deleteUserRequest = new RequestBodyDeleteUser();
+        deleteUserRequest.setAccessToken(testLogin.getAccessToken());
+        deleteUserRequest.setUsername(testUser.getUsername());
+        return deleteUserRequest;
     }
 
     public Person createTestPerson(String firstName, String lastName, String commonName) {

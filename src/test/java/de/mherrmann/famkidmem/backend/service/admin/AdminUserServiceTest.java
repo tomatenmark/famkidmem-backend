@@ -3,6 +3,7 @@ package de.mherrmann.famkidmem.backend.service.admin;
 import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
+import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
 import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
@@ -142,6 +143,46 @@ public class AdminUserServiceTest {
     }
 
     @Test
+    public void shouldDeleteUser(){
+        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testLogin, testUser);
+        Exception exception = null;
+
+        try {
+            adminUserService.deleteUser(deleteUserRequest);
+        } catch (Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNull();
+        assertThat(userRepository.existsByUsername(testUser.getUsername())).isFalse();
+    }
+
+    @Test
+    public void shouldFailDeleteUserCausedByInvalidLogin(){
+        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testLogin, testUser);
+        deleteUserRequest.setAccessToken("wrong");
+
+        shouldFailDeleteUser(SecurityException.class, deleteUserRequest);
+    }
+
+    @Test
+    public void shouldFailDeleteUserCausedByNotAdmin(){
+        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testLogin, testUser);
+        testUser.setAdmin(false);
+        userRepository.save(testUser);
+
+        shouldFailDeleteUser(SecurityException.class, deleteUserRequest);
+    }
+
+    @Test
+    public void shouldFailDeleteUserCausedByUserBotFound(){
+        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testLogin, testUser);
+        deleteUserRequest.setUsername("wrong");
+
+        shouldFailDeleteUser(UserNotFoundException.class, deleteUserRequest);
+    }
+
+    @Test
     public void shouldResetPassword(){
         RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
         Exception exception = null;
@@ -218,6 +259,20 @@ public class AdminUserServiceTest {
         assertThat(exception).isInstanceOf(exceptionClass);
         assertThat(userRepository.existsByUsername("admin")).isTrue();
         assertThat(userRepository.existsByUsername(username)).isFalse();
+    }
+
+    private void shouldFailDeleteUser(Class exceptionClass, RequestBodyDeleteUser deleteUserRequest){
+        Exception exception = null;
+
+        try {
+            adminUserService.deleteUser(deleteUserRequest);
+        } catch (Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNotNull();
+        assertThat(exception).isInstanceOf(exceptionClass);
+        assertThat(userRepository.existsByUsername(testUser.getUsername())).isTrue();
     }
 
     private void createAdminUser() {

@@ -27,10 +27,6 @@ public class UserEntity {
     private boolean init; //indicates the user has to change username and password after login
     private boolean reset; //indicates the user has to change password after login
 
-    @OneToMany(mappedBy = "userEntity")
-    @LazyCollection(LazyCollectionOption.FALSE)
-    private List<UserSession> sessions = new ArrayList<>();
-
     private UserEntity(){}
 
     public UserEntity(String username, String passwordKeySalt, String loginHashHash, String userKey, Person person, boolean admin, boolean editor) {
@@ -123,14 +119,5 @@ public class UserEntity {
     public void setReset(boolean reset) {
         this.reset = reset;
     }
-
-    public List<UserSession> getSessions() {
-        return sessions;
-    }
-
-    public void setSessions(List<UserSession> sessions) {
-        this.sessions = sessions;
-    }
-
 
 }

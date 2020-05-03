@@ -116,7 +116,7 @@ public class UserServiceTest {
         assertThat(exception).isNull();
         assertThat(sessionRepository.findByAccessToken(login1.getAccessToken()).isPresent()).isFalse();
         assertThat(sessionRepository.findByAccessToken(login2.getAccessToken()).isPresent()).isTrue();
-        assertThat(userRepository.findByUsername(testUser.getUsername()).get().getSessions().size()).isEqualTo(1);
+        assertThat(sessionRepository.countAllByUserEntity(userRepository.findByUsername(testUser.getUsername()).get())).isEqualTo(1);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class UserServiceTest {
         assertThat(exception).isNull();
         assertThat(sessionRepository.findByAccessToken(login1.getAccessToken()).isPresent()).isFalse();
         assertThat(sessionRepository.findByAccessToken(login2.getAccessToken()).isPresent()).isFalse();
-        assertThat(userRepository.findByUsername(testUser.getUsername()).get().getSessions()).isEmpty();
+        assertThat(sessionRepository.countAllByUserEntity(userRepository.findByUsername(testUser.getUsername()).get())).isEqualTo(0);
     }
 
     @Test
@@ -151,7 +151,7 @@ public class UserServiceTest {
         assertThat(exception).isNotNull();
         assertThat(exception).isInstanceOf(SecurityException.class);
         assertThat(sessionRepository.findByAccessToken(login.getAccessToken()).isPresent()).isTrue();
-        assertThat(userRepository.findByUsername(testUser.getUsername()).get().getSessions().size()).isEqualTo(1);
+        assertThat(sessionRepository.countAllByUserEntity(userRepository.findByUsername(testUser.getUsername()).get())).isEqualTo(1);
     }
 
     @Test
