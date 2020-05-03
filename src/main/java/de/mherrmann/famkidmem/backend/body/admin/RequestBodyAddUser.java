@@ -1,25 +1,16 @@
 package de.mherrmann.famkidmem.backend.body.admin;
 
-import java.util.Map;
+import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorized;
 
-public class RequestBodyAddUser {
+public class RequestBodyAddUser extends RequestBodyAuthorized {
 
-    private String accessToken;
     private String username;
     private String loginHash;
     private String passwordKeySalt;
     private String userKey;
+    private String personId;
     private boolean admin;
     private boolean editor;
-    private Map<String, String> displayNames;
-
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
 
     public String getUsername() {
         return username;
@@ -53,6 +44,14 @@ public class RequestBodyAddUser {
         this.userKey = userKey;
     }
 
+    public String getPersonId() {
+        return personId;
+    }
+
+    public void setPersonId(String personId) {
+        this.personId = personId;
+    }
+
     public boolean isAdmin() {
         return admin;
     }
@@ -67,13 +66,5 @@ public class RequestBodyAddUser {
 
     public void setEditor(boolean editor) {
         this.editor = editor;
-    }
-
-    public Map<String, String> getDisplayNames() {
-        return displayNames;
-    }
-
-    public void setDisplayNames(Map<String, String> displayNames) {
-        this.displayNames = displayNames;
     }
 }

@@ -1,6 +1,8 @@
 package de.mherrmann.famkidmem.backend.service;
 
+import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
+import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.exception.LoginException;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
@@ -15,13 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.security.Security;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class UserServiceTest {
+
 
     private static final String LOGIN_HASH = "loginHash";
 
@@ -29,6 +30,9 @@ public class UserServiceTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TestUtils testUtils;
 
     @Autowired
     private UserRepository userRepository;
@@ -43,8 +47,7 @@ public class UserServiceTest {
 
     @After
     public void teardown(){
-        sessionRepository.deleteAll();
-        userRepository.deleteAll();
+        testUtils.dropAll();
     }
 
     @Test
@@ -227,8 +230,9 @@ public class UserServiceTest {
 
 
     private void createTestUser(){
+        Person person = testUtils.createTestPerson("testF", "testL", "testC");
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("username", "", loginHashHash, "masterKey", false, false);
+        testUser = new UserEntity("username", "", loginHashHash, "masterKey", person,false, false);
         testUser.setInit(true);
         testUser.setReset(true);
         userRepository.save(testUser);

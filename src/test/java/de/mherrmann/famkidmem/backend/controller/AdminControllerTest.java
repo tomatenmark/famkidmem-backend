@@ -1,6 +1,7 @@
 package de.mherrmann.famkidmem.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.RequestBodyLogin;
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
@@ -8,8 +9,10 @@ import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangePassword;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangeUsername;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedLogout;
+import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
-import de.mherrmann.famkidmem.backend.repository.DisplayNameRelationRepository;
+import de.mherrmann.famkidmem.backend.repository.PersonRepository;
+import de.mherrmann.famkidmem.backend.repository.PictureRepository;
 import de.mherrmann.famkidmem.backend.repository.SessionRepository;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
 import de.mherrmann.famkidmem.backend.service.AdminService;
@@ -28,10 +31,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,6 +40,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 public class AdminControllerTest {
 
+
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -48,34 +49,35 @@ public class AdminControllerTest {
 
     private ResponseBodyLogin testLogin;
     private UserEntity testUser;
+    private Person testPerson;
 
     @Autowired
     private UserService userService;
 
     @Autowired
+    private AdminService adminService;
+
+    @Autowired
+    private TestUtils testUtils;
+
+    @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private SessionRepository sessionRepository;
-
-    @Autowired
-    private DisplayNameRelationRepository displayNameRelationRepository;
 
     @Before
     public void setup(){
         createAdminUser();
+        testPerson = testUtils.createTestPerson("userF", "userL", "userC");
     }
 
     @After
     public void teardown(){
-        sessionRepository.deleteAll();
-        displayNameRelationRepository.deleteAll();
-        userRepository.deleteAll();
+        testUtils.dropAll();
+        testUtils.deleteTestFiles();
     }
 
     @Test
     public void shouldAddUser() throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/admin/add-user")
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/admin/user/add")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(createAddUserRequest())))
                 .andExpect(status().is(HttpStatus.OK.value()))
@@ -93,23 +95,7 @@ public class AdminControllerTest {
         RequestBodyAddUser addUserRequest = createAddUserRequest();
         addUserRequest.setAccessToken("wrong");
 
-        shouldFailAddUser("You are not allowed to do this: add user", addUserRequest);
-    }
-
-    @Test
-    public void shouldFailAddUserCausedByInvalidDisplayNameRelation() throws Exception {
-        RequestBodyAddUser addUserRequest = createAddUserRequest();
-        addUserRequest.getDisplayNames().put("invalid", "invalid");
-
-        shouldFailAddUser("User not found. Username: invalid", addUserRequest);
-    }
-
-    @Test
-    public void shouldFailAddUserCausedByMissingDisplayNameRelation() throws Exception {
-        RequestBodyAddUser addUserRequest = createAddUserRequest();
-        addUserRequest.getDisplayNames().remove("user");
-
-        shouldFailAddUser("Missing value: some display name relations to set while creating new user", addUserRequest);
+        shouldFailAddUser("You are not allowed to do this: add user", addUserRequest, 1);
     }
 
     @Test
@@ -119,11 +105,46 @@ public class AdminControllerTest {
         user.setAdmin(false);
         userRepository.save(user);
 
-        shouldFailAddUser("You are not allowed to do this: add user", addUserRequest);
+        shouldFailAddUser("You are not allowed to do this: add user", addUserRequest, 1);
     }
 
-    private void shouldFailAddUser(String expectedDetails, RequestBodyAddUser addUserRequest) throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/admin/add-user")
+    @Test
+    public void shouldFailAddUserCausedByInvalidPerson() throws Exception {
+        RequestBodyAddUser addUserRequest = createAddUserRequest();
+        addUserRequest.setPersonId("wrong");
+
+        shouldFailAddUser("Person does not exist: wrong", addUserRequest, 1);
+    }
+
+    @Test
+    public void shouldFailAddUserCausedByPersonAlreadyHasUser() throws Exception {
+        RequestBodyAddUser addUserRequest = createAddUserRequest();
+        try {
+            adminService.addUser(addUserRequest);
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+        addUserRequest.setUsername("user2");
+
+        shouldFailAddUser("User for Person already exist: userC", addUserRequest, 2);
+    }
+
+    @Test
+    public void shouldFailAddUserCausedByUserAlreadyExists() throws Exception {
+        RequestBodyAddUser addUserRequest = createAddUserRequest();
+        Person person = testUtils.createTestPerson("user2F", "user2L", "user2C");
+        try {
+            adminService.addUser(addUserRequest);
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+        addUserRequest.setPersonId(person.getId());
+
+        shouldFailAddUser("User with username already exist: user", addUserRequest, 2);
+    }
+
+    private void shouldFailAddUser(String expectedDetails, RequestBodyAddUser addUserRequest, int users) throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/admin/user/add")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(addUserRequest)))
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
@@ -133,38 +154,23 @@ public class AdminControllerTest {
         String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
         assertThat(message).isEqualTo("error");
         assertThat(details).isEqualTo(expectedDetails);
-        assertThat(userRepository.count()).isEqualTo(1);
+        assertThat(userRepository.count()).isEqualTo(users);
     }
 
 
+    private RequestBodyAddUser createAddUserRequest(){
+        return testUtils.createAddUserRequest(testPerson, testLogin);
+    }
 
 
-
-    private void createAdminUser(){
+    private void createAdminUser() {
+        Person person = testUtils.createTestPerson("adminF", "adminL", "adminL");
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("admin", "", loginHashHash, "masterKey", true, false);
+        testUser = new UserEntity("admin", "", loginHashHash, "masterKey", person,true, false);
         testUser.setInit(false);
         testUser.setReset(false);
         userRepository.save(testUser);
         testLogin = userService.login(testUser.getUsername(), LOGIN_HASH);
-    }
-
-    private RequestBodyAddUser createAddUserRequest(){
-        RequestBodyAddUser addUserRequest = new RequestBodyAddUser();
-        addUserRequest.setAccessToken(testLogin.getAccessToken());
-        addUserRequest.setLoginHash("newLoginHash");
-        addUserRequest.setUserKey("newKey");
-        addUserRequest.setPasswordKeySalt("newPasswordKeySalt");
-        addUserRequest.setUsername("user");
-        addUserRequest.setDisplayNames(createDisplayNameRelations());
-        return addUserRequest;
-    }
-
-    private Map<String, String> createDisplayNameRelations(){
-        Map<String, String> relations = new HashMap<>();
-        relations.put("admin", "ADMIN");
-        relations.put("user", "just a user");
-        return relations;
     }
 
     private static String asJsonString(final Object obj) {

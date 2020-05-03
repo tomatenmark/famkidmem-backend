@@ -2,9 +2,8 @@ package de.mherrmann.famkidmem.backend.controller;
 
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
-import de.mherrmann.famkidmem.backend.exception.MissingValueException;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
-import de.mherrmann.famkidmem.backend.exception.UserNotFoundException;
+import de.mherrmann.famkidmem.backend.exception.AddUserException;
 import de.mherrmann.famkidmem.backend.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +23,12 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-    @PostMapping(value = "/add-user")
+    @PostMapping(value = "/user/add")
     public ResponseEntity<ResponseBody> addUser(@RequestBody RequestBodyAddUser addUserRequest){
         try {
             adminService.addUser(addUserRequest);
             return ResponseEntity.ok(new ResponseBody("ok", "Successfully added user: " + addUserRequest.getUsername()));
-        } catch (UserNotFoundException | SecurityException | MissingValueException ex) {
+        } catch (AddUserException | SecurityException ex) {
             return ResponseEntity.badRequest().body(new ResponseBody("error", ex.getMessage(), ex));
         }
     }

@@ -1,13 +1,14 @@
 package de.mherrmann.famkidmem.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.RequestBodyLogin;
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
-import de.mherrmann.famkidmem.backend.body.ResponseBodyGet;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangePassword;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangeUsername;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedLogout;
+import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.SessionRepository;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
@@ -29,7 +30,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,11 +38,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 public class UserControllerTest {
 
+
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TestUtils testUtils;
 
     @Autowired
     private UserRepository userRepository;
@@ -61,8 +65,7 @@ public class UserControllerTest {
 
     @After
     public void teardown(){
-        sessionRepository.deleteAll();
-        userRepository.deleteAll();
+        testUtils.dropAll();
     }
 
     @Test
@@ -205,8 +208,9 @@ public class UserControllerTest {
     }
 
     private void createTestUser(){
+        Person person = testUtils.createTestPerson("testF", "testL", "testC");
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("username", "salt", loginHashHash, "masterKey", false, false);
+        testUser = new UserEntity("username", "salt", loginHashHash, "masterKey", person, false, false);
         userRepository.save(testUser);
     }
 

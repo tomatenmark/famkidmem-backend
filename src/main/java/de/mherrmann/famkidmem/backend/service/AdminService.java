@@ -1,13 +1,13 @@
 package de.mherrmann.famkidmem.backend.service;
 
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
-import de.mherrmann.famkidmem.backend.entity.DisplayNameRelation;
+import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.entity.UserSession;
-import de.mherrmann.famkidmem.backend.exception.MissingValueException;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
-import de.mherrmann.famkidmem.backend.exception.UserNotFoundException;
-import de.mherrmann.famkidmem.backend.repository.DisplayNameRelationRepository;
+import de.mherrmann.famkidmem.backend.exception.AddUserException;
+import de.mherrmann.famkidmem.backend.repository.PersonRepository;
+import de.mherrmann.famkidmem.backend.repository.PictureRepository;
 import de.mherrmann.famkidmem.backend.repository.SessionRepository;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -24,52 +23,46 @@ public class AdminService {
 
     private final UserRepository userRepository;
     private final SessionRepository sessionRepository;
-    private final DisplayNameRelationRepository displayNameRelationRepository;
+    private final PersonRepository personRepository;
+    private final PictureRepository pictureRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminService.class);
 
     @Autowired
-    public AdminService(UserRepository userRepository, SessionRepository sessionRepository, DisplayNameRelationRepository displayNameRelationRepository) {
+    public AdminService(UserRepository userRepository, SessionRepository sessionRepository, PersonRepository personRepository, PictureRepository pictureRepository) {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;
-        this.displayNameRelationRepository = displayNameRelationRepository;
+        this.personRepository = personRepository;
+        this.pictureRepository = pictureRepository;
     }
 
-    public void addUser(RequestBodyAddUser addUserRequest) throws UserNotFoundException, SecurityException, MissingValueException {
+    public void addUser(RequestBodyAddUser addUserRequest) throws AddUserException, SecurityException {
         checkLogin(addUserRequest.getAccessToken(), "add user");
+        if(userRepository.existsByUsername(addUserRequest.getUsername())){
+            LOGGER.error("Could not add user. User with username {} already exists", addUserRequest.getUsername());
+            throw new AddUserException("User with username already exist: " + addUserRequest.getUsername());
+        }
+        Person person = getPerson(addUserRequest.getPersonId());
         String loginHashHash = Bcrypt.hash(addUserRequest.getLoginHash());
         UserEntity user = new UserEntity(addUserRequest.getUsername(), addUserRequest.getPasswordKeySalt(), loginHashHash,
-                addUserRequest.getUserKey(), addUserRequest.isAdmin(), addUserRequest.isEditor());
+                addUserRequest.getUserKey(), person, addUserRequest.isAdmin(), addUserRequest.isEditor());
         user.setInit(true);
         userRepository.save(user);
-        addDisplayNameRelations(user, addUserRequest.getDisplayNames());
         LOGGER.info("Successfully added user {}", addUserRequest.getUsername());
     }
 
-    private void addDisplayNameRelations(UserEntity user, Map<String, String> displayNames) throws UserNotFoundException, MissingValueException {
-        if(displayNames.size() < userRepository.count()){
-            LOGGER.error("Missing display name relations for user {}. user not created", user.getUsername());
-            userRepository.delete(user);
-            throw new MissingValueException("some display name relations to set while creating new user");
+    private Person getPerson(String personId) throws AddUserException {
+        Optional<Person> personOptional = personRepository.findById(personId);
+        if(!personOptional.isPresent()){
+            LOGGER.error("Could not add user. Invalid personId {}", personId);
+            throw new AddUserException("Person does not exist: " + personId);
         }
-        for(Map.Entry<String, String> relation : displayNames.entrySet()){
-            String username = relation.getKey();
-            String showAs = relation.getValue();
-            addDisplayNameRelation(user, username, showAs);
+        Person person = personOptional.get();
+        if(userRepository.existsByPerson(person)){
+            LOGGER.error("Could not add user. User for person {} {} already exists", person.getFirstName(), person.getLastName());
+            throw new AddUserException("User for Person already exist: " + person.getCommonName());
         }
-    }
-
-    private void addDisplayNameRelation(UserEntity me, String othersUsername, String showAs) throws UserNotFoundException {
-        Optional<UserEntity> userOptional = userRepository.findByUsername(othersUsername);
-        if(!userOptional.isPresent()){
-            LOGGER.error("Could not create display name relation. user {} not found. user {} not created.", othersUsername, me.getUsername());
-            displayNameRelationRepository.deleteAllByMe(me);
-            userRepository.delete(me);
-            throw new UserNotFoundException(othersUsername);
-        }
-        UserEntity other = userOptional.get();
-        DisplayNameRelation displayNameRelation = new DisplayNameRelation(me, other, showAs);
-        displayNameRelationRepository.save(displayNameRelation);
+        return person;
     }
 
     private void checkLogin(String accessToken, String action) throws SecurityException {

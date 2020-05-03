@@ -17,7 +17,11 @@ public class UserEntity {
     private String passwordKeySalt;
     private String loginHashHash;
     private String userKey;
-    private String accessToken;
+
+    @OneToOne
+    @JoinColumn(name = "person_id", referencedColumnName = "id")
+    private Person person;
+
     private boolean admin;
     private boolean editor;
     private boolean init; //indicates the user has to change username and password after login
@@ -29,12 +33,13 @@ public class UserEntity {
 
     private UserEntity(){}
 
-    public UserEntity(String username, String passwordKeySalt, String loginHashHash, String userKey, boolean admin, boolean editor) {
+    public UserEntity(String username, String passwordKeySalt, String loginHashHash, String userKey, Person person, boolean admin, boolean editor) {
         this.id = UUID.randomUUID().toString();
         this.username = username;
         this.passwordKeySalt = passwordKeySalt;
         this.loginHashHash = loginHashHash;
         this.userKey = userKey;
+        this.person = person;
         this.admin = admin;
         this.editor = editor;
     }
@@ -79,12 +84,12 @@ public class UserEntity {
         this.userKey = userKey;
     }
 
-    public String getAccessToken() {
-        return accessToken;
+    public Person getPerson() {
+        return person;
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+    public void setPerson(Person person) {
+        this.person = person;
     }
 
     public boolean isAdmin() {
