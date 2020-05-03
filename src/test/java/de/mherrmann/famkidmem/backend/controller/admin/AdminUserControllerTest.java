@@ -5,6 +5,7 @@ import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
+import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
 import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
@@ -136,6 +137,47 @@ public class AdminUserControllerTest {
         shouldFailAddUser("User with username already exist: user", addUserRequest, 2);
     }
 
+    @Test
+    public void shouldResetPassword() throws Exception {
+        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/admin/user/reset")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(resetPasswordRequest)))
+                .andExpect(status().is(HttpStatus.OK.value()))
+                .andReturn();
+
+        String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        assertThat(message).isEqualTo("ok");
+        assertThat(details).isEqualTo("Successfully reset password for user: " + resetPasswordRequest.getUsername());
+        assertThat(userRepository.findByUsername(testUser.getUsername()).get().getUserKey()).isEqualTo(resetPasswordRequest.getUserKey());
+    }
+
+    @Test
+    public void shouldFailResetPasswordCausedByInvalidLogin() throws Exception {
+        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
+        resetPasswordRequest.setAccessToken("wrong");
+
+        shouldFailResetPassword("You are not allowed to do this: reset password", resetPasswordRequest);
+    }
+
+    @Test
+    public void shouldFailResetPasswordCausedByNotAdmin() throws Exception {
+        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
+        testUser.setAdmin(false);
+        userRepository.save(testUser);
+
+        shouldFailResetPassword("You are not allowed to do this: reset password", resetPasswordRequest);
+    }
+
+    @Test
+    public void shouldFailResetPasswordCausedByUserNotFound() throws Exception {
+        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
+        resetPasswordRequest.setUsername("wrong");
+
+        shouldFailResetPassword("User does not exist: wrong", resetPasswordRequest);
+    }
+
     private void shouldFailAddUser(String expectedDetails, RequestBodyAddUser addUserRequest, int users) throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(post("/api/admin/user/add")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -148,6 +190,20 @@ public class AdminUserControllerTest {
         assertThat(message).isEqualTo("error");
         assertThat(details).isEqualTo(expectedDetails);
         assertThat(userRepository.count()).isEqualTo(users);
+    }
+
+    private void shouldFailResetPassword(String expectedDetails, RequestBodyResetPassword resetPasswordRequest) throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/admin/user/reset")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(resetPasswordRequest)))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andReturn();
+
+        String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        assertThat(message).isEqualTo("error");
+        assertThat(details).isEqualTo(expectedDetails);
+        assertThat(userRepository.findByUsername(testUser.getUsername()).get().getUserKey()).isNotEqualTo(resetPasswordRequest.getUserKey());
     }
 
 

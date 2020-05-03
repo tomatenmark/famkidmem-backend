@@ -3,10 +3,12 @@ package de.mherrmann.famkidmem.backend.service.admin;
 import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
+import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
 import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
 import de.mherrmann.famkidmem.backend.exception.AddUserException;
+import de.mherrmann.famkidmem.backend.exception.UserNotFoundException;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
 import de.mherrmann.famkidmem.backend.service.UserService;
 import de.mherrmann.famkidmem.backend.service.admin.AdminUserService;
@@ -88,9 +90,8 @@ public class AdminUserServiceTest {
     @Test
     public void shouldFailAddUserCausedByNotAdmin(){
         RequestBodyAddUser addUserRequest = createAddUserRequest();
-        UserEntity user = userRepository.findByUsername(testUser.getUsername()).get();
-        user.setAdmin(false);
-        userRepository.save(user);
+        testUser.setAdmin(false);
+        userRepository.save(testUser);
 
         shouldFailAddUser(SecurityException.class, addUserRequest, "user");
     }
@@ -138,6 +139,70 @@ public class AdminUserServiceTest {
         assertThat(exception).isInstanceOf(AddUserException.class);
         assertThat(userRepository.findByUsername("admin").isPresent()).isTrue();
         assertThat(userRepository.existsByPerson(person)).isFalse();
+    }
+
+    @Test
+    public void shouldResetPassword(){
+        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
+        Exception exception = null;
+
+        try {
+            adminUserService.resetPassword(resetPasswordRequest);
+        } catch (Exception ex){
+            exception = ex;
+        }
+
+        UserEntity user = userRepository.findByUsername(testUser.getUsername()).get();
+        assertThat(exception).isNull();
+        assertThat(Bcrypt.check(resetPasswordRequest.getLoginHash(), user.getLoginHashHash())).isTrue();
+        assertThat(user.getPasswordKeySalt()).isEqualTo(resetPasswordRequest.getPasswordKeySalt());
+        assertThat(user.getUserKey()).isEqualTo(resetPasswordRequest.getUserKey());
+        assertThat(user.isInit()).isFalse();
+        assertThat(user.isReset()).isTrue();
+    }
+
+    @Test
+    public void shouldFailResetPasswordCausedByInvalidLogin(){
+        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
+        resetPasswordRequest.setAccessToken("wrong");
+
+        shouldFailResetPassword(SecurityException.class, resetPasswordRequest);
+    }
+
+    @Test
+    public void shouldFailResetPasswordCausedByNotAdmin(){
+        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
+        testUser.setAdmin(false);
+        userRepository.save(testUser);
+
+        shouldFailResetPassword(SecurityException.class, resetPasswordRequest);
+    }
+
+    @Test
+    public void shouldFailResetPasswordCausedByUserNotFound(){
+        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
+        resetPasswordRequest.setUsername("wrong");
+
+        shouldFailResetPassword(UserNotFoundException.class, resetPasswordRequest);
+    }
+
+    private void shouldFailResetPassword(Class exceptionClass, RequestBodyResetPassword resetPasswordRequest){
+        Exception exception = null;
+
+        try {
+            adminUserService.resetPassword(resetPasswordRequest);
+        } catch (Exception ex){
+            exception = ex;
+        }
+
+        UserEntity user = userRepository.findByUsername(testUser.getUsername()).get();
+        assertThat(exception).isNotNull();
+        assertThat(exception).isInstanceOf(exceptionClass);
+        assertThat(Bcrypt.check(resetPasswordRequest.getLoginHash(), user.getLoginHashHash())).isFalse();
+        assertThat(user.getPasswordKeySalt()).isNotEqualTo(resetPasswordRequest.getPasswordKeySalt());
+        assertThat(user.getUserKey()).isNotEqualTo(resetPasswordRequest.getUserKey());
+        assertThat(user.isInit()).isFalse();
+        assertThat(user.isReset()).isFalse();
     }
 
     private void shouldFailAddUser(Class exceptionClass, RequestBodyAddUser addUserRequest, String username){

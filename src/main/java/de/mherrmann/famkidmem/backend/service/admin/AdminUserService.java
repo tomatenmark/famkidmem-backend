@@ -1,15 +1,17 @@
 package de.mherrmann.famkidmem.backend.service.admin;
 
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
+import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
 import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.entity.UserSession;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
 import de.mherrmann.famkidmem.backend.exception.AddUserException;
+import de.mherrmann.famkidmem.backend.exception.UserNotFoundException;
 import de.mherrmann.famkidmem.backend.repository.PersonRepository;
-import de.mherrmann.famkidmem.backend.repository.PictureRepository;
 import de.mherrmann.famkidmem.backend.repository.SessionRepository;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
+import de.mherrmann.famkidmem.backend.service.UserService;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,16 +26,14 @@ public class AdminUserService {
     private final UserRepository userRepository;
     private final SessionRepository sessionRepository;
     private final PersonRepository personRepository;
-    private final PictureRepository pictureRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminUserService.class);
 
     @Autowired
-    public AdminUserService(UserRepository userRepository, SessionRepository sessionRepository, PersonRepository personRepository, PictureRepository pictureRepository) {
+    public AdminUserService(UserRepository userRepository, SessionRepository sessionRepository, PersonRepository personRepository) {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;
         this.personRepository = personRepository;
-        this.pictureRepository = pictureRepository;
     }
 
     public void addUser(RequestBodyAddUser addUserRequest) throws AddUserException, SecurityException {
@@ -49,6 +49,22 @@ public class AdminUserService {
         user.setInit(true);
         userRepository.save(user);
         LOGGER.info("Successfully added user {}", addUserRequest.getUsername());
+    }
+
+    public void resetPassword(RequestBodyResetPassword resetPasswordRequest) throws SecurityException, UserNotFoundException {
+        checkLogin(resetPasswordRequest.getAccessToken(), "reset password");
+        Optional<UserEntity> userOptional = userRepository.findByUsername(resetPasswordRequest.getUsername());
+        if(!userOptional.isPresent()){
+            LOGGER.error("Could not reset password. User {} does not exist.", resetPasswordRequest.getUsername());
+            throw new UserNotFoundException(resetPasswordRequest.getUsername());
+        }
+        UserEntity user = userOptional.get();
+        user.setLoginHashHash(Bcrypt.hash(resetPasswordRequest.getLoginHash()));
+        user.setPasswordKeySalt(resetPasswordRequest.getPasswordKeySalt());
+        user.setUserKey(resetPasswordRequest.getUserKey());
+        user.setReset(true);
+        userRepository.save(user);
+        LOGGER.info("Successfully reset password for user {}", resetPasswordRequest.getUsername());
     }
 
     private Person getPerson(String personId) throws AddUserException {
