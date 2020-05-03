@@ -1,21 +1,14 @@
-package de.mherrmann.famkidmem.backend.controller;
+package de.mherrmann.famkidmem.backend.controller.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mherrmann.famkidmem.backend.TestUtils;
-import de.mherrmann.famkidmem.backend.body.RequestBodyLogin;
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
-import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangePassword;
-import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangeUsername;
-import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedLogout;
 import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
-import de.mherrmann.famkidmem.backend.repository.PersonRepository;
-import de.mherrmann.famkidmem.backend.repository.PictureRepository;
-import de.mherrmann.famkidmem.backend.repository.SessionRepository;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
-import de.mherrmann.famkidmem.backend.service.AdminService;
+import de.mherrmann.famkidmem.backend.service.admin.AdminUserService;
 import de.mherrmann.famkidmem.backend.service.UserService;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.junit.After;
@@ -38,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @SpringBootTest
-public class AdminControllerTest {
+public class AdminUserControllerTest {
 
 
 
@@ -55,7 +48,7 @@ public class AdminControllerTest {
     private UserService userService;
 
     @Autowired
-    private AdminService adminService;
+    private AdminUserService adminUserService;
 
     @Autowired
     private TestUtils testUtils;
@@ -120,7 +113,7 @@ public class AdminControllerTest {
     public void shouldFailAddUserCausedByPersonAlreadyHasUser() throws Exception {
         RequestBodyAddUser addUserRequest = createAddUserRequest();
         try {
-            adminService.addUser(addUserRequest);
+            adminUserService.addUser(addUserRequest);
         } catch (Exception ex){
             ex.printStackTrace();
         }
@@ -134,7 +127,7 @@ public class AdminControllerTest {
         RequestBodyAddUser addUserRequest = createAddUserRequest();
         Person person = testUtils.createTestPerson("user2F", "user2L", "user2C");
         try {
-            adminService.addUser(addUserRequest);
+            adminUserService.addUser(addUserRequest);
         } catch (Exception ex){
             ex.printStackTrace();
         }

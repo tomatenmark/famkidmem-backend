@@ -1,4 +1,4 @@
-package de.mherrmann.famkidmem.backend.service;
+package de.mherrmann.famkidmem.backend.service.admin;
 
 import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
@@ -8,6 +8,8 @@ import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
 import de.mherrmann.famkidmem.backend.exception.AddUserException;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
+import de.mherrmann.famkidmem.backend.service.UserService;
+import de.mherrmann.famkidmem.backend.service.admin.AdminUserService;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.junit.After;
 import org.junit.Before;
@@ -21,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class AdminServiceTest {
+public class AdminUserServiceTest {
 
     private static final String LOGIN_HASH = "loginHash";
 
@@ -33,7 +35,7 @@ public class AdminServiceTest {
     private UserService userService;
 
     @Autowired
-    private AdminService adminService;
+    private AdminUserService adminUserService;
 
     @Autowired
     private TestUtils testUtils;
@@ -59,7 +61,7 @@ public class AdminServiceTest {
         Exception exception = null;
 
         try {
-            adminService.addUser(addUserRequest);
+            adminUserService.addUser(addUserRequest);
         } catch (Exception ex){
             exception = ex;
         }
@@ -105,7 +107,7 @@ public class AdminServiceTest {
     public void shouldFailAddUserCausedByPersonAlreadyHasUser(){
         RequestBodyAddUser addUserRequest = createAddUserRequest();
         try {
-            adminService.addUser(addUserRequest);
+            adminUserService.addUser(addUserRequest);
         } catch (Exception ex){
             ex.printStackTrace();
         }
@@ -119,7 +121,7 @@ public class AdminServiceTest {
         Person person = testUtils.createTestPerson("user2F", "user2L", "user2C");
         RequestBodyAddUser addUserRequest = createAddUserRequest();
         try {
-            adminService.addUser(addUserRequest);
+            adminUserService.addUser(addUserRequest);
         } catch (Exception ex){
             ex.printStackTrace();
         }
@@ -127,7 +129,7 @@ public class AdminServiceTest {
         Exception exception = null;
 
         try {
-            adminService.addUser(addUserRequest);
+            adminUserService.addUser(addUserRequest);
         } catch (Exception ex){
             exception = ex;
         }
@@ -142,7 +144,7 @@ public class AdminServiceTest {
         Exception exception = null;
 
         try {
-            adminService.addUser(addUserRequest);
+            adminUserService.addUser(addUserRequest);
         } catch (Exception ex){
             exception = ex;
         }

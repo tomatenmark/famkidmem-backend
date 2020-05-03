@@ -1,4 +1,4 @@
-package de.mherrmann.famkidmem.backend.service;
+package de.mherrmann.famkidmem.backend.service.admin;
 
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
 import de.mherrmann.famkidmem.backend.entity.Person;
@@ -19,17 +19,17 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class AdminService {
+public class AdminUserService {
 
     private final UserRepository userRepository;
     private final SessionRepository sessionRepository;
     private final PersonRepository personRepository;
     private final PictureRepository pictureRepository;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AdminService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AdminUserService.class);
 
     @Autowired
-    public AdminService(UserRepository userRepository, SessionRepository sessionRepository, PersonRepository personRepository, PictureRepository pictureRepository) {
+    public AdminUserService(UserRepository userRepository, SessionRepository sessionRepository, PersonRepository personRepository, PictureRepository pictureRepository) {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;
         this.personRepository = personRepository;
