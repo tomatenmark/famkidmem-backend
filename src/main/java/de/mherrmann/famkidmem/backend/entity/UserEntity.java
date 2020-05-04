@@ -1,5 +1,6 @@
 package de.mherrmann.famkidmem.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -40,6 +41,7 @@ public class UserEntity {
         this.editor = editor;
     }
 
+    @JsonIgnore
     public String getId() {
         return id;
     }
@@ -56,6 +58,7 @@ public class UserEntity {
         this.username = username;
     }
 
+    @JsonIgnore
     public String getPasswordKeySalt() {
         return passwordKeySalt;
     }
@@ -64,6 +67,7 @@ public class UserEntity {
         this.passwordKeySalt = passwordKeySalt;
     }
 
+    @JsonIgnore
     public String getLoginHashHash() {
         return loginHashHash;
     }
@@ -72,6 +76,7 @@ public class UserEntity {
         this.loginHashHash = loginHashHash;
     }
 
+    @JsonIgnore
     public String getUserKey() {
         return userKey;
     }

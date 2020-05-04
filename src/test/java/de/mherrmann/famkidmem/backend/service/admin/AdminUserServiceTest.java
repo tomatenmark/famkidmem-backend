@@ -5,14 +5,15 @@ import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
+import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetUsers;
+import de.mherrmann.famkidmem.backend.entity.Key;
 import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
 import de.mherrmann.famkidmem.backend.exception.AddUserException;
-import de.mherrmann.famkidmem.backend.exception.UserNotFoundException;
+import de.mherrmann.famkidmem.backend.exception.EntityNotFoundException;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
 import de.mherrmann.famkidmem.backend.service.UserService;
-import de.mherrmann.famkidmem.backend.service.admin.AdminUserService;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.junit.After;
 import org.junit.Before;
@@ -102,7 +103,7 @@ public class AdminUserServiceTest {
         RequestBodyAddUser addUserRequest = createAddUserRequest();
         addUserRequest.setPersonId("wrong");
 
-        shouldFailAddUser(AddUserException.class, addUserRequest, "user");
+        shouldFailAddUser(EntityNotFoundException.class, addUserRequest, "user");
     }
 
     @Test
@@ -179,7 +180,7 @@ public class AdminUserServiceTest {
         RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testLogin, testUser);
         deleteUserRequest.setUsername("wrong");
 
-        shouldFailDeleteUser(UserNotFoundException.class, deleteUserRequest);
+        shouldFailDeleteUser(EntityNotFoundException.class, deleteUserRequest);
     }
 
     @Test
@@ -224,7 +225,61 @@ public class AdminUserServiceTest {
         RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
         resetPasswordRequest.setUsername("wrong");
 
-        shouldFailResetPassword(UserNotFoundException.class, resetPasswordRequest);
+        shouldFailResetPassword(EntityNotFoundException.class, resetPasswordRequest);
+    }
+
+    @Test
+    public void shouldGetUsers(){
+        testUtils.createTextKeys();
+        ResponseBodyGetUsers usersResponse = null;
+        Exception exception = null;
+
+        try {
+            usersResponse = adminUserService.getUsers(testLogin.getAccessToken());
+        } catch (Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNull();
+        assertThat(usersResponse).isNotNull();
+        assertThat(usersResponse.getPersonKey().getUsage()).isEqualTo("persons");
+        assertThat(usersResponse.getUserKey()).isEqualTo("masterKey");
+        assertThat(usersResponse.getUsers()).isNotEmpty();
+        assertThat(usersResponse.getUsers().get(0).getUsername()).isEqualTo(testUser.getUsername());
+    }
+
+    @Test
+    public void shouldFailGetUsersCausedByInvalidLogin(){
+        testUtils.createTextKeys();
+
+        shouldFailGetUsers(SecurityException.class, "wrong");
+    }
+
+    @Test
+    public void shouldFailGetUsersCausedByNotAdmin(){
+        testUtils.createTextKeys();
+        testUser.setAdmin(false);
+        userRepository.save(testUser);
+
+        shouldFailGetUsers(SecurityException.class, testLogin.getAccessToken());
+    }
+
+    @Test
+    public void shouldFailGetUsersCausedKeyNotFound(){
+        shouldFailGetUsers(EntityNotFoundException.class, testLogin.getAccessToken());
+    }
+
+    private void shouldFailGetUsers(Class exceptionClass, String accessToken){
+        Exception exception = null;
+
+        try {
+            adminUserService.getUsers(accessToken);
+        } catch (Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNotNull();
+        assertThat(exception).isInstanceOf(exceptionClass);
     }
 
     private void shouldFailResetPassword(Class exceptionClass, RequestBodyResetPassword resetPasswordRequest){

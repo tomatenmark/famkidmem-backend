@@ -7,6 +7,7 @@ import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
+import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetUsers;
 import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
@@ -28,6 +29,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -109,7 +111,7 @@ public class AdminUserControllerTest {
         RequestBodyAddUser addUserRequest = createAddUserRequest();
         addUserRequest.setPersonId("wrong");
 
-        shouldFailAddUser("Person does not exist: wrong", addUserRequest, 1);
+        shouldFailAddUser("Entity does not exist. Type: Person; designator: wrong", addUserRequest, 1);
     }
 
     @Test
@@ -177,7 +179,7 @@ public class AdminUserControllerTest {
         RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testLogin, testUser);
         deleteUserRequest.setUsername("wrong");
 
-        shouldFailDeleteUser("User does not exist: wrong", deleteUserRequest);
+        shouldFailDeleteUser("Entity does not exist. Type: UserEntity; designator: wrong", deleteUserRequest);
     }
 
     @Test
@@ -218,7 +220,69 @@ public class AdminUserControllerTest {
         RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
         resetPasswordRequest.setUsername("wrong");
 
-        shouldFailResetPassword("User does not exist: wrong", resetPasswordRequest);
+        shouldFailResetPassword("Entity does not exist. Type: UserEntity; designator: wrong", resetPasswordRequest);
+    }
+
+    @Test
+    public void shouldGetUsers() throws Exception {
+        testUtils.createTextKeys();
+
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/admin/user/get/{accessToken}", testLogin.getAccessToken()))
+                .andExpect(status().is(HttpStatus.OK.value()))
+                .andReturn();
+
+        ResponseBodyGetUsers usersResponse = jsonToUsersResponse(mvcResult.getResponse().getContentAsString());
+        String message = usersResponse.getMessage();
+        String details = usersResponse.getDetails();
+        assertThat(message).isEqualTo("ok");
+        assertThat(details).isEqualTo("Successfully get users");
+        assertThat(usersResponse.getUsers()).isNotNull();
+        assertInternalThingsKeptInternal(usersResponse);
+    }
+
+    @Test
+    public void shouldFailGetUsersCausedByInvalidLogin() throws Exception {
+        testUtils.createTextKeys();
+
+        shouldFailGetUsers("You are not allowed to do this: get users", "wrong");
+    }
+
+    @Test
+    public void shouldFailGetUsersCausedByNotAdmin() throws Exception {
+        testUtils.createTextKeys();
+        testUser.setAdmin(false);
+        userRepository.save(testUser);
+
+        shouldFailGetUsers("You are not allowed to do this: get users", testLogin.getAccessToken());
+    }
+
+    @Test
+    public void shouldFailGetUsersCausedByKeyNotFound() throws Exception {
+        shouldFailGetUsers("Entity does not exist. Type: Key; designator: persons", testLogin.getAccessToken());
+    }
+
+    private void assertInternalThingsKeptInternal(ResponseBodyGetUsers usersResponse){
+        assertThat(usersResponse.getPersonKey().getId()).isNull();
+        assertThat(usersResponse.getUsers().get(0).getId()).isNull();
+        assertThat(usersResponse.getUsers().get(0).getUserKey()).isNull();
+        assertThat(usersResponse.getUsers().get(0).getLoginHashHash()).isNull();
+        assertThat(usersResponse.getUsers().get(0).getPasswordKeySalt()).isNull();
+        assertThat(usersResponse.getUsers().get(0).getPerson().getId()).isNull();
+        assertThat(usersResponse.getUsers().get(0).getPerson().getPicture().getId()).isNull();
+        assertThat(usersResponse.getUsers().get(0).getPerson().getPicture().getKey().getId()).isNull();
+    }
+
+    private void shouldFailGetUsers(String expectedDetails, String accessToken) throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/admin/user/get/{accessToken}", accessToken))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andReturn();
+
+        ResponseBodyGetUsers usersResponse = jsonToUsersResponse(mvcResult.getResponse().getContentAsString());
+        String message = usersResponse.getMessage();
+        String details = usersResponse.getDetails();
+        assertThat(message).isEqualTo("error");
+        assertThat(details).isEqualTo(expectedDetails);
+        assertThat(usersResponse.getUsers()).isNull();
     }
 
     private void shouldFailAddUser(String expectedDetails, RequestBodyAddUser addUserRequest, int users) throws Exception {
@@ -290,6 +354,14 @@ public class AdminUserControllerTest {
     private static ResponseBody jsonToResponse(final String json) {
         try {
             return new ObjectMapper().readValue(json, ResponseBody.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static ResponseBodyGetUsers jsonToUsersResponse(final String json) {
+        try {
+            return new ObjectMapper().readValue(json, ResponseBodyGetUsers.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

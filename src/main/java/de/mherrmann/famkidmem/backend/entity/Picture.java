@@ -1,7 +1,11 @@
 package de.mherrmann.famkidmem.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import java.util.UUID;
 
 @Entity
@@ -10,19 +14,21 @@ public class Picture {
     @Id
     private String id;
 
-    private String key;
-    private String iv;
+    @OneToOne
+    @JoinColumn(name = "key_id", referencedColumnName = "id")
+    private Key key;
+
     private String filename;
 
     private Picture(){}
 
-    public Picture(String key, String iv, String filename) {
+    public Picture(Key key, String filename) {
         this.id = UUID.randomUUID().toString();
         this.key = key;
-        this.iv = iv;
         this.filename = filename;
     }
 
+    @JsonIgnore
     public String getId() {
         return id;
     }
@@ -31,20 +37,12 @@ public class Picture {
         this.id = id;
     }
 
-    public String getKey() {
+    public Key getKey() {
         return key;
     }
 
-    public void setKey(String key) {
+    public void setKey(Key key) {
         this.key = key;
-    }
-
-    public String getIv() {
-        return iv;
-    }
-
-    public void setIv(String iv) {
-        this.iv = iv;
     }
 
     public String getFilename() {

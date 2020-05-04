@@ -4,18 +4,19 @@ import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
+import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetUsers;
+import de.mherrmann.famkidmem.backend.entity.Key;
 import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.Picture;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
-import de.mherrmann.famkidmem.backend.repository.PersonRepository;
-import de.mherrmann.famkidmem.backend.repository.PictureRepository;
-import de.mherrmann.famkidmem.backend.repository.SessionRepository;
-import de.mherrmann.famkidmem.backend.repository.UserRepository;
+import de.mherrmann.famkidmem.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class TestUtils {
@@ -32,11 +33,15 @@ public class TestUtils {
     @Autowired
     private PictureRepository pictureRepository;
 
+    @Autowired
+    private KeyRepository keyRepository;
+
     public void dropAll(){
         sessionRepository.deleteAll();
         userRepository.deleteAll();
         personRepository.deleteAll();
         pictureRepository.deleteAll();
+        keyRepository.deleteAll();
     }
 
     public void deleteTestFiles(){
@@ -79,7 +84,9 @@ public class TestUtils {
         try {
             new File("./files").mkdir();
             new File("./files/test").createNewFile();
-            Picture picture = new Picture("key", "iv", "test");
+            Key key = new Key("picture","key", "iv");
+            keyRepository.save(key);
+            Picture picture = new Picture(key, "test");
             pictureRepository.save(picture);
             Person person = new Person(firstName, lastName, commonName, picture);
             personRepository.save(person);
@@ -88,6 +95,13 @@ public class TestUtils {
             ex.printStackTrace();
         }
         return null;
+    }
+
+    public void createTextKeys(){
+        Key personKey = new Key("persons", "key", "iv");
+        Key indexKey = new Key("index", "key", "iv");
+        keyRepository.save(personKey);
+        keyRepository.save(indexKey);
     }
 
 }
