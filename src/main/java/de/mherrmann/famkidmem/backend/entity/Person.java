@@ -20,7 +20,7 @@ public class Person {
 
     @OneToOne
     @JoinColumn(name = "file_id", referencedColumnName = "id")
-    private FileEntity fileEntity;
+    private FileEntity face;
 
     @OneToOne
     @JoinColumn(name = "key_id", referencedColumnName = "id")
@@ -28,12 +28,12 @@ public class Person {
 
     private Person(){}
 
-    public Person(String firstName, String lastName, String commonName, FileEntity fileEntity, Key key) {
+    public Person(String firstName, String lastName, String commonName, FileEntity face, Key key) {
         this.id = UUID.randomUUID().toString();
         this.firstName = firstName;
         this.lastName = lastName;
         this.commonName = commonName;
-        this.fileEntity = fileEntity;
+        this.face = face;
         this.key = key;
     }
 
@@ -70,12 +70,12 @@ public class Person {
         this.commonName = commonName;
     }
 
-    public FileEntity getFileEntity() {
-        return fileEntity;
+    public FileEntity getFace() {
+        return face;
     }
 
-    public void setFileEntity(FileEntity fileEntity) {
-        this.fileEntity = fileEntity;
+    public void setFace(FileEntity face) {
+        this.face = face;
     }
 
     public Key getKey() {

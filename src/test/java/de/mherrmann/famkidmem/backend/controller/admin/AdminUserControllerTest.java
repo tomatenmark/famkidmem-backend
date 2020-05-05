@@ -3,7 +3,6 @@ package de.mherrmann.famkidmem.backend.controller.admin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
-import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
@@ -45,7 +44,6 @@ public class AdminUserControllerTest {
 
     private static final String LOGIN_HASH = "loginHash";
 
-    private ResponseBodyLogin testLogin;
     private UserEntity testUser;
     private Person testPerson;
 
@@ -192,8 +190,8 @@ public class AdminUserControllerTest {
         assertThat(usersResponse.getUsers().get(0).getLoginHashHash()).isNull();
         assertThat(usersResponse.getUsers().get(0).getPasswordKeySalt()).isNull();
         assertThat(usersResponse.getUsers().get(0).getPerson().getId()).isNull();
-        assertThat(usersResponse.getUsers().get(0).getPerson().getFileEntity().getId()).isNull();
-        assertThat(usersResponse.getUsers().get(0).getPerson().getFileEntity().getKey().getId()).isNull();
+        assertThat(usersResponse.getUsers().get(0).getPerson().getFace().getId()).isNull();
+        assertThat(usersResponse.getUsers().get(0).getPerson().getFace().getKey().getId()).isNull();
     }
 
     private void shouldFailAddUser(String expectedDetails, RequestBodyAddUser addUserRequest, int users) throws Exception {
@@ -251,7 +249,6 @@ public class AdminUserControllerTest {
         testUser.setInit(false);
         testUser.setReset(false);
         userRepository.save(testUser);
-        testLogin = userService.login(testUser.getUsername(), LOGIN_HASH);
     }
 
     private static String asJsonString(final Object obj) {
