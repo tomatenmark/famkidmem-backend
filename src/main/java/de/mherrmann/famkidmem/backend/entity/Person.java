@@ -19,17 +19,22 @@ public class Person {
     private String commonName;
 
     @OneToOne
-    @JoinColumn(name = "picture_id", referencedColumnName = "id")
-    private Picture picture;
+    @JoinColumn(name = "file_id", referencedColumnName = "id")
+    private FileEntity fileEntity;
+
+    @OneToOne
+    @JoinColumn(name = "key_id", referencedColumnName = "id")
+    private Key key;
 
     private Person(){}
 
-    public Person(String firstName, String lastName, String commonName, Picture picture) {
+    public Person(String firstName, String lastName, String commonName, FileEntity fileEntity, Key key) {
         this.id = UUID.randomUUID().toString();
         this.firstName = firstName;
         this.lastName = lastName;
         this.commonName = commonName;
-        this.picture = picture;
+        this.fileEntity = fileEntity;
+        this.key = key;
     }
 
     @JsonIgnore
@@ -65,11 +70,19 @@ public class Person {
         this.commonName = commonName;
     }
 
-    public Picture getPicture() {
-        return picture;
+    public FileEntity getFileEntity() {
+        return fileEntity;
     }
 
-    public void setPicture(Picture picture) {
-        this.picture = picture;
+    public void setFileEntity(FileEntity fileEntity) {
+        this.fileEntity = fileEntity;
+    }
+
+    public Key getKey() {
+        return key;
+    }
+
+    public void setKey(Key key) {
+        this.key = key;
     }
 }

@@ -1,12 +1,8 @@
 package de.mherrmann.famkidmem.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -17,28 +13,29 @@ public class UserEntity {
     private String username;
     private String passwordKeySalt;
     private String loginHashHash;
-    private String userKey;
+    private String masterKey;
 
     @OneToOne
     @JoinColumn(name = "person_id", referencedColumnName = "id")
     private Person person;
 
-    private boolean admin;
-    private boolean editor;
+    @OneToOne
+    @JoinColumn(name = "key_id", referencedColumnName = "id")
+    private Key key;
+
     private boolean init; //indicates the user has to change username and password after login
     private boolean reset; //indicates the user has to change password after login
 
     private UserEntity(){}
 
-    public UserEntity(String username, String passwordKeySalt, String loginHashHash, String userKey, Person person, boolean admin, boolean editor) {
+    public UserEntity(String username, String passwordKeySalt, String loginHashHash, String masterKey, Person person, Key key) {
         this.id = UUID.randomUUID().toString();
         this.username = username;
         this.passwordKeySalt = passwordKeySalt;
         this.loginHashHash = loginHashHash;
-        this.userKey = userKey;
+        this.masterKey = masterKey;
         this.person = person;
-        this.admin = admin;
-        this.editor = editor;
+        this.key = key;
     }
 
     @JsonIgnore
@@ -77,12 +74,12 @@ public class UserEntity {
     }
 
     @JsonIgnore
-    public String getUserKey() {
-        return userKey;
+    public String getMasterKey() {
+        return masterKey;
     }
 
-    public void setUserKey(String userKey) {
-        this.userKey = userKey;
+    public void setMasterKey(String masterKey) {
+        this.masterKey = masterKey;
     }
 
     public Person getPerson() {
@@ -91,22 +88,6 @@ public class UserEntity {
 
     public void setPerson(Person person) {
         this.person = person;
-    }
-
-    public boolean isAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
-    }
-
-    public boolean isEditor() {
-        return editor;
-    }
-
-    public void setEditor(boolean editor) {
-        this.editor = editor;
     }
 
     public boolean isInit() {
@@ -125,4 +106,11 @@ public class UserEntity {
         this.reset = reset;
     }
 
+    public Key getKey() {
+        return key;
+    }
+
+    public void setKey(Key key) {
+        this.key = key;
+    }
 }

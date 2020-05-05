@@ -20,15 +20,20 @@ public class PersonRelation {
     @JoinColumn(name = "other_id", referencedColumnName = "id")
     private Person other;
 
+    @OneToOne
+    @JoinColumn(name = "key_id", referencedColumnName = "id")
+    private Key key;
+
     private String showAs;
 
     private PersonRelation(){}
 
-    public PersonRelation(Person me, Person other, String showAs) {
+    public PersonRelation(Person me, Person other, String showAs, Key key) {
         this.id = UUID.randomUUID().toString();
         this.me = me;
         this.other = other;
         this.showAs = showAs;
+        this.key = key;
     }
 
     public String getId() {
@@ -61,5 +66,13 @@ public class PersonRelation {
 
     public void setShowAs(String showAs) {
         this.showAs = showAs;
+    }
+
+    public Key getKey() {
+        return key;
+    }
+
+    public void setKey(Key key) {
+        this.key = key;
     }
 }
