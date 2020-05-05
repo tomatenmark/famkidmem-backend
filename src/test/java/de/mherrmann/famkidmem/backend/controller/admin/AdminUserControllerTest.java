@@ -75,7 +75,7 @@ public class AdminUserControllerTest {
 
     @Test
     public void shouldAddUser() throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/admin/user/add")
+        MvcResult mvcResult = this.mockMvc.perform(post("/admin/user/add")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(createAddUserRequest())))
                 .andExpect(status().is(HttpStatus.OK.value()))
@@ -86,24 +86,6 @@ public class AdminUserControllerTest {
         assertThat(message).isEqualTo("ok");
         assertThat(details).isEqualTo("Successfully added user: " + createAddUserRequest().getUsername());
         assertThat(userRepository.count()).isEqualTo(2);
-    }
-
-    @Test
-    public void shouldFailAddUserCausedByInvalidLogin() throws Exception {
-        RequestBodyAddUser addUserRequest = createAddUserRequest();
-        addUserRequest.setAccessToken("wrong");
-
-        shouldFailAddUser("You are not allowed to do this: add user", addUserRequest, 1);
-    }
-
-    @Test
-    public void shouldFailAddUserCausedByNotAdmin() throws Exception {
-        RequestBodyAddUser addUserRequest = createAddUserRequest();
-        UserEntity user = userRepository.findByUsername(testUser.getUsername()).get();
-        user.setAdmin(false);
-        userRepository.save(user);
-
-        shouldFailAddUser("You are not allowed to do this: add user", addUserRequest, 1);
     }
 
     @Test
@@ -143,8 +125,8 @@ public class AdminUserControllerTest {
 
     @Test
     public void shouldDeleteUser() throws Exception {
-        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testLogin, testUser);
-        MvcResult mvcResult = this.mockMvc.perform(delete("/api/admin/user/delete")
+        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testUser);
+        MvcResult mvcResult = this.mockMvc.perform(delete("/admin/user/delete")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(deleteUserRequest)))
                 .andExpect(status().is(HttpStatus.OK.value()))
@@ -158,25 +140,8 @@ public class AdminUserControllerTest {
     }
 
     @Test
-    public void shouldFailDeleteUserCausedByInvalidLogin() throws Exception {
-        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testLogin, testUser);
-        deleteUserRequest.setAccessToken("wrong");
-
-        shouldFailDeleteUser("You are not allowed to do this: delete user", deleteUserRequest);
-    }
-
-    @Test
-    public void shouldFailDeleteUserCausedByNotAdmin() throws Exception {
-        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testLogin, testUser);
-        testUser.setAdmin(false);
-        userRepository.save(testUser);
-
-        shouldFailDeleteUser("You are not allowed to do this: delete user", deleteUserRequest);
-    }
-
-    @Test
     public void shouldFailDeleteUserCausedByUserNotFound() throws Exception {
-        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testLogin, testUser);
+        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testUser);
         deleteUserRequest.setUsername("wrong");
 
         shouldFailDeleteUser("Entity does not exist. Type: UserEntity; designator: wrong", deleteUserRequest);
@@ -184,8 +149,8 @@ public class AdminUserControllerTest {
 
     @Test
     public void shouldResetPassword() throws Exception {
-        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/admin/user/reset")
+        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testUser);
+        MvcResult mvcResult = this.mockMvc.perform(post("/admin/user/reset")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(resetPasswordRequest)))
                 .andExpect(status().is(HttpStatus.OK.value()))
@@ -195,29 +160,12 @@ public class AdminUserControllerTest {
         String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
         assertThat(message).isEqualTo("ok");
         assertThat(details).isEqualTo("Successfully reset password for user: " + resetPasswordRequest.getUsername());
-        assertThat(userRepository.findByUsername(testUser.getUsername()).get().getUserKey()).isEqualTo(resetPasswordRequest.getUserKey());
-    }
-
-    @Test
-    public void shouldFailResetPasswordCausedByInvalidLogin() throws Exception {
-        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
-        resetPasswordRequest.setAccessToken("wrong");
-
-        shouldFailResetPassword("You are not allowed to do this: reset password", resetPasswordRequest);
-    }
-
-    @Test
-    public void shouldFailResetPasswordCausedByNotAdmin() throws Exception {
-        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
-        testUser.setAdmin(false);
-        userRepository.save(testUser);
-
-        shouldFailResetPassword("You are not allowed to do this: reset password", resetPasswordRequest);
+        assertThat(userRepository.findByUsername(testUser.getUsername()).get().getMasterKey()).isEqualTo(resetPasswordRequest.getMasterKey());
     }
 
     @Test
     public void shouldFailResetPasswordCausedByUserNotFound() throws Exception {
-        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
+        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testUser);
         resetPasswordRequest.setUsername("wrong");
 
         shouldFailResetPassword("Entity does not exist. Type: UserEntity; designator: wrong", resetPasswordRequest);
@@ -225,9 +173,7 @@ public class AdminUserControllerTest {
 
     @Test
     public void shouldGetUsers() throws Exception {
-        testUtils.createTextKeys();
-
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/admin/user/get/{accessToken}", testLogin.getAccessToken()))
+        MvcResult mvcResult = this.mockMvc.perform(get("/admin/user/get/"))
                 .andExpect(status().is(HttpStatus.OK.value()))
                 .andReturn();
 
@@ -240,53 +186,18 @@ public class AdminUserControllerTest {
         assertInternalThingsKeptInternal(usersResponse);
     }
 
-    @Test
-    public void shouldFailGetUsersCausedByInvalidLogin() throws Exception {
-        testUtils.createTextKeys();
-
-        shouldFailGetUsers("You are not allowed to do this: get users", "wrong");
-    }
-
-    @Test
-    public void shouldFailGetUsersCausedByNotAdmin() throws Exception {
-        testUtils.createTextKeys();
-        testUser.setAdmin(false);
-        userRepository.save(testUser);
-
-        shouldFailGetUsers("You are not allowed to do this: get users", testLogin.getAccessToken());
-    }
-
-    @Test
-    public void shouldFailGetUsersCausedByKeyNotFound() throws Exception {
-        shouldFailGetUsers("Entity does not exist. Type: Key; designator: persons", testLogin.getAccessToken());
-    }
-
     private void assertInternalThingsKeptInternal(ResponseBodyGetUsers usersResponse){
-        assertThat(usersResponse.getPersonKey().getId()).isNull();
         assertThat(usersResponse.getUsers().get(0).getId()).isNull();
-        assertThat(usersResponse.getUsers().get(0).getUserKey()).isNull();
+        assertThat(usersResponse.getUsers().get(0).getMasterKey()).isNull();
         assertThat(usersResponse.getUsers().get(0).getLoginHashHash()).isNull();
         assertThat(usersResponse.getUsers().get(0).getPasswordKeySalt()).isNull();
         assertThat(usersResponse.getUsers().get(0).getPerson().getId()).isNull();
-        assertThat(usersResponse.getUsers().get(0).getPerson().getPicture().getId()).isNull();
-        assertThat(usersResponse.getUsers().get(0).getPerson().getPicture().getKey().getId()).isNull();
-    }
-
-    private void shouldFailGetUsers(String expectedDetails, String accessToken) throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/admin/user/get/{accessToken}", accessToken))
-                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
-                .andReturn();
-
-        ResponseBodyGetUsers usersResponse = jsonToUsersResponse(mvcResult.getResponse().getContentAsString());
-        String message = usersResponse.getMessage();
-        String details = usersResponse.getDetails();
-        assertThat(message).isEqualTo("error");
-        assertThat(details).isEqualTo(expectedDetails);
-        assertThat(usersResponse.getUsers()).isNull();
+        assertThat(usersResponse.getUsers().get(0).getPerson().getFileEntity().getId()).isNull();
+        assertThat(usersResponse.getUsers().get(0).getPerson().getFileEntity().getKey().getId()).isNull();
     }
 
     private void shouldFailAddUser(String expectedDetails, RequestBodyAddUser addUserRequest, int users) throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/admin/user/add")
+        MvcResult mvcResult = this.mockMvc.perform(post("/admin/user/add")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(addUserRequest)))
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
@@ -300,7 +211,7 @@ public class AdminUserControllerTest {
     }
 
     private void shouldFailDeleteUser(String expectedDetails, RequestBodyDeleteUser deleteUserRequest) throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(delete("/api/admin/user/delete")
+        MvcResult mvcResult = this.mockMvc.perform(delete("/admin/user/delete")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(deleteUserRequest)))
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
@@ -314,7 +225,7 @@ public class AdminUserControllerTest {
     }
 
     private void shouldFailResetPassword(String expectedDetails, RequestBodyResetPassword resetPasswordRequest) throws Exception {
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/admin/user/reset")
+        MvcResult mvcResult = this.mockMvc.perform(post("/admin/user/reset")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(resetPasswordRequest)))
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
@@ -324,19 +235,19 @@ public class AdminUserControllerTest {
         String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
         assertThat(message).isEqualTo("error");
         assertThat(details).isEqualTo(expectedDetails);
-        assertThat(userRepository.findByUsername(testUser.getUsername()).get().getUserKey()).isNotEqualTo(resetPasswordRequest.getUserKey());
+        assertThat(userRepository.findByUsername(testUser.getUsername()).get().getMasterKey()).isNotEqualTo(resetPasswordRequest.getMasterKey());
     }
 
 
     private RequestBodyAddUser createAddUserRequest(){
-        return testUtils.createAddUserRequest(testPerson, testLogin);
+        return testUtils.createAddUserRequest(testPerson);
     }
 
 
     private void createAdminUser() {
         Person person = testUtils.createTestPerson("adminF", "adminL", "adminL");
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("admin", "", loginHashHash, "masterKey", person,true, false);
+        testUser = new UserEntity("admin", "", loginHashHash, "masterKey", person,testUtils.createTestKey());
         testUser.setInit(false);
         testUser.setReset(false);
         userRepository.save(testUser);

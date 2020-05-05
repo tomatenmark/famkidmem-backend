@@ -1,13 +1,11 @@
 package de.mherrmann.famkidmem.backend.body.admin;
 
-import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorized;
-
-public class RequestBodyResetPassword extends RequestBodyAuthorized {
+public class RequestBodyResetPassword {
 
     private String username;
     private String loginHash;
     private String passwordKeySalt;
-    private String userKey;
+    private String masterKey;
 
     public String getUsername() {
         return username;
@@ -33,11 +31,11 @@ public class RequestBodyResetPassword extends RequestBodyAuthorized {
         this.passwordKeySalt = passwordKeySalt;
     }
 
-    public String getUserKey() {
-        return userKey;
+    public String getMasterKey() {
+        return masterKey;
     }
 
-    public void setUserKey(String userKey) {
-        this.userKey = userKey;
+    public void setMasterKey(String masterKey) {
+        this.masterKey = masterKey;
     }
 }

@@ -1,16 +1,14 @@
 package de.mherrmann.famkidmem.backend.body.admin;
 
-import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorized;
-
-public class RequestBodyAddUser extends RequestBodyAuthorized {
+public class RequestBodyAddUser {
 
     private String username;
     private String loginHash;
     private String passwordKeySalt;
     private String userKey;
     private String personId;
-    private boolean admin;
-    private boolean editor;
+    private String key;
+    private String iv;
 
     public String getUsername() {
         return username;
@@ -52,19 +50,19 @@ public class RequestBodyAddUser extends RequestBodyAuthorized {
         this.personId = personId;
     }
 
-    public boolean isAdmin() {
-        return admin;
+    public String getKey() {
+        return key;
     }
 
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    public boolean isEditor() {
-        return editor;
+    public String getIv() {
+        return iv;
     }
 
-    public void setEditor(boolean editor) {
-        this.editor = editor;
+    public void setIv(String iv) {
+        this.iv = iv;
     }
 }

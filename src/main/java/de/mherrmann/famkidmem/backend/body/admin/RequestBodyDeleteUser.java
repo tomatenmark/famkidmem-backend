@@ -1,8 +1,6 @@
 package de.mherrmann.famkidmem.backend.body.admin;
 
-import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorized;
-
-public class RequestBodyDeleteUser extends RequestBodyAuthorized {
+public class RequestBodyDeleteUser {
 
     private String username;
 

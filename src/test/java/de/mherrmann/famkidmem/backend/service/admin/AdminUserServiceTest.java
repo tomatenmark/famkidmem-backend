@@ -6,10 +6,8 @@ import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
 import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetUsers;
-import de.mherrmann.famkidmem.backend.entity.Key;
 import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
-import de.mherrmann.famkidmem.backend.exception.SecurityException;
 import de.mherrmann.famkidmem.backend.exception.AddUserException;
 import de.mherrmann.famkidmem.backend.exception.EntityNotFoundException;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
@@ -74,28 +72,11 @@ public class AdminUserServiceTest {
         assertThat(userRepository.existsByUsername("user")).isTrue();
         UserEntity user = userRepository.findByUsername("user").get();
         assertThat(Bcrypt.check("newLoginHash", user.getLoginHashHash())).isTrue();
-        assertThat(user.getUserKey()).isEqualTo("newKey");
+        assertThat(user.getMasterKey()).isEqualTo("newKey");
         assertThat(user.getPasswordKeySalt()).isEqualTo("newPasswordKeySalt");
         assertThat(user.getPerson().getFirstName()).isEqualTo("userF");
         assertThat(user.getPerson().getLastName()).isEqualTo("userL");
         assertThat(user.getPerson().getCommonName()).isEqualTo("userC");
-    }
-
-    @Test
-    public void shouldFailAddUserCausedByInvalidLogin(){
-        RequestBodyAddUser addUserRequest = createAddUserRequest();
-        addUserRequest.setAccessToken("wrong");
-
-        shouldFailAddUser(SecurityException.class, addUserRequest, "user");
-    }
-
-    @Test
-    public void shouldFailAddUserCausedByNotAdmin(){
-        RequestBodyAddUser addUserRequest = createAddUserRequest();
-        testUser.setAdmin(false);
-        userRepository.save(testUser);
-
-        shouldFailAddUser(SecurityException.class, addUserRequest, "user");
     }
 
     @Test
@@ -145,7 +126,7 @@ public class AdminUserServiceTest {
 
     @Test
     public void shouldDeleteUser(){
-        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testLogin, testUser);
+        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testUser);
         Exception exception = null;
 
         try {
@@ -159,25 +140,8 @@ public class AdminUserServiceTest {
     }
 
     @Test
-    public void shouldFailDeleteUserCausedByInvalidLogin(){
-        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testLogin, testUser);
-        deleteUserRequest.setAccessToken("wrong");
-
-        shouldFailDeleteUser(SecurityException.class, deleteUserRequest);
-    }
-
-    @Test
-    public void shouldFailDeleteUserCausedByNotAdmin(){
-        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testLogin, testUser);
-        testUser.setAdmin(false);
-        userRepository.save(testUser);
-
-        shouldFailDeleteUser(SecurityException.class, deleteUserRequest);
-    }
-
-    @Test
     public void shouldFailDeleteUserCausedByUserBotFound(){
-        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testLogin, testUser);
+        RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testUser);
         deleteUserRequest.setUsername("wrong");
 
         shouldFailDeleteUser(EntityNotFoundException.class, deleteUserRequest);
@@ -185,7 +149,7 @@ public class AdminUserServiceTest {
 
     @Test
     public void shouldResetPassword(){
-        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
+        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testUser);
         Exception exception = null;
 
         try {
@@ -198,91 +162,15 @@ public class AdminUserServiceTest {
         assertThat(exception).isNull();
         assertThat(Bcrypt.check(resetPasswordRequest.getLoginHash(), user.getLoginHashHash())).isTrue();
         assertThat(user.getPasswordKeySalt()).isEqualTo(resetPasswordRequest.getPasswordKeySalt());
-        assertThat(user.getUserKey()).isEqualTo(resetPasswordRequest.getUserKey());
+        assertThat(user.getMasterKey()).isEqualTo(resetPasswordRequest.getMasterKey());
         assertThat(user.isInit()).isFalse();
         assertThat(user.isReset()).isTrue();
     }
 
     @Test
-    public void shouldFailResetPasswordCausedByInvalidLogin(){
-        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
-        resetPasswordRequest.setAccessToken("wrong");
-
-        shouldFailResetPassword(SecurityException.class, resetPasswordRequest);
-    }
-
-    @Test
-    public void shouldFailResetPasswordCausedByNotAdmin(){
-        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
-        testUser.setAdmin(false);
-        userRepository.save(testUser);
-
-        shouldFailResetPassword(SecurityException.class, resetPasswordRequest);
-    }
-
-    @Test
     public void shouldFailResetPasswordCausedByUserNotFound(){
-        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testLogin, testUser);
+        RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testUser);
         resetPasswordRequest.setUsername("wrong");
-
-        shouldFailResetPassword(EntityNotFoundException.class, resetPasswordRequest);
-    }
-
-    @Test
-    public void shouldGetUsers(){
-        testUtils.createTextKeys();
-        ResponseBodyGetUsers usersResponse = null;
-        Exception exception = null;
-
-        try {
-            usersResponse = adminUserService.getUsers(testLogin.getAccessToken());
-        } catch (Exception ex){
-            exception = ex;
-        }
-
-        assertThat(exception).isNull();
-        assertThat(usersResponse).isNotNull();
-        assertThat(usersResponse.getPersonKey().getUsage()).isEqualTo("persons");
-        assertThat(usersResponse.getUserKey()).isEqualTo("masterKey");
-        assertThat(usersResponse.getUsers()).isNotEmpty();
-        assertThat(usersResponse.getUsers().get(0).getUsername()).isEqualTo(testUser.getUsername());
-    }
-
-    @Test
-    public void shouldFailGetUsersCausedByInvalidLogin(){
-        testUtils.createTextKeys();
-
-        shouldFailGetUsers(SecurityException.class, "wrong");
-    }
-
-    @Test
-    public void shouldFailGetUsersCausedByNotAdmin(){
-        testUtils.createTextKeys();
-        testUser.setAdmin(false);
-        userRepository.save(testUser);
-
-        shouldFailGetUsers(SecurityException.class, testLogin.getAccessToken());
-    }
-
-    @Test
-    public void shouldFailGetUsersCausedKeyNotFound(){
-        shouldFailGetUsers(EntityNotFoundException.class, testLogin.getAccessToken());
-    }
-
-    private void shouldFailGetUsers(Class exceptionClass, String accessToken){
-        Exception exception = null;
-
-        try {
-            adminUserService.getUsers(accessToken);
-        } catch (Exception ex){
-            exception = ex;
-        }
-
-        assertThat(exception).isNotNull();
-        assertThat(exception).isInstanceOf(exceptionClass);
-    }
-
-    private void shouldFailResetPassword(Class exceptionClass, RequestBodyResetPassword resetPasswordRequest){
         Exception exception = null;
 
         try {
@@ -293,12 +181,29 @@ public class AdminUserServiceTest {
 
         UserEntity user = userRepository.findByUsername(testUser.getUsername()).get();
         assertThat(exception).isNotNull();
-        assertThat(exception).isInstanceOf(exceptionClass);
+        assertThat(exception).isInstanceOf(EntityNotFoundException.class);
         assertThat(Bcrypt.check(resetPasswordRequest.getLoginHash(), user.getLoginHashHash())).isFalse();
         assertThat(user.getPasswordKeySalt()).isNotEqualTo(resetPasswordRequest.getPasswordKeySalt());
-        assertThat(user.getUserKey()).isNotEqualTo(resetPasswordRequest.getUserKey());
+        assertThat(user.getMasterKey()).isNotEqualTo(resetPasswordRequest.getMasterKey());
         assertThat(user.isInit()).isFalse();
         assertThat(user.isReset()).isFalse();
+    }
+
+    @Test
+    public void shouldGetUsers(){
+        ResponseBodyGetUsers usersResponse = null;
+        Exception exception = null;
+
+        try {
+            usersResponse = adminUserService.getUsers();
+        } catch (Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNull();
+        assertThat(usersResponse).isNotNull();
+        assertThat(usersResponse.getUsers()).isNotEmpty();
+        assertThat(usersResponse.getUsers().get(0).getUsername()).isEqualTo(testUser.getUsername());
     }
 
     private void shouldFailAddUser(Class exceptionClass, RequestBodyAddUser addUserRequest, String username){
@@ -333,7 +238,7 @@ public class AdminUserServiceTest {
     private void createAdminUser() {
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
         Person person = testUtils.createTestPerson("adminF", "adminL", "adminL");
-        testUser = new UserEntity("admin", "", loginHashHash, "masterKey", person, true, false);
+        testUser = new UserEntity("admin", "", loginHashHash, "masterKey", person, testUtils.createTestKey());
         testUser.setInit(false);
         testUser.setReset(false);
         userRepository.save(testUser);
@@ -341,7 +246,7 @@ public class AdminUserServiceTest {
     }
 
     private RequestBodyAddUser createAddUserRequest(){
-        return testUtils.createAddUserRequest(testPerson, testLogin);
+        return testUtils.createAddUserRequest(testPerson);
     }
 
 }

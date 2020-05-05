@@ -210,7 +210,7 @@ public class UserControllerTest {
     private void createTestUser(){
         Person person = testUtils.createTestPerson("testF", "testL", "testC");
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("username", "salt", loginHashHash, "masterKey", person, false, false);
+        testUser = new UserEntity("username", "salt", loginHashHash, "masterKey", person, testUtils.createTestKey());
         userRepository.save(testUser);
     }
 
@@ -239,7 +239,7 @@ public class UserControllerTest {
         passwordChange.setAccessToken(accessToken);
         passwordChange.setNewLoginHash("newValue");
         passwordChange.setNewPasswordKeySalt("newSalt");
-        passwordChange.setNewUserKey("key");
+        passwordChange.setNewMasterKey("key");
         return passwordChange;
     }
 

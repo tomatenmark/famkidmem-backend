@@ -1,8 +1,6 @@
 package de.mherrmann.famkidmem.backend.body.admin;
 
-import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorized;
-
-public class RequestBodyAddPerson extends RequestBodyAuthorized  {
+public class RequestBodyAddPerson {
 
     private String firstName;
     private String lastName;

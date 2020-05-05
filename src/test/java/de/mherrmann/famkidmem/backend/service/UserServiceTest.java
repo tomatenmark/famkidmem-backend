@@ -200,7 +200,7 @@ public class UserServiceTest {
         }
 
         String loginHashHash = userRepository.findByUsername(testUser.getUsername()).get().getLoginHashHash();
-        String key = userRepository.findByUsername(testUser.getUsername()).get().getUserKey();
+        String key = userRepository.findByUsername(testUser.getUsername()).get().getMasterKey();
         assertThat(exception).isNull();
         assertThat(Bcrypt.check("newValue", loginHashHash)).isTrue();
         assertThat(userRepository.findByUsername(testUser.getUsername()).get().isReset()).isFalse();
@@ -220,7 +220,7 @@ public class UserServiceTest {
         }
 
         String loginHashHash = userRepository.findByUsername(testUser.getUsername()).get().getLoginHashHash();
-        String key = userRepository.findByUsername(testUser.getUsername()).get().getUserKey();
+        String key = userRepository.findByUsername(testUser.getUsername()).get().getMasterKey();
         assertThat(exception).isNotNull();
         assertThat(exception).isInstanceOf(SecurityException.class);
         assertThat(Bcrypt.check("newValue", loginHashHash)).isFalse();
@@ -232,7 +232,7 @@ public class UserServiceTest {
     private void createTestUser(){
         Person person = testUtils.createTestPerson("testF", "testL", "testC");
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("username", "", loginHashHash, "masterKey", person,false, false);
+        testUser = new UserEntity("username", "", loginHashHash, "masterKey", person, testUtils.createTestKey());
         testUser.setInit(true);
         testUser.setReset(true);
         userRepository.save(testUser);

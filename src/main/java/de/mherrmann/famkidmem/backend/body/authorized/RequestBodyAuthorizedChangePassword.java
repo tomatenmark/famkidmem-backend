@@ -4,7 +4,7 @@ public class RequestBodyAuthorizedChangePassword extends RequestBodyAuthorized {
 
     private String newLoginHash;
     private String newPasswordKeySalt;
-    private String newUserKey;
+    private String newMasterKey;
 
     public String getNewLoginHash() {
         return newLoginHash;
@@ -22,11 +22,11 @@ public class RequestBodyAuthorizedChangePassword extends RequestBodyAuthorized {
         this.newPasswordKeySalt = newPasswordKeySalt;
     }
 
-    public String getNewUserKey() {
-        return newUserKey;
+    public String getNewMasterKey() {
+        return newMasterKey;
     }
 
-    public void setNewUserKey(String newUserKey) {
-        this.newUserKey = newUserKey;
+    public void setNewMasterKey(String newMasterKey) {
+        this.newMasterKey = newMasterKey;
     }
 }

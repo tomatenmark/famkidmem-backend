@@ -1,22 +1,19 @@
 package de.mherrmann.famkidmem.backend;
 
-import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
-import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetUsers;
 import de.mherrmann.famkidmem.backend.entity.Key;
 import de.mherrmann.famkidmem.backend.entity.Person;
-import de.mherrmann.famkidmem.backend.entity.Picture;
+import de.mherrmann.famkidmem.backend.entity.FileEntity;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.*;
+import de.mherrmann.famkidmem.backend.service.KeyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class TestUtils {
@@ -31,16 +28,19 @@ public class TestUtils {
     private PersonRepository personRepository;
 
     @Autowired
-    private PictureRepository pictureRepository;
+    private FileRepository fileRepository;
 
     @Autowired
     private KeyRepository keyRepository;
+
+    @Autowired
+    private KeyService keyService;
 
     public void dropAll(){
         sessionRepository.deleteAll();
         userRepository.deleteAll();
         personRepository.deleteAll();
-        pictureRepository.deleteAll();
+        fileRepository.deleteAll();
         keyRepository.deleteAll();
     }
 
@@ -52,9 +52,8 @@ public class TestUtils {
         directory.delete();
     }
 
-    public RequestBodyAddUser createAddUserRequest(Person testPerson, ResponseBodyLogin testLogin){
+    public RequestBodyAddUser createAddUserRequest(Person testPerson){
         RequestBodyAddUser addUserRequest = new RequestBodyAddUser();
-        addUserRequest.setAccessToken(testLogin.getAccessToken());
         addUserRequest.setLoginHash("newLoginHash");
         addUserRequest.setUserKey("newKey");
         addUserRequest.setPasswordKeySalt("newPasswordKeySalt");
@@ -63,19 +62,17 @@ public class TestUtils {
         return addUserRequest;
     }
 
-    public RequestBodyResetPassword createResetPasswordRequest(ResponseBodyLogin testLogin, UserEntity testUser){
+    public RequestBodyResetPassword createResetPasswordRequest(UserEntity testUser){
         RequestBodyResetPassword resetPasswordRequest = new RequestBodyResetPassword();
-        resetPasswordRequest.setAccessToken(testLogin.getAccessToken());
         resetPasswordRequest.setLoginHash("modifiedLoginHash");
-        resetPasswordRequest.setUserKey("modifiedKey");
+        resetPasswordRequest.setMasterKey("modifiedKey");
         resetPasswordRequest.setPasswordKeySalt("modifiedPasswordKeySalt");
         resetPasswordRequest.setUsername(testUser.getUsername());
         return resetPasswordRequest;
     }
 
-    public RequestBodyDeleteUser createDeleteUserRequest(ResponseBodyLogin testLogin, UserEntity testUser){
+    public RequestBodyDeleteUser createDeleteUserRequest(UserEntity testUser){
         RequestBodyDeleteUser deleteUserRequest = new RequestBodyDeleteUser();
-        deleteUserRequest.setAccessToken(testLogin.getAccessToken());
         deleteUserRequest.setUsername(testUser.getUsername());
         return deleteUserRequest;
     }
@@ -84,11 +81,9 @@ public class TestUtils {
         try {
             new File("./files").mkdir();
             new File("./files/test").createNewFile();
-            Key key = new Key("picture","key", "iv");
-            keyRepository.save(key);
-            Picture picture = new Picture(key, "test");
-            pictureRepository.save(picture);
-            Person person = new Person(firstName, lastName, commonName, picture);
+            FileEntity fileEntity = new FileEntity(createTestKey(), "test");
+            fileRepository.save(fileEntity);
+            Person person = new Person(firstName, lastName, commonName, fileEntity, createTestKey());
             personRepository.save(person);
             return person;
         } catch(IOException ex){
@@ -97,11 +92,9 @@ public class TestUtils {
         return null;
     }
 
-    public void createTextKeys(){
-        Key personKey = new Key("persons", "key", "iv");
-        Key indexKey = new Key("index", "key", "iv");
-        keyRepository.save(personKey);
-        keyRepository.save(indexKey);
+    public Key createTestKey(){
+        Key keyEntity = new Key("key", "iv");
+        return keyRepository.save(keyEntity);
     }
 
 }
