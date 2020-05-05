@@ -9,7 +9,7 @@ import javax.persistence.OneToOne;
 import java.util.UUID;
 
 @Entity
-public class Picture {
+public class FileEntity {
 
     @Id
     private String id;
@@ -20,9 +20,9 @@ public class Picture {
 
     private String filename;
 
-    private Picture(){}
+    private FileEntity(){}
 
-    public Picture(Key key, String filename) {
+    public FileEntity(Key key, String filename) {
         this.id = UUID.randomUUID().toString();
         this.key = key;
         this.filename = filename;
