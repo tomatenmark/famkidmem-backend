@@ -1,11 +1,8 @@
 package de.mherrmann.famkidmem.backend.entity;
 
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -16,29 +13,32 @@ public class UserEntity {
     private String username;
     private String passwordKeySalt;
     private String loginHashHash;
-    private String userKey;
-    private String accessToken;
-    private boolean admin;
-    private boolean editor;
+    private String masterKey;
+
+    @OneToOne
+    @JoinColumn(name = "person_id", referencedColumnName = "id")
+    private Person person;
+
+    @OneToOne
+    @JoinColumn(name = "key_id", referencedColumnName = "id")
+    private Key key;
+
     private boolean init; //indicates the user has to change username and password after login
     private boolean reset; //indicates the user has to change password after login
 
-    @OneToMany(mappedBy = "userEntity")
-    @LazyCollection(LazyCollectionOption.FALSE)
-    private List<UserSession> sessions = new ArrayList<>();
+    private UserEntity(){}
 
-    public UserEntity(){}
-
-    public UserEntity(String username, String passwordKeySalt, String loginHashHash, String userKey, boolean admin, boolean editor) {
+    public UserEntity(String username, String passwordKeySalt, String loginHashHash, String masterKey, Person person, Key key) {
         this.id = UUID.randomUUID().toString();
         this.username = username;
         this.passwordKeySalt = passwordKeySalt;
         this.loginHashHash = loginHashHash;
-        this.userKey = userKey;
-        this.admin = admin;
-        this.editor = editor;
+        this.masterKey = masterKey;
+        this.person = person;
+        this.key = key;
     }
 
+    @JsonIgnore
     public String getId() {
         return id;
     }
@@ -55,6 +55,7 @@ public class UserEntity {
         this.username = username;
     }
 
+    @JsonIgnore
     public String getPasswordKeySalt() {
         return passwordKeySalt;
     }
@@ -63,6 +64,7 @@ public class UserEntity {
         this.passwordKeySalt = passwordKeySalt;
     }
 
+    @JsonIgnore
     public String getLoginHashHash() {
         return loginHashHash;
     }
@@ -71,36 +73,21 @@ public class UserEntity {
         this.loginHashHash = loginHashHash;
     }
 
-    public String getUserKey() {
-        return userKey;
+    @JsonIgnore
+    public String getMasterKey() {
+        return masterKey;
     }
 
-    public void setUserKey(String userKey) {
-        this.userKey = userKey;
+    public void setMasterKey(String masterKey) {
+        this.masterKey = masterKey;
     }
 
-    public String getAccessToken() {
-        return accessToken;
+    public Person getPerson() {
+        return person;
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    public boolean isAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
-    }
-
-    public boolean isEditor() {
-        return editor;
-    }
-
-    public void setEditor(boolean editor) {
-        this.editor = editor;
+    public void setPerson(Person person) {
+        this.person = person;
     }
 
     public boolean isInit() {
@@ -119,13 +106,11 @@ public class UserEntity {
         this.reset = reset;
     }
 
-    public List<UserSession> getSessions() {
-        return sessions;
+    public Key getKey() {
+        return key;
     }
 
-    public void setSessions(List<UserSession> sessions) {
-        this.sessions = sessions;
+    public void setKey(Key key) {
+        this.key = key;
     }
-
-
 }

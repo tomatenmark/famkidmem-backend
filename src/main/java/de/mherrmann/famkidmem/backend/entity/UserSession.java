@@ -18,7 +18,7 @@ public class UserSession {
 
     private Timestamp lastRequest;
 
-    public UserSession(){}
+    private UserSession(){}
 
     public UserSession(UserEntity user, String accessToken){
         this.id = UUID.randomUUID().toString();

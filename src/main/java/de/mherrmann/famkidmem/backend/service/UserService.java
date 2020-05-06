@@ -61,11 +61,11 @@ public class UserService {
         UserSession session = sessionOptional.get();
         if(global){
             UserEntity user = session.getUserEntity();
-            LOGGER.info("Successfully logged out {} from accessToken {}", user.getUsername(), accessToken);
+            LOGGER.info("Successfully logged out {} from all sessions", session.getUserEntity().getUsername());
             sessionRepository.deleteAllByUserEntity(user);
         } else {
             sessionRepository.delete(session);
-            LOGGER.info("Successfully logged out {} from all sessions", session.getUserEntity().getUsername());
+            LOGGER.info("Successfully logged out {} from accessToken {}", session.getUserEntity().getUsername(), accessToken);
         }
     }
 
@@ -86,7 +86,7 @@ public class UserService {
         LOGGER.info("Successfully changed username from {} to {}", oldUsername, newUsername);
     }
 
-    public void changePassword(String accessToken, String newLoginHash, String newPasswordKeySalt, String newUserKey) throws SecurityException {
+    public void changePassword(String accessToken, String newLoginHash, String newPasswordKeySalt, String newMasterKey) throws SecurityException {
         Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
         if(!sessionOptional.isPresent()){
             LOGGER.error("Could not change password. Invalid accessToken {}", accessToken);
@@ -94,7 +94,7 @@ public class UserService {
         }
         UserEntity user = sessionOptional.get().getUserEntity();
         user.setLoginHashHash(Bcrypt.hash(newLoginHash));
-        user.setUserKey(newUserKey);
+        user.setMasterKey(newMasterKey);
         user.setPasswordKeySalt(newPasswordKeySalt);
         user.setReset(false);
         userRepository.save(user);
