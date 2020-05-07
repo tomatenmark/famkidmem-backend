@@ -5,9 +5,11 @@ public class RequestBodyAddPerson {
     private String firstName;
     private String lastName;
     private String commonName;
-    private String pictureKey;
-    private String pictureIv;
-    private String pictureFilename;
+    private String faceKey;
+    private String faceIv;
+    private String faceFile;
+    private String key;
+    private String iv;
 
     public String getFirstName() {
         return firstName;
@@ -33,27 +35,43 @@ public class RequestBodyAddPerson {
         this.commonName = commonName;
     }
 
-    public String getPictureKey() {
-        return pictureKey;
+    public String getFaceKey() {
+        return faceKey;
     }
 
-    public void setPictureKey(String pictureKey) {
-        this.pictureKey = pictureKey;
+    public void setFaceKey(String faceKey) {
+        this.faceKey = faceKey;
     }
 
-    public String getPictureIv() {
-        return pictureIv;
+    public String getFaceIv() {
+        return faceIv;
     }
 
-    public void setPictureIv(String pictureIv) {
-        this.pictureIv = pictureIv;
+    public void setFaceIv(String faceIv) {
+        this.faceIv = faceIv;
     }
 
-    public String getPictureFilename() {
-        return pictureFilename;
+    public String getFaceFile() {
+        return faceFile;
     }
 
-    public void setPictureFilename(String pictureFilename) {
-        this.pictureFilename = pictureFilename;
+    public void setFaceFile(String faceFile) {
+        this.faceFile = faceFile;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getIv() {
+        return iv;
+    }
+
+    public void setIv(String iv) {
+        this.iv = iv;
     }
 }
