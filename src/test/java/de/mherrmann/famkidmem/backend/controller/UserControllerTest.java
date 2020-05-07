@@ -27,6 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +60,7 @@ public class UserControllerTest {
     private static final String LOGIN_HASH = "loginHash";
 
     @Before
-    public void setup(){
+    public void setup() throws IOException {
         createTestUser();
     }
 
@@ -207,7 +208,7 @@ public class UserControllerTest {
         assertThat(Bcrypt.check("newValue", loginHashHash)).isFalse();
     }
 
-    private void createTestUser(){
+    private void createTestUser() throws IOException {
         Person person = testUtils.createTestPerson("testF", "testL", "testC");
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
         testUser = new UserEntity("username", "salt", loginHashHash, "masterKey", person, testUtils.createTestKey());

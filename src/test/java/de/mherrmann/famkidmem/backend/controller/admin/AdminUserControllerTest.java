@@ -26,6 +26,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -60,7 +62,7 @@ public class AdminUserControllerTest {
     private UserRepository userRepository;
 
     @Before
-    public void setup(){
+    public void setup() throws IOException {
         createAdminUser();
         testPerson = testUtils.createTestPerson("userF", "userL", "userC");
     }
@@ -242,7 +244,7 @@ public class AdminUserControllerTest {
     }
 
 
-    private void createAdminUser() {
+    private void createAdminUser() throws IOException {
         Person person = testUtils.createTestPerson("adminF", "adminL", "adminL");
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
         testUser = new UserEntity("admin", "", loginHashHash, "masterKey", person,testUtils.createTestKey());

@@ -1,5 +1,6 @@
 package de.mherrmann.famkidmem.backend;
 
+import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddPerson;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
@@ -36,7 +37,7 @@ public class TestUtils {
     @Autowired
     private KeyService keyService;
 
-    public void dropAll(){
+    public void dropAll() {
         sessionRepository.deleteAll();
         userRepository.deleteAll();
         personRepository.deleteAll();
@@ -44,15 +45,15 @@ public class TestUtils {
         keyRepository.deleteAll();
     }
 
-    public void deleteTestFiles(){
+    public void deleteTestFiles() {
         File directory = new File("./files");
-        for(File file : directory.listFiles()){
+        for (File file : directory.listFiles()) {
             file.delete();
         }
         directory.delete();
     }
 
-    public RequestBodyAddUser createAddUserRequest(Person testPerson){
+    public RequestBodyAddUser createAddUserRequest(Person testPerson) {
         RequestBodyAddUser addUserRequest = new RequestBodyAddUser();
         addUserRequest.setLoginHash("newLoginHash");
         addUserRequest.setUserKey("newKey");
@@ -62,7 +63,21 @@ public class TestUtils {
         return addUserRequest;
     }
 
-    public RequestBodyResetPassword createResetPasswordRequest(UserEntity testUser){
+    public RequestBodyAddPerson createAddPersonRequest() throws IOException {
+        createTestFile();
+        RequestBodyAddPerson addPersonRequest = new RequestBodyAddPerson();
+        addPersonRequest.setFirstName("testF");
+        addPersonRequest.setLastName("testL");
+        addPersonRequest.setCommonName("testC");
+        addPersonRequest.setFaceFile("test");
+        addPersonRequest.setFaceKey("fileKey");
+        addPersonRequest.setFaceIv("fileIv");
+        addPersonRequest.setKey("key");
+        addPersonRequest.setIv("iv");
+        return addPersonRequest;
+    }
+
+    public RequestBodyResetPassword createResetPasswordRequest(UserEntity testUser) {
         RequestBodyResetPassword resetPasswordRequest = new RequestBodyResetPassword();
         resetPasswordRequest.setLoginHash("modifiedLoginHash");
         resetPasswordRequest.setMasterKey("modifiedKey");
@@ -71,30 +86,28 @@ public class TestUtils {
         return resetPasswordRequest;
     }
 
-    public RequestBodyDeleteUser createDeleteUserRequest(UserEntity testUser){
+    public RequestBodyDeleteUser createDeleteUserRequest(UserEntity testUser) {
         RequestBodyDeleteUser deleteUserRequest = new RequestBodyDeleteUser();
         deleteUserRequest.setUsername(testUser.getUsername());
         return deleteUserRequest;
     }
 
-    public Person createTestPerson(String firstName, String lastName, String commonName) {
-        try {
-            new File("./files").mkdir();
-            new File("./files/test").createNewFile();
-            FileEntity fileEntity = new FileEntity(createTestKey(), "test");
-            fileRepository.save(fileEntity);
-            Person person = new Person(firstName, lastName, commonName, fileEntity, createTestKey());
-            personRepository.save(person);
-            return person;
-        } catch(IOException ex){
-            ex.printStackTrace();
-        }
-        return null;
+    public Person createTestPerson(String firstName, String lastName, String commonName) throws IOException {
+        createTestFile();
+        FileEntity fileEntity = new FileEntity(createTestKey(), "test");
+        fileRepository.save(fileEntity);
+        Person person = new Person(firstName, lastName, commonName, fileEntity, createTestKey());
+        personRepository.save(person);
+        return person;
     }
 
-    public Key createTestKey(){
-        Key keyEntity = new Key("key", "iv");
-        return keyRepository.save(keyEntity);
+    public Key createTestKey() {
+        return keyService.createNewKey("key", "iv");
+    }
+
+    private void createTestFile() throws IOException {
+        new File("./files").mkdir();
+        new File("./files/test").createNewFile();
     }
 
 }

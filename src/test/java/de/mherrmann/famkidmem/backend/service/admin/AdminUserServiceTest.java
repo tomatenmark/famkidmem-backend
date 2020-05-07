@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -46,7 +48,7 @@ public class AdminUserServiceTest {
     private UserRepository userRepository;
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         testPerson = testUtils.createTestPerson("userF", "userL", "userC");
         createAdminUser();
     }
@@ -101,7 +103,7 @@ public class AdminUserServiceTest {
     }
 
     @Test
-    public void shouldFailAddUserCausedByUserAlreadyExists() {
+    public void shouldFailAddUserCausedByUserAlreadyExists() throws IOException {
         Person person = testUtils.createTestPerson("user2F", "user2L", "user2C");
         RequestBodyAddUser addUserRequest = createAddUserRequest();
         try {
@@ -235,7 +237,7 @@ public class AdminUserServiceTest {
         assertThat(userRepository.existsByUsername(testUser.getUsername())).isTrue();
     }
 
-    private void createAdminUser() {
+    private void createAdminUser() throws IOException {
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
         Person person = testUtils.createTestPerson("adminF", "adminL", "adminL");
         testUser = new UserEntity("admin", "", loginHashHash, "masterKey", person, testUtils.createTestKey());
