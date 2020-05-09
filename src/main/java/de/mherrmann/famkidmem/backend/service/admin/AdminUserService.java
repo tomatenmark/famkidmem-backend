@@ -27,16 +27,16 @@ public class AdminUserService {
 
     private final UserRepository userRepository;
     private final SessionRepository sessionRepository;
-    private final PersonRepository personRepository;
+    private final AdminPersonService adminPersonService;
     private final KeyService keyService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminUserService.class);
 
     @Autowired
-    public AdminUserService(UserRepository userRepository, SessionRepository sessionRepository, PersonRepository personRepository, KeyService keyService) {
+    public AdminUserService(UserRepository userRepository, SessionRepository sessionRepository, AdminPersonService adminPersonService, KeyService keyService) {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;
-        this.personRepository = personRepository;
+        this.adminPersonService = adminPersonService;
         this.keyService = keyService;
     }
 
@@ -90,12 +90,7 @@ public class AdminUserService {
     }
 
     private Person getPerson(String personId) throws AddUserException, EntityNotFoundException {
-        Optional<Person> personOptional = personRepository.findById(personId);
-        if(!personOptional.isPresent()){
-            LOGGER.error("Could not add user. Invalid personId {}", personId);
-            throw new EntityNotFoundException(Person.class, personId);
-        }
-        Person person = personOptional.get();
+        Person person = adminPersonService.getPerson(personId);
         if(userRepository.existsByPerson(person)){
             LOGGER.error("Could not add user. User for person {} {} already exists", person.getFirstName(), person.getLastName());
             throw new AddUserException("User for Person already exist: " + person.getCommonName());

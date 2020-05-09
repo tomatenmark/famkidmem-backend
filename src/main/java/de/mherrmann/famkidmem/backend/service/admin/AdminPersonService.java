@@ -54,10 +54,10 @@ public class AdminPersonService {
         updatePerson(oldPerson, updatePersonRequest, faceKey);
     }
 
-    private Person getPerson(String personId) throws EntityNotFoundException {
+    Person getPerson(String personId) throws EntityNotFoundException {
         Optional<Person> personOptional = personRepository.findById(personId);
         if(!personOptional.isPresent()){
-            LOGGER.error("Could not update person. Invalid personId {}", personId);
+            LOGGER.error("Could not get person. Invalid personId {}", personId);
             throw new EntityNotFoundException(Person.class, personId);
         }
         return personOptional.get();
