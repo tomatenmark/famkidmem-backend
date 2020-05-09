@@ -5,6 +5,7 @@ import de.mherrmann.famkidmem.backend.Application;
 import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.admin.*;
+import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.repository.PersonRepository;
 import org.junit.After;
 import org.junit.Before;
@@ -84,6 +85,46 @@ public class AdminPersonControllerTest {
         shouldFailAddPerson("Could not add person. Reason: Face file does not exist: " + addPersonRequest.getFaceFile(), addPersonRequest);
     }
 
+    @Test
+    public void shouldUpdatePerson() throws Exception {
+        Person oldPerson = testUtils.createTestPerson("firstName", "lastName", "commonName");
+        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest(oldPerson.getId());
+
+
+        MvcResult mvcResult = this.mockMvc.perform(post("/admin/person/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(updatePersonRequest)))
+                .andExpect(status().is(HttpStatus.OK.value()))
+                .andReturn();
+
+        String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        assertThat(message).isEqualTo("ok");
+        assertThat(details).isEqualTo("Successfully updated person: " + updatePersonRequest.getCommonName());
+        assertThat(personRepository.findById(oldPerson.getId()).get().getLastName()).isEqualTo(updatePersonRequest.getLastName());
+    }
+
+    @Test
+    public void shouldFailUpdatePersonCausedByInvalidPersonId() throws Exception {
+        Person oldPerson = testUtils.createTestPerson("firstName", "lastName", "commonName");
+        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest(oldPerson.getId());
+        updatePersonRequest.setId("invalid");
+
+        shouldFailUpdatePerson("Entity does not exist. Type: Person; designator: invalid", updatePersonRequest, oldPerson);
+    }
+
+    @Test
+    public void shouldFailUpdatePersonCausedByEponymousPersonExists() throws Exception {
+        Person oldPerson = testUtils.createTestPerson("firstName", "lastName", "commonName");
+        testUtils.createTestPerson("first", "last", "common");
+        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest(oldPerson.getId());
+        updatePersonRequest.setFirstName("first");
+        updatePersonRequest.setLastName("last");
+        updatePersonRequest.setCommonName("common");
+
+        shouldFailUpdatePerson("Could not update person. Reason: Another person with same names already exists.", updatePersonRequest, oldPerson);
+    }
+
     private void shouldFailAddPerson(String expectedDetails, RequestBodyAddPerson addPersonRequest) throws Exception {
         long countBefore = personRepository.count();
 
@@ -98,6 +139,25 @@ public class AdminPersonControllerTest {
         assertThat(message).isEqualTo("error");
         assertThat(details).isEqualTo(expectedDetails);
         assertThat(personRepository.count()).isEqualTo(countBefore);
+    }
+
+    private void shouldFailUpdatePerson(String expectedDetails, RequestBodyUpdatePerson updatePersonRequest, Person oldPerson) throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(post("/admin/person/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(updatePersonRequest)))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andReturn();
+
+        String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        assertThat(message).isEqualTo("error");
+        assertThat(details).isEqualTo(expectedDetails);
+        if(updatePersonRequest.getId().equals("invalid")){
+            assertThat(personRepository.findById(updatePersonRequest.getId()).isPresent()).isFalse();
+        } else {
+            Person person= personRepository.findById(oldPerson.getId()).get();
+            assertThat(person.getLastName()).isEqualTo("lastName");
+        }
     }
 
     private static String asJsonString(final Object obj) {

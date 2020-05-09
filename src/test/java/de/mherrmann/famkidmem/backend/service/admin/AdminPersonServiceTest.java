@@ -5,6 +5,8 @@ import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.admin.*;
 import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.exception.AddPersonException;
+import de.mherrmann.famkidmem.backend.exception.EntityNotFoundException;
+import de.mherrmann.famkidmem.backend.exception.UpdatePersonException;
 import de.mherrmann.famkidmem.backend.repository.PersonRepository;
 import org.junit.After;
 import org.junit.Before;
@@ -81,6 +83,46 @@ public class AdminPersonServiceTest {
         shouldFailAddPerson(addPersonRequest);
     }
 
+    @Test
+    public void shouldUpdatePerson() throws IOException {
+        Person oldPerson = testUtils.createTestPerson("firstName", "lastName", "commonName");
+        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest(oldPerson.getId());
+        Exception exception = null;
+
+        try {
+            adminPersonService.updatePerson(updatePersonRequest);
+        } catch(Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNull();
+        Person person = personRepository.findById(oldPerson.getId()).get();
+        assertThat(person.getLastName()).isEqualTo("newLast");
+        assertThat(person.getFace().getKey().getKey()).isEqualTo("newFileKey");
+        assertThat(person.getFace().getKey().getIv()).isEqualTo("newFileIv");
+    }
+
+    @Test
+    public void shouldFailUpdatePersonCausedByInvalidPersonId() throws IOException {
+        Person oldPerson = testUtils.createTestPerson("firstName", "lastName", "commonName");
+        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest(oldPerson.getId());
+        updatePersonRequest.setId("invalid");
+
+        shouldFailUpdatePerson(oldPerson, updatePersonRequest, EntityNotFoundException.class);
+    }
+
+    @Test
+    public void shouldFailUpdatePersonCausedByEponymousPersonExists() throws IOException {
+        Person oldPerson = testUtils.createTestPerson("firstName", "lastName", "commonName");
+        testUtils.createTestPerson("first", "last", "common");
+        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest(oldPerson.getId());
+        updatePersonRequest.setFirstName("first");
+        updatePersonRequest.setLastName("last");
+        updatePersonRequest.setCommonName("common");
+
+        shouldFailUpdatePerson(oldPerson, updatePersonRequest, UpdatePersonException.class);
+    }
+
     private void shouldFailAddPerson(RequestBodyAddPerson addPersonRequest){
         long countBefore = personRepository.count();
         Exception exception = null;
@@ -94,6 +136,28 @@ public class AdminPersonServiceTest {
         assertThat(exception).isNotNull();
         assertThat(exception).isInstanceOf(AddPersonException.class);
         assertThat(personRepository.count()).isEqualTo(countBefore);
+    }
+
+    private void shouldFailUpdatePerson(Person oldPerson, RequestBodyUpdatePerson updatePersonRequest, Class exceptionClass){
+        Exception exception = null;
+
+        try {
+            adminPersonService.updatePerson(updatePersonRequest);
+        } catch(Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNotNull();
+        assertThat(exception).isInstanceOf(exceptionClass);
+        if(updatePersonRequest.getId().equals("invalid")){
+            assertThat(personRepository.findById(updatePersonRequest.getId()).isPresent()).isFalse();
+        } else {
+            Person person= personRepository.findById(oldPerson.getId()).get();
+            assertThat(person.getLastName()).isEqualTo("lastName");
+            assertThat(person.getFace().getKey().getKey()).isEqualTo("key");
+            assertThat(person.getFace().getKey().getIv()).isEqualTo("iv");
+        }
+
     }
 
 }

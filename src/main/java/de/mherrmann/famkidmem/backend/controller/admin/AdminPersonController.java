@@ -28,4 +28,14 @@ public class AdminPersonController {
         }
     }
 
+    @PostMapping(value = "/update")
+    public ResponseEntity<ResponseBody> addPerson(@RequestBody RequestBodyUpdatePerson updatePersonRequest){
+        try {
+            adminPersonService.updatePerson(updatePersonRequest);
+            return ResponseEntity.ok(new ResponseBody("ok", "Successfully updated person: " + updatePersonRequest.getCommonName()));
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(new ResponseBody("error", ex.getMessage(), ex));
+        }
+    }
+
 }

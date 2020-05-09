@@ -1,9 +1,6 @@
 package de.mherrmann.famkidmem.backend;
 
-import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddPerson;
-import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
-import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
-import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
+import de.mherrmann.famkidmem.backend.body.admin.*;
 import de.mherrmann.famkidmem.backend.entity.Key;
 import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.FileEntity;
@@ -75,6 +72,17 @@ public class TestUtils {
         addPersonRequest.setKey("key");
         addPersonRequest.setIv("iv");
         return addPersonRequest;
+    }
+
+    public RequestBodyUpdatePerson createUpdatePersonRequest(String id) {
+        RequestBodyUpdatePerson addUpdateRequest = new RequestBodyUpdatePerson();
+        addUpdateRequest.setId(id);
+        addUpdateRequest.setFirstName("testF");
+        addUpdateRequest.setLastName("newLast");
+        addUpdateRequest.setCommonName("testC");
+        addUpdateRequest.setFaceKey("newFileKey");
+        addUpdateRequest.setFaceIv("newFileIv");
+        return addUpdateRequest;
     }
 
     public RequestBodyResetPassword createResetPasswordRequest(UserEntity testUser) {
