@@ -240,7 +240,7 @@ public class AdminUserServiceTest {
     private void createAdminUser() throws IOException {
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
         Person person = testUtils.createTestPerson("adminF", "adminL", "adminL");
-        testUser = new UserEntity("admin", "", loginHashHash, "masterKey", person, testUtils.createTestKey());
+        testUser = new UserEntity("admin", "", loginHashHash, "masterKey", person);
         testUser.setInit(false);
         testUser.setReset(false);
         userRepository.save(testUser);

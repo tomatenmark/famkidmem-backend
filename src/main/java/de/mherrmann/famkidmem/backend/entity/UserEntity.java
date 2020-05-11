@@ -19,23 +19,18 @@ public class UserEntity {
     @JoinColumn(name = "person_id", referencedColumnName = "id")
     private Person person;
 
-    @OneToOne
-    @JoinColumn(name = "key_id", referencedColumnName = "id")
-    private Key key;
-
     private boolean init; //indicates the user has to change username and password after login
     private boolean reset; //indicates the user has to change password after login
 
     private UserEntity(){}
 
-    public UserEntity(String username, String passwordKeySalt, String loginHashHash, String masterKey, Person person, Key key) {
+    public UserEntity(String username, String passwordKeySalt, String loginHashHash, String masterKey, Person person) {
         this.id = UUID.randomUUID().toString();
         this.username = username;
         this.passwordKeySalt = passwordKeySalt;
         this.loginHashHash = loginHashHash;
         this.masterKey = masterKey;
         this.person = person;
-        this.key = key;
     }
 
     @JsonIgnore
@@ -104,13 +99,5 @@ public class UserEntity {
 
     public void setReset(boolean reset) {
         this.reset = reset;
-    }
-
-    public Key getKey() {
-        return key;
-    }
-
-    public void setKey(Key key) {
-        this.key = key;
     }
 }

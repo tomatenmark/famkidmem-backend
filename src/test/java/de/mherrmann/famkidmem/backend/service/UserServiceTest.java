@@ -234,7 +234,7 @@ public class UserServiceTest {
     private void createTestUser() throws IOException {
         Person person = testUtils.createTestPerson("testF", "testL", "testC");
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("username", "", loginHashHash, "masterKey", person, testUtils.createTestKey());
+        testUser = new UserEntity("username", "", loginHashHash, "masterKey", person);
         testUser.setInit(true);
         testUser.setReset(true);
         userRepository.save(testUser);

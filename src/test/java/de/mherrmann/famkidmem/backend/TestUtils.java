@@ -6,7 +6,6 @@ import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.FileEntity;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.*;
-import de.mherrmann.famkidmem.backend.service.KeyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,9 +29,6 @@ public class TestUtils {
 
     @Autowired
     private KeyRepository keyRepository;
-
-    @Autowired
-    private KeyService keyService;
 
     public void dropAll() {
         sessionRepository.deleteAll();
@@ -113,8 +109,9 @@ public class TestUtils {
         return person;
     }
 
-    public Key createTestKey() {
-        return keyService.createNewKey("key", "iv");
+    public Key createTestKey(){
+        Key keyEntity = new Key("key", "iv");
+        return keyRepository.save(keyEntity);
     }
 
     private void createTestFile() throws IOException {

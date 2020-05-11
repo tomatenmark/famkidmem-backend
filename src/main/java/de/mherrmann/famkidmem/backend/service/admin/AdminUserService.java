@@ -8,10 +8,8 @@ import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.exception.AddUserException;
 import de.mherrmann.famkidmem.backend.exception.EntityNotFoundException;
-import de.mherrmann.famkidmem.backend.repository.PersonRepository;
 import de.mherrmann.famkidmem.backend.repository.SessionRepository;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
-import de.mherrmann.famkidmem.backend.service.KeyService;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,16 +26,14 @@ public class AdminUserService {
     private final UserRepository userRepository;
     private final SessionRepository sessionRepository;
     private final AdminPersonService adminPersonService;
-    private final KeyService keyService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminUserService.class);
 
     @Autowired
-    public AdminUserService(UserRepository userRepository, SessionRepository sessionRepository, AdminPersonService adminPersonService, KeyService keyService) {
+    public AdminUserService(UserRepository userRepository, SessionRepository sessionRepository, AdminPersonService adminPersonService) {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;
         this.adminPersonService = adminPersonService;
-        this.keyService = keyService;
     }
 
     public void addUser(RequestBodyAddUser addUserRequest) throws AddUserException, EntityNotFoundException {
@@ -48,7 +44,7 @@ public class AdminUserService {
         Person person = getPerson(addUserRequest);
         String loginHashHash = Bcrypt.hash(addUserRequest.getLoginHash());
         UserEntity user = new UserEntity(addUserRequest.getUsername(), addUserRequest.getPasswordKeySalt(), loginHashHash,
-                addUserRequest.getUserKey(), person, keyService.createNewKey(addUserRequest.getKey(), addUserRequest.getIv()));
+                addUserRequest.getUserKey(), person);
         user.setInit(true);
         userRepository.save(user);
         LOGGER.info("Successfully added user {}", addUserRequest.getUsername());

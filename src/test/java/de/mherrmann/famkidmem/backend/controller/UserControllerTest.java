@@ -211,7 +211,7 @@ public class UserControllerTest {
     private void createTestUser() throws IOException {
         Person person = testUtils.createTestPerson("testF", "testL", "testC");
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("username", "salt", loginHashHash, "masterKey", person, testUtils.createTestKey());
+        testUser = new UserEntity("username", "salt", loginHashHash, "masterKey", person);
         userRepository.save(testUser);
     }
 

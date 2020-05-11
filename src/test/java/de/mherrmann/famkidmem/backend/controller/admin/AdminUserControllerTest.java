@@ -252,7 +252,7 @@ public class AdminUserControllerTest {
     private void createAdminUser() throws IOException {
         Person person = testUtils.createTestPerson("adminF", "adminL", "adminL");
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("admin", "", loginHashHash, "masterKey", person,testUtils.createTestKey());
+        testUser = new UserEntity("admin", "", loginHashHash, "masterKey", person);
         testUser.setInit(false);
         testUser.setReset(false);
         userRepository.save(testUser);
