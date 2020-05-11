@@ -5,7 +5,7 @@ public class RequestBodyAddUser {
     private String username;
     private String loginHash;
     private String passwordKeySalt;
-    private String userKey;
+    private String masterKey;
     private String personFirstName;
     private String personLastName;
     private String personCommonName;
@@ -36,12 +36,12 @@ public class RequestBodyAddUser {
         this.passwordKeySalt = passwordKeySalt;
     }
 
-    public String getUserKey() {
-        return userKey;
+    public String getMasterKey() {
+        return masterKey;
     }
 
-    public void setUserKey(String userKey) {
-        this.userKey = userKey;
+    public void setMasterKey(String masterKey) {
+        this.masterKey = masterKey;
     }
 
     public String getPersonFirstName() {
