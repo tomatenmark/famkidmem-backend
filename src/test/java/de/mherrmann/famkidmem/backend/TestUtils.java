@@ -49,7 +49,7 @@ public class TestUtils {
     public RequestBodyAddUser createAddUserRequest(Person testPerson) {
         RequestBodyAddUser addUserRequest = new RequestBodyAddUser();
         addUserRequest.setLoginHash("newLoginHash");
-        addUserRequest.setUserKey("newKey");
+        addUserRequest.setMasterKey("newKey");
         addUserRequest.setPasswordKeySalt("newPasswordKeySalt");
         addUserRequest.setUsername("user");
         addUserRequest.setPersonFirstName(testPerson.getFirstName());
@@ -85,6 +85,14 @@ public class TestUtils {
         return addUpdateRequest;
     }
 
+    public RequestBodyDeletePerson createDeletePersonRequest(Person person) {
+        RequestBodyDeletePerson deletePersonRequest = new RequestBodyDeletePerson();
+        deletePersonRequest.setFirstName(person.getFirstName());
+        deletePersonRequest.setLastName(person.getLastName());
+        deletePersonRequest.setCommonName(person.getCommonName());
+        return deletePersonRequest;
+    }
+
     public RequestBodyResetPassword createResetPasswordRequest(UserEntity testUser) {
         RequestBodyResetPassword resetPasswordRequest = new RequestBodyResetPassword();
         resetPasswordRequest.setLoginHash("modifiedLoginHash");
@@ -109,7 +117,12 @@ public class TestUtils {
         return person;
     }
 
-    public Key createTestKey(){
+    public UserEntity createTestUser(Person person){
+        UserEntity user = new UserEntity("username", "salt", "hash", "masterKey", person);
+        return userRepository.save(user);
+    }
+
+    private Key createTestKey(){
         Key keyEntity = new Key("key", "iv");
         return keyRepository.save(keyEntity);
     }

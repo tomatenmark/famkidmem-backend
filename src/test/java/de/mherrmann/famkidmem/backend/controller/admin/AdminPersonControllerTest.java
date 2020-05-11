@@ -128,6 +128,43 @@ public class AdminPersonControllerTest {
         shouldFailUpdatePerson("Could not update person. Reason: Another person with same names already exists.", updatePersonRequest, oldPerson);
     }
 
+    @Test
+    public void shouldDeletePerson() throws Exception {
+        Person person = testUtils.createTestPerson("first", "last", "common");
+        RequestBodyDeletePerson deletePersonRequest = testUtils.createDeletePersonRequest(person);
+        long expectedCount = personRepository.count()-1;
+
+        MvcResult mvcResult = this.mockMvc.perform(delete("/admin/person/delete")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(deletePersonRequest)))
+                .andExpect(status().is(HttpStatus.OK.value()))
+                .andReturn();
+
+        String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        assertThat(message).isEqualTo("ok");
+        assertThat(details).isEqualTo("Successfully deleted person: " + deletePersonRequest.getCommonName());
+        assertThat(personRepository.count()).isEqualTo(expectedCount);
+    }
+
+    @Test
+    public void shouldFailDeletePersonCausedByEntityNotFound() throws Exception {
+        Person person = testUtils.createTestPerson("first", "last", "common");
+        RequestBodyDeletePerson deletePersonRequest = testUtils.createDeletePersonRequest(person);
+        deletePersonRequest.setFirstName("invalid");
+
+        shouldFailDeletePerson("Entity does not exist. Type: Person; designator: invalid, last, common", deletePersonRequest);
+    }
+
+    @Test
+    public void shouldFailDeletePersonCausedByPersonHasUser() throws Exception {
+        Person person = testUtils.createTestPerson("first", "last", "common");
+        testUtils.createTestUser(person);
+        RequestBodyDeletePerson deletePersonRequest = testUtils.createDeletePersonRequest(person);
+
+        shouldFailDeletePerson("Could not delete person. Reason: This person still has an user. Username: username", deletePersonRequest);
+    }
+
     private void shouldFailAddPerson(String expectedDetails, RequestBodyAddPerson addPersonRequest) throws Exception {
         long countBefore = personRepository.count();
 
@@ -163,6 +200,22 @@ public class AdminPersonControllerTest {
             Person person= personRepository.findById(oldPerson.getId()).get();
             assertThat(person.getLastName()).isEqualTo("lastName");
         }
+    }
+
+    private void shouldFailDeletePerson(String expectedDetails, RequestBodyDeletePerson deletePersonRequest) throws Exception {
+        long countBefore = personRepository.count();
+
+        MvcResult mvcResult = this.mockMvc.perform(delete("/admin/person/delete")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(deletePersonRequest)))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andReturn();
+
+        String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        assertThat(message).isEqualTo("error");
+        assertThat(details).isEqualTo(expectedDetails);
+        assertThat(personRepository.count()).isEqualTo(countBefore);
     }
 
     private static String asJsonString(final Object obj) {

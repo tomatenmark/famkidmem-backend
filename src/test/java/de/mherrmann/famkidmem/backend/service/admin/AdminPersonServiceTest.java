@@ -4,9 +4,8 @@ import de.mherrmann.famkidmem.backend.Application;
 import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.admin.*;
 import de.mherrmann.famkidmem.backend.entity.Person;
-import de.mherrmann.famkidmem.backend.exception.AddPersonException;
+import de.mherrmann.famkidmem.backend.exception.PersonActionException;
 import de.mherrmann.famkidmem.backend.exception.EntityNotFoundException;
-import de.mherrmann.famkidmem.backend.exception.UpdatePersonException;
 import de.mherrmann.famkidmem.backend.repository.PersonRepository;
 import org.junit.After;
 import org.junit.Before;
@@ -120,7 +119,42 @@ public class AdminPersonServiceTest {
         updatePersonRequest.setLastName("last");
         updatePersonRequest.setCommonName("common");
 
-        shouldFailUpdatePerson(oldPerson, updatePersonRequest, UpdatePersonException.class);
+        shouldFailUpdatePerson(oldPerson, updatePersonRequest, PersonActionException.class);
+    }
+
+    @Test
+    public void shouldDeletePerson() throws IOException {
+        Person person = testUtils.createTestPerson("first", "last", "common");
+        RequestBodyDeletePerson deletePersonRequest = testUtils.createDeletePersonRequest(person);
+
+        Exception exception = null;
+
+        try {
+            adminPersonService.deletePerson(deletePersonRequest);
+        } catch(Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNull();
+        assertThat(personRepository.findById(person.getId()).isPresent()).isFalse();
+    }
+
+    @Test
+    public void shouldFailDeletePersonCausedByEntityNotFound() throws IOException {
+        Person person = testUtils.createTestPerson("first", "last", "common");
+        RequestBodyDeletePerson deletePersonRequest = testUtils.createDeletePersonRequest(person);
+        deletePersonRequest.setFirstName("invalid");
+
+        shouldFailDeletePerson(deletePersonRequest, EntityNotFoundException.class);
+    }
+
+    @Test
+    public void shouldFailDeletePersonCausedByPersonHasUser() throws IOException {
+        Person person = testUtils.createTestPerson("first", "last", "common");
+        testUtils.createTestUser(person);
+        RequestBodyDeletePerson deletePersonRequest = testUtils.createDeletePersonRequest(person);
+
+        shouldFailDeletePerson(deletePersonRequest, PersonActionException.class);
     }
 
     private void shouldFailAddPerson(RequestBodyAddPerson addPersonRequest){
@@ -134,7 +168,7 @@ public class AdminPersonServiceTest {
         }
 
         assertThat(exception).isNotNull();
-        assertThat(exception).isInstanceOf(AddPersonException.class);
+        assertThat(exception).isInstanceOf(PersonActionException.class);
         assertThat(personRepository.count()).isEqualTo(countBefore);
     }
 
@@ -152,6 +186,7 @@ public class AdminPersonServiceTest {
         assertThat(exception).isInstanceOf(exceptionClass);
         if(updatePersonRequest.getOldFirstName().equals("invalid")){
             assertThat(personRepository.count()).isEqualTo(countBefore);
+            assertThat(personRepository.findById(oldPerson.getId()).get().getFirstName()).isEqualTo(oldPerson.getFirstName());
         } else {
             Person person= personRepository.findById(oldPerson.getId()).get();
             assertThat(person.getLastName()).isEqualTo("lastName");
@@ -159,6 +194,21 @@ public class AdminPersonServiceTest {
             assertThat(person.getFace().getKey().getIv()).isEqualTo("iv");
         }
 
+    }
+
+    private void shouldFailDeletePerson(RequestBodyDeletePerson deletePersonRequest, Class exceptionClass) {
+        Exception exception = null;
+        long countBefore = personRepository.count();
+
+        try {
+            adminPersonService.deletePerson(deletePersonRequest);
+        } catch(Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNotNull();
+        assertThat(exception).isInstanceOf(exceptionClass);
+        assertThat(personRepository.count()).isEqualTo(countBefore);
     }
 
 }

@@ -44,7 +44,7 @@ public class AdminUserService {
         Person person = getPerson(addUserRequest);
         String loginHashHash = Bcrypt.hash(addUserRequest.getLoginHash());
         UserEntity user = new UserEntity(addUserRequest.getUsername(), addUserRequest.getPasswordKeySalt(), loginHashHash,
-                addUserRequest.getUserKey(), person);
+                addUserRequest.getMasterKey(), person);
         user.setInit(true);
         userRepository.save(user);
         LOGGER.info("Successfully added user {}", addUserRequest.getUsername());

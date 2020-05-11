@@ -38,4 +38,14 @@ public class AdminPersonController {
         }
     }
 
+    @DeleteMapping(value = "/delete")
+    public ResponseEntity<ResponseBody> deletePerson(@RequestBody RequestBodyDeletePerson deletePersonRequest){
+        try {
+            adminPersonService.deletePerson(deletePersonRequest);
+            return ResponseEntity.ok(new ResponseBody("ok", "Successfully deleted person: " + deletePersonRequest.getCommonName()));
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(new ResponseBody("error", ex.getMessage(), ex));
+        }
+    }
+
 }
