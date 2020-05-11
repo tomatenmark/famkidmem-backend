@@ -1,19 +1,37 @@
 package de.mherrmann.famkidmem.backend.body.admin;
 
 public class RequestBodyUpdatePerson {
-    private String id;
+    private String oldFirstName;
+    private String oldLastName;
+    private String oldCommonName;
     private String firstName;
     private String lastName;
     private String commonName;
     private String faceKey;
     private String faceIv;
 
-    public String getId() {
-        return id;
+    public String getOldFirstName() {
+        return oldFirstName;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setOldFirstName(String oldFirstName) {
+        this.oldFirstName = oldFirstName;
+    }
+
+    public String getOldLastName() {
+        return oldLastName;
+    }
+
+    public void setOldLastName(String oldLastName) {
+        this.oldLastName = oldLastName;
+    }
+
+    public String getOldCommonName() {
+        return oldCommonName;
+    }
+
+    public void setOldCommonName(String oldCommonName) {
+        this.oldCommonName = oldCommonName;
     }
 
     public String getFirstName() {

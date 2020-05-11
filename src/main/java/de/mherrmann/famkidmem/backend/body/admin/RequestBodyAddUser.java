@@ -6,7 +6,9 @@ public class RequestBodyAddUser {
     private String loginHash;
     private String passwordKeySalt;
     private String userKey;
-    private String personId;
+    private String personFirstName;
+    private String personLastName;
+    private String personCommonName;
     private String key;
     private String iv;
 
@@ -42,12 +44,28 @@ public class RequestBodyAddUser {
         this.userKey = userKey;
     }
 
-    public String getPersonId() {
-        return personId;
+    public String getPersonFirstName() {
+        return personFirstName;
     }
 
-    public void setPersonId(String personId) {
-        this.personId = personId;
+    public void setPersonFirstName(String personFirstName) {
+        this.personFirstName = personFirstName;
+    }
+
+    public String getPersonLastName() {
+        return personLastName;
+    }
+
+    public void setPersonLastName(String personLastName) {
+        this.personLastName = personLastName;
+    }
+
+    public String getPersonCommonName() {
+        return personCommonName;
+    }
+
+    public void setPersonCommonName(String personCommonName) {
+        this.personCommonName = personCommonName;
     }
 
     public String getKey() {

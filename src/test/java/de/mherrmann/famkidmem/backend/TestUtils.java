@@ -56,7 +56,9 @@ public class TestUtils {
         addUserRequest.setUserKey("newKey");
         addUserRequest.setPasswordKeySalt("newPasswordKeySalt");
         addUserRequest.setUsername("user");
-        addUserRequest.setPersonId(testPerson.getId());
+        addUserRequest.setPersonFirstName(testPerson.getFirstName());
+        addUserRequest.setPersonLastName(testPerson.getLastName());
+        addUserRequest.setPersonCommonName(testPerson.getCommonName());
         return addUserRequest;
     }
 
@@ -74,9 +76,11 @@ public class TestUtils {
         return addPersonRequest;
     }
 
-    public RequestBodyUpdatePerson createUpdatePersonRequest(String id) {
+    public RequestBodyUpdatePerson createUpdatePersonRequest(String firstName, String lastName, String commonName) {
         RequestBodyUpdatePerson addUpdateRequest = new RequestBodyUpdatePerson();
-        addUpdateRequest.setId(id);
+        addUpdateRequest.setOldFirstName(firstName);
+        addUpdateRequest.setOldLastName(lastName);
+        addUpdateRequest.setOldCommonName(commonName);
         addUpdateRequest.setFirstName("testF");
         addUpdateRequest.setLastName("newLast");
         addUpdateRequest.setCommonName("testC");

@@ -88,7 +88,7 @@ public class AdminPersonControllerTest {
     @Test
     public void shouldUpdatePerson() throws Exception {
         Person oldPerson = testUtils.createTestPerson("firstName", "lastName", "commonName");
-        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest(oldPerson.getId());
+        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest("firstName", "lastName", "commonName");
 
 
         MvcResult mvcResult = this.mockMvc.perform(post("/admin/person/update")
@@ -107,17 +107,20 @@ public class AdminPersonControllerTest {
     @Test
     public void shouldFailUpdatePersonCausedByInvalidPersonId() throws Exception {
         Person oldPerson = testUtils.createTestPerson("firstName", "lastName", "commonName");
-        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest(oldPerson.getId());
-        updatePersonRequest.setId("invalid");
+        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest("firstName", "lastName", "commonName");
+        updatePersonRequest.setOldFirstName("invalid");
+        String firstName = updatePersonRequest.getOldFirstName();
+        String lastName = updatePersonRequest.getOldLastName();
+        String commonName = updatePersonRequest.getOldCommonName();
 
-        shouldFailUpdatePerson("Entity does not exist. Type: Person; designator: invalid", updatePersonRequest, oldPerson);
+        shouldFailUpdatePerson(String.format("Entity does not exist. Type: Person; designator: %s, %s, %s", firstName, lastName, commonName), updatePersonRequest, oldPerson);
     }
 
     @Test
     public void shouldFailUpdatePersonCausedByEponymousPersonExists() throws Exception {
         Person oldPerson = testUtils.createTestPerson("firstName", "lastName", "commonName");
         testUtils.createTestPerson("first", "last", "common");
-        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest(oldPerson.getId());
+        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest("firstName", "lastName", "commonName");
         updatePersonRequest.setFirstName("first");
         updatePersonRequest.setLastName("last");
         updatePersonRequest.setCommonName("common");
@@ -142,6 +145,8 @@ public class AdminPersonControllerTest {
     }
 
     private void shouldFailUpdatePerson(String expectedDetails, RequestBodyUpdatePerson updatePersonRequest, Person oldPerson) throws Exception {
+        long countBefore = personRepository.count();
+
         MvcResult mvcResult = this.mockMvc.perform(post("/admin/person/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(updatePersonRequest)))
@@ -152,8 +157,8 @@ public class AdminPersonControllerTest {
         String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
         assertThat(message).isEqualTo("error");
         assertThat(details).isEqualTo(expectedDetails);
-        if(updatePersonRequest.getId().equals("invalid")){
-            assertThat(personRepository.findById(updatePersonRequest.getId()).isPresent()).isFalse();
+        if(updatePersonRequest.getOldFirstName().equals("invalid")){
+            assertThat(personRepository.count()).isEqualTo(countBefore);
         } else {
             Person person= personRepository.findById(oldPerson.getId()).get();
             assertThat(person.getLastName()).isEqualTo("lastName");

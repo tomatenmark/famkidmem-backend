@@ -84,7 +84,7 @@ public class AdminUserServiceTest {
     @Test
     public void shouldFailAddUserCausedByInvalidPerson(){
         RequestBodyAddUser addUserRequest = createAddUserRequest();
-        addUserRequest.setPersonId("wrong");
+        addUserRequest.setPersonFirstName("wrong");
 
         shouldFailAddUser(EntityNotFoundException.class, addUserRequest, "user");
     }
@@ -111,7 +111,7 @@ public class AdminUserServiceTest {
         } catch (Exception ex){
             ex.printStackTrace();
         }
-        addUserRequest.setPersonId(person.getId());
+        addUserRequest.setPersonFirstName(person.getFirstName());
         Exception exception = null;
 
         try {

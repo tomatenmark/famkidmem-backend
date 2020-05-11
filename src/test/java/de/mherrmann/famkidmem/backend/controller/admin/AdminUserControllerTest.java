@@ -91,9 +91,12 @@ public class AdminUserControllerTest {
     @Test
     public void shouldFailAddUserCausedByInvalidPerson() throws Exception {
         RequestBodyAddUser addUserRequest = createAddUserRequest();
-        addUserRequest.setPersonId("wrong");
+        addUserRequest.setPersonFirstName("wrong");
+        String firstName = addUserRequest.getPersonFirstName();
+        String lastName = addUserRequest.getPersonLastName();
+        String commonName = addUserRequest.getPersonCommonName();
 
-        shouldFailAddUser("Entity does not exist. Type: Person; designator: wrong", addUserRequest, 1);
+        shouldFailAddUser(String.format("Entity does not exist. Type: Person; designator: %s, %s, %s", firstName, lastName, commonName), addUserRequest, 1);
     }
 
     @Test
@@ -111,14 +114,16 @@ public class AdminUserControllerTest {
 
     @Test
     public void shouldFailAddUserCausedByUserAlreadyExists() throws Exception {
-        RequestBodyAddUser addUserRequest = createAddUserRequest();
         Person person = testUtils.createTestPerson("user2F", "user2L", "user2C");
+        RequestBodyAddUser addUserRequest = createAddUserRequest();
         try {
             adminUserService.addUser(addUserRequest);
         } catch (Exception ex){
             ex.printStackTrace();
         }
-        addUserRequest.setPersonId(person.getId());
+        addUserRequest.setPersonFirstName(person.getFirstName());
+        addUserRequest.setPersonLastName(person.getLastName());
+        addUserRequest.setPersonCommonName(person.getCommonName());
 
         shouldFailAddUser("User with username already exist: user", addUserRequest, 2);
     }

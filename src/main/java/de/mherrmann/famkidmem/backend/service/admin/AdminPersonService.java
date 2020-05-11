@@ -45,7 +45,7 @@ public class AdminPersonService {
     }
 
     public void updatePerson(RequestBodyUpdatePerson updatePersonRequest) throws EntityNotFoundException, UpdatePersonException {
-        Person oldPerson = getPerson(updatePersonRequest.getId());
+        Person oldPerson = getPerson(updatePersonRequest);
         doUpdatePersonChecks(updatePersonRequest);
         Key faceKey = oldPerson.getFace().getKey();
         if(!faceKey.getIv().equals(updatePersonRequest.getFaceIv())){
@@ -54,13 +54,21 @@ public class AdminPersonService {
         updatePerson(oldPerson, updatePersonRequest, faceKey);
     }
 
-    Person getPerson(String personId) throws EntityNotFoundException {
-        Optional<Person> personOptional = personRepository.findById(personId);
+    Person getPerson(String firstName, String lastName, String commonName) throws EntityNotFoundException {
+        Optional<Person> personOptional =
+                personRepository.findByFirstNameAndLastNameAndCommonName(firstName, lastName, commonName);
         if(!personOptional.isPresent()){
-            LOGGER.error("Could not get person. Invalid personId {}", personId);
-            throw new EntityNotFoundException(Person.class, personId);
+            LOGGER.error("Could not get person. Invalid peron names. {}, {}, {}", firstName, lastName, commonName);
+            throw new EntityNotFoundException(Person.class, String.format("%s, %s, %s", firstName, lastName, commonName));
         }
         return personOptional.get();
+    }
+
+    private Person getPerson(RequestBodyUpdatePerson updatePersonRequest) throws EntityNotFoundException {
+        String firstName = updatePersonRequest.getOldFirstName();
+        String lastName = updatePersonRequest.getOldLastName();
+        String commonName = updatePersonRequest.getOldCommonName();
+        return getPerson(firstName, lastName, commonName);
     }
 
     private void doAddPersonChecks(RequestBodyAddPerson addPersonRequest) throws AddPersonException {
@@ -83,10 +91,20 @@ public class AdminPersonService {
         String lastName = updatePersonRequest.getLastName();
         String commonName = updatePersonRequest.getCommonName();
         Optional<Person> personOptional = personRepository.findByFirstNameAndLastNameAndCommonName(firstName, lastName, commonName);
-        if(personOptional.isPresent() && !personOptional.get().getId().equals(updatePersonRequest.getId())){
+        if(personOptional.isPresent() && !sameNames(updatePersonRequest)){
             LOGGER.error("Could not update Person. Another person with same names already exists. {}, {}, {}", firstName, lastName, commonName);
             throw new UpdatePersonException("Another person with same names already exists.");
         }
+    }
+
+    private boolean sameNames(RequestBodyUpdatePerson updatePersonRequest){
+        String firstName = updatePersonRequest.getFirstName();
+        String lastName = updatePersonRequest.getLastName();
+        String commonName = updatePersonRequest.getCommonName();
+        String oldFirstName = updatePersonRequest.getOldFirstName();
+        String oldLastName = updatePersonRequest.getOldLastName();
+        String oldCommonName = updatePersonRequest.getOldCommonName();
+        return firstName.equals(oldFirstName) && lastName.equals(oldLastName) && commonName.equals(oldCommonName);
     }
 
     private void addPerson(String firstName, String lastName, String commonName, FileEntity face, Key key){

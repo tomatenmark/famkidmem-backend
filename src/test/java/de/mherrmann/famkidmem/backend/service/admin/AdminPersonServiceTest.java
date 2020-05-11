@@ -86,7 +86,7 @@ public class AdminPersonServiceTest {
     @Test
     public void shouldUpdatePerson() throws IOException {
         Person oldPerson = testUtils.createTestPerson("firstName", "lastName", "commonName");
-        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest(oldPerson.getId());
+        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest("firstName", "lastName", "commonName");
         Exception exception = null;
 
         try {
@@ -105,8 +105,8 @@ public class AdminPersonServiceTest {
     @Test
     public void shouldFailUpdatePersonCausedByInvalidPersonId() throws IOException {
         Person oldPerson = testUtils.createTestPerson("firstName", "lastName", "commonName");
-        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest(oldPerson.getId());
-        updatePersonRequest.setId("invalid");
+        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest("firstName", "lastName", "commonName");
+        updatePersonRequest.setOldFirstName("invalid");
 
         shouldFailUpdatePerson(oldPerson, updatePersonRequest, EntityNotFoundException.class);
     }
@@ -115,7 +115,7 @@ public class AdminPersonServiceTest {
     public void shouldFailUpdatePersonCausedByEponymousPersonExists() throws IOException {
         Person oldPerson = testUtils.createTestPerson("firstName", "lastName", "commonName");
         testUtils.createTestPerson("first", "last", "common");
-        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest(oldPerson.getId());
+        RequestBodyUpdatePerson updatePersonRequest = testUtils.createUpdatePersonRequest("firstName", "lastName", "commonName");
         updatePersonRequest.setFirstName("first");
         updatePersonRequest.setLastName("last");
         updatePersonRequest.setCommonName("common");
@@ -140,6 +140,7 @@ public class AdminPersonServiceTest {
 
     private void shouldFailUpdatePerson(Person oldPerson, RequestBodyUpdatePerson updatePersonRequest, Class exceptionClass){
         Exception exception = null;
+        long countBefore = personRepository.count();
 
         try {
             adminPersonService.updatePerson(updatePersonRequest);
@@ -149,8 +150,8 @@ public class AdminPersonServiceTest {
 
         assertThat(exception).isNotNull();
         assertThat(exception).isInstanceOf(exceptionClass);
-        if(updatePersonRequest.getId().equals("invalid")){
-            assertThat(personRepository.findById(updatePersonRequest.getId()).isPresent()).isFalse();
+        if(updatePersonRequest.getOldFirstName().equals("invalid")){
+            assertThat(personRepository.count()).isEqualTo(countBefore);
         } else {
             Person person= personRepository.findById(oldPerson.getId()).get();
             assertThat(person.getLastName()).isEqualTo("lastName");

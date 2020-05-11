@@ -45,7 +45,7 @@ public class AdminUserService {
             LOGGER.error("Could not add user. User with username {} already exists", addUserRequest.getUsername());
             throw new AddUserException("User with username already exist: " + addUserRequest.getUsername());
         }
-        Person person = getPerson(addUserRequest.getPersonId());
+        Person person = getPerson(addUserRequest);
         String loginHashHash = Bcrypt.hash(addUserRequest.getLoginHash());
         UserEntity user = new UserEntity(addUserRequest.getUsername(), addUserRequest.getPasswordKeySalt(), loginHashHash,
                 addUserRequest.getUserKey(), person, keyService.createNewKey(addUserRequest.getKey(), addUserRequest.getIv()));
@@ -89,8 +89,11 @@ public class AdminUserService {
         return userOptional.get();
     }
 
-    private Person getPerson(String personId) throws AddUserException, EntityNotFoundException {
-        Person person = adminPersonService.getPerson(personId);
+    private Person getPerson(RequestBodyAddUser addUserRequest) throws AddUserException, EntityNotFoundException {
+        String firstName = addUserRequest.getPersonFirstName();
+        String lastName = addUserRequest.getPersonLastName();
+        String commonName = addUserRequest.getPersonCommonName();
+        Person person = adminPersonService.getPerson(firstName, lastName, commonName);
         if(userRepository.existsByPerson(person)){
             LOGGER.error("Could not add user. User for person {} {} already exists", person.getFirstName(), person.getLastName());
             throw new AddUserException("User for Person already exist: " + person.getCommonName());
