@@ -31,7 +31,6 @@ public class AdminUserServiceTest {
 
     private static final String LOGIN_HASH = "loginHash";
 
-    private ResponseBodyLogin testLogin;
     private UserEntity testUser;
     private Person testPerson;
 
@@ -244,7 +243,6 @@ public class AdminUserServiceTest {
         testUser.setInit(false);
         testUser.setReset(false);
         userRepository.save(testUser);
-        testLogin = userService.login(testUser.getUsername(), LOGIN_HASH);
     }
 
     private RequestBodyAddUser createAddUserRequest(){

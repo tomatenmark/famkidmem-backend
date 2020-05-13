@@ -11,7 +11,6 @@ import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
 import de.mherrmann.famkidmem.backend.service.admin.AdminUserService;
-import de.mherrmann.famkidmem.backend.service.UserService;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.junit.After;
 import org.junit.Before;
@@ -48,9 +47,6 @@ public class AdminUserControllerTest {
 
     private UserEntity testUser;
     private Person testPerson;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private AdminUserService adminUserService;
