@@ -42,7 +42,7 @@ public class UserService {
         UserEntity user = userOptional.get();
         String loginHashHash = user.getLoginHashHash();
         if(!Bcrypt.check(loginHash, loginHashHash)){
-            LOGGER.error("Could not login user. Invalid loginHash {}", loginHash);
+            LOGGER.error("Could not login user. Invalid loginHash");
             throw new LoginException();
         }
         String accessToken = UUID.randomUUID().toString();
