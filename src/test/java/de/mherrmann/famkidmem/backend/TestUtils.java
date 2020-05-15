@@ -2,8 +2,6 @@ package de.mherrmann.famkidmem.backend;
 
 import de.mherrmann.famkidmem.backend.body.admin.*;
 import de.mherrmann.famkidmem.backend.entity.Key;
-import de.mherrmann.famkidmem.backend.entity.Person;
-import de.mherrmann.famkidmem.backend.entity.FileEntity;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +20,6 @@ public class TestUtils {
     private SessionRepository sessionRepository;
 
     @Autowired
-    private PersonRepository personRepository;
-
-    @Autowired
     private FileRepository fileRepository;
 
     @Autowired
@@ -33,7 +28,6 @@ public class TestUtils {
     public void dropAll() {
         sessionRepository.deleteAll();
         userRepository.deleteAll();
-        personRepository.deleteAll();
         fileRepository.deleteAll();
         keyRepository.deleteAll();
     }
@@ -46,51 +40,14 @@ public class TestUtils {
         directory.delete();
     }
 
-    public RequestBodyAddUser createAddUserRequest(Person testPerson) {
+    public RequestBodyAddUser createAddUserRequest() {
         RequestBodyAddUser addUserRequest = new RequestBodyAddUser();
         addUserRequest.setLoginHash("newLoginHash");
         addUserRequest.setMasterKey("newKey");
         addUserRequest.setPasswordKeySalt("newPasswordKeySalt");
         addUserRequest.setUsername("user");
-        addUserRequest.setPersonFirstName(testPerson.getFirstName());
-        addUserRequest.setPersonLastName(testPerson.getLastName());
-        addUserRequest.setPersonCommonName(testPerson.getCommonName());
+        addUserRequest.setDisplayName("display");
         return addUserRequest;
-    }
-
-    public RequestBodyAddPerson createAddPersonRequest() throws IOException {
-        createTestFile();
-        RequestBodyAddPerson addPersonRequest = new RequestBodyAddPerson();
-        addPersonRequest.setFirstName("testF");
-        addPersonRequest.setLastName("testL");
-        addPersonRequest.setCommonName("testC");
-        addPersonRequest.setFaceFile("test");
-        addPersonRequest.setFaceKey("fileKey");
-        addPersonRequest.setFaceIv("fileIv");
-        addPersonRequest.setKey("key");
-        addPersonRequest.setIv("iv");
-        return addPersonRequest;
-    }
-
-    public RequestBodyUpdatePerson createUpdatePersonRequest(String firstName, String lastName, String commonName) {
-        RequestBodyUpdatePerson addUpdateRequest = new RequestBodyUpdatePerson();
-        addUpdateRequest.setOldFirstName(firstName);
-        addUpdateRequest.setOldLastName(lastName);
-        addUpdateRequest.setOldCommonName(commonName);
-        addUpdateRequest.setFirstName("testF");
-        addUpdateRequest.setLastName("newLast");
-        addUpdateRequest.setCommonName("testC");
-        addUpdateRequest.setFaceKey("newFileKey");
-        addUpdateRequest.setFaceIv("newFileIv");
-        return addUpdateRequest;
-    }
-
-    public RequestBodyDeletePerson createDeletePersonRequest(Person person) {
-        RequestBodyDeletePerson deletePersonRequest = new RequestBodyDeletePerson();
-        deletePersonRequest.setFirstName(person.getFirstName());
-        deletePersonRequest.setLastName(person.getLastName());
-        deletePersonRequest.setCommonName(person.getCommonName());
-        return deletePersonRequest;
     }
 
     public RequestBodyResetPassword createResetPasswordRequest(UserEntity testUser) {
@@ -108,17 +65,8 @@ public class TestUtils {
         return deleteUserRequest;
     }
 
-    public Person createTestPerson(String firstName, String lastName, String commonName) throws IOException {
-        createTestFile();
-        FileEntity fileEntity = new FileEntity(createTestKey(), "test");
-        fileRepository.save(fileEntity);
-        Person person = new Person(firstName, lastName, commonName, fileEntity, createTestKey());
-        personRepository.save(person);
-        return person;
-    }
-
-    public UserEntity createTestUser(Person person){
-        UserEntity user = new UserEntity("username", "salt", "hash", "masterKey", person);
+    public UserEntity createTestUser(){
+        UserEntity user = new UserEntity("username", "display","salt", "hash", "masterKey");
         return userRepository.save(user);
     }
 

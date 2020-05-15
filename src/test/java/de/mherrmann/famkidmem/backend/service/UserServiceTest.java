@@ -2,7 +2,6 @@ package de.mherrmann.famkidmem.backend.service;
 
 import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
-import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.exception.LoginException;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
@@ -231,10 +230,9 @@ public class UserServiceTest {
     }
 
 
-    private void createTestUser() throws IOException {
-        Person person = testUtils.createTestPerson("testF", "testL", "testC");
+    private void createTestUser() {
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("username", "", loginHashHash, "masterKey", person);
+        testUser = new UserEntity("username", "", "salt", loginHashHash, "masterKey");
         testUser.setInit(true);
         testUser.setReset(true);
         userRepository.save(testUser);
