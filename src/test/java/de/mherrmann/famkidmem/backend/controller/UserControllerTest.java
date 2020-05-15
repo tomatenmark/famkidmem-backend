@@ -8,7 +8,6 @@ import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangePassword;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangeUsername;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedLogout;
-import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.SessionRepository;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
@@ -208,10 +207,9 @@ public class UserControllerTest {
         assertThat(Bcrypt.check("newValue", loginHashHash)).isFalse();
     }
 
-    private void createTestUser() throws IOException {
-        Person person = testUtils.createTestPerson("testF", "testL", "testC");
+    private void createTestUser() {
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("username", "salt", loginHashHash, "masterKey", person);
+        testUser = new UserEntity("username", "displayName","salt", loginHashHash, "masterKey");
         userRepository.save(testUser);
     }
 

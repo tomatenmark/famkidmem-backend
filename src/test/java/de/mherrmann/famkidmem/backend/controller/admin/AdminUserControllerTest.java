@@ -7,7 +7,6 @@ import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
 import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetUsers;
-import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
 import de.mherrmann.famkidmem.backend.service.admin.AdminUserService;
@@ -24,8 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -46,7 +43,6 @@ public class AdminUserControllerTest {
     private static final String LOGIN_HASH = "loginHash";
 
     private UserEntity testUser;
-    private Person testPerson;
 
     @Autowired
     private AdminUserService adminUserService;
@@ -58,15 +54,13 @@ public class AdminUserControllerTest {
     private UserRepository userRepository;
 
     @Before
-    public void setup() throws IOException {
-        createAdminUser();
-        testPerson = testUtils.createTestPerson("userF", "userL", "userC");
+    public void setup() {
+        createUser();
     }
 
     @After
     public void teardown(){
         testUtils.dropAll();
-        testUtils.deleteTestFiles();
     }
 
     @Test
@@ -85,43 +79,23 @@ public class AdminUserControllerTest {
     }
 
     @Test
-    public void shouldFailAddUserCausedByInvalidPerson() throws Exception {
-        RequestBodyAddUser addUserRequest = createAddUserRequest();
-        addUserRequest.setPersonFirstName("wrong");
-        String firstName = addUserRequest.getPersonFirstName();
-        String lastName = addUserRequest.getPersonLastName();
-        String commonName = addUserRequest.getPersonCommonName();
-
-        shouldFailAddUser(String.format("Entity does not exist. Type: Person; designator: %s, %s, %s", firstName, lastName, commonName), addUserRequest, 1);
-    }
-
-    @Test
-    public void shouldFailAddUserCausedByPersonAlreadyHasUser() throws Exception {
-        RequestBodyAddUser addUserRequest = createAddUserRequest();
-        try {
-            adminUserService.addUser(addUserRequest);
-        } catch (Exception ex){
-            ex.printStackTrace();
-        }
-        addUserRequest.setUsername("user2");
-
-        shouldFailAddUser("User for Person already exist: userC", addUserRequest, 2);
-    }
-
-    @Test
     public void shouldFailAddUserCausedByUserAlreadyExists() throws Exception {
-        Person person = testUtils.createTestPerson("user2F", "user2L", "user2C");
         RequestBodyAddUser addUserRequest = createAddUserRequest();
         try {
             adminUserService.addUser(addUserRequest);
         } catch (Exception ex){
             ex.printStackTrace();
         }
-        addUserRequest.setPersonFirstName(person.getFirstName());
-        addUserRequest.setPersonLastName(person.getLastName());
-        addUserRequest.setPersonCommonName(person.getCommonName());
 
         shouldFailAddUser("User with username already exist: user", addUserRequest, 2);
+    }
+
+    @Test
+    public void shouldFailAddUserCausedByEmptyDisplayName() throws Exception {
+        RequestBodyAddUser addUserRequest = createAddUserRequest();
+        addUserRequest.setDisplayName("");
+
+        shouldFailAddUser("Display name can not be empty.", addUserRequest, 1);
     }
 
     @Test
@@ -192,9 +166,6 @@ public class AdminUserControllerTest {
         assertThat(usersResponse.getUsers().get(0).getMasterKey()).isNull();
         assertThat(usersResponse.getUsers().get(0).getLoginHashHash()).isNull();
         assertThat(usersResponse.getUsers().get(0).getPasswordKeySalt()).isNull();
-        assertThat(usersResponse.getUsers().get(0).getPerson().getId()).isNull();
-        assertThat(usersResponse.getUsers().get(0).getPerson().getFace().getId()).isNull();
-        assertThat(usersResponse.getUsers().get(0).getPerson().getFace().getKey().getId()).isNull();
     }
 
     private void shouldFailAddUser(String expectedDetails, RequestBodyAddUser addUserRequest, int users) throws Exception {
@@ -241,14 +212,13 @@ public class AdminUserControllerTest {
 
 
     private RequestBodyAddUser createAddUserRequest(){
-        return testUtils.createAddUserRequest(testPerson);
+        return testUtils.createAddUserRequest();
     }
 
 
-    private void createAdminUser() throws IOException {
-        Person person = testUtils.createTestPerson("adminF", "adminL", "adminL");
+    private void createUser() {
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("admin", "", loginHashHash, "masterKey", person);
+        testUser = new UserEntity("admin", "", "salt", loginHashHash, "masterKey");
         testUser.setInit(false);
         testUser.setReset(false);
         userRepository.save(testUser);

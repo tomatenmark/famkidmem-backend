@@ -4,7 +4,6 @@ import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
 import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetUsers;
-import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.exception.AddUserException;
 import de.mherrmann.famkidmem.backend.exception.EntityNotFoundException;
@@ -25,26 +24,20 @@ public class AdminUserService {
 
     private final UserRepository userRepository;
     private final SessionRepository sessionRepository;
-    private final AdminPersonService adminPersonService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminUserService.class);
 
     @Autowired
-    public AdminUserService(UserRepository userRepository, SessionRepository sessionRepository, AdminPersonService adminPersonService) {
+    public AdminUserService(UserRepository userRepository, SessionRepository sessionRepository) {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;
-        this.adminPersonService = adminPersonService;
     }
 
-    public void addUser(RequestBodyAddUser addUserRequest) throws AddUserException, EntityNotFoundException {
-        if(userRepository.existsByUsername(addUserRequest.getUsername())){
-            LOGGER.error("Could not add user. User with username {} already exists", addUserRequest.getUsername());
-            throw new AddUserException("User with username already exist: " + addUserRequest.getUsername());
-        }
-        Person person = getPerson(addUserRequest);
+    public void addUser(RequestBodyAddUser addUserRequest) throws AddUserException {
+        doChecks(addUserRequest);
         String loginHashHash = Bcrypt.hash(addUserRequest.getLoginHash());
-        UserEntity user = new UserEntity(addUserRequest.getUsername(), addUserRequest.getPasswordKeySalt(), loginHashHash,
-                addUserRequest.getMasterKey(), person);
+        UserEntity user = new UserEntity(addUserRequest.getUsername(), addUserRequest.getDisplayName(), addUserRequest.getPasswordKeySalt(), loginHashHash,
+                addUserRequest.getMasterKey());
         user.setInit(true);
         userRepository.save(user);
         LOGGER.info("Successfully added user {}", addUserRequest.getUsername());
@@ -76,6 +69,17 @@ public class AdminUserService {
         LOGGER.info("Successfully reset password for user {}", resetPasswordRequest.getUsername());
     }
 
+    private void doChecks(RequestBodyAddUser addUserRequest) throws AddUserException {
+        if(userRepository.existsByUsername(addUserRequest.getUsername())){
+            LOGGER.error("Could not add user. User with username {} already exists", addUserRequest.getUsername());
+            throw new AddUserException("User with username already exist: " + addUserRequest.getUsername());
+        }
+        if(addUserRequest.getDisplayName().isEmpty()){
+            LOGGER.error("Could not add user. Display name can not be empty.");
+            throw new AddUserException("Display name can not be empty.");
+        }
+    }
+
     private UserEntity getUser(String username) throws EntityNotFoundException {
         Optional<UserEntity> userOptional = userRepository.findByUsername(username);
         if(!userOptional.isPresent()){
@@ -83,18 +87,6 @@ public class AdminUserService {
             throw new EntityNotFoundException(UserEntity.class, username);
         }
         return userOptional.get();
-    }
-
-    private Person getPerson(RequestBodyAddUser addUserRequest) throws AddUserException, EntityNotFoundException {
-        String firstName = addUserRequest.getPersonFirstName();
-        String lastName = addUserRequest.getPersonLastName();
-        String commonName = addUserRequest.getPersonCommonName();
-        Person person = adminPersonService.getPerson(firstName, lastName, commonName);
-        if(userRepository.existsByPerson(person)){
-            LOGGER.error("Could not add user. User for person {} {} already exists", person.getFirstName(), person.getLastName());
-            throw new AddUserException("User for Person already exist: " + person.getCommonName());
-        }
-        return person;
     }
 
 }
