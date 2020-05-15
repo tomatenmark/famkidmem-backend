@@ -1,14 +1,11 @@
 package de.mherrmann.famkidmem.backend;
 
-import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
-import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
-import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
+import de.mherrmann.famkidmem.backend.body.admin.*;
 import de.mherrmann.famkidmem.backend.entity.Key;
 import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.FileEntity;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.*;
-import de.mherrmann.famkidmem.backend.service.KeyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,10 +30,7 @@ public class TestUtils {
     @Autowired
     private KeyRepository keyRepository;
 
-    @Autowired
-    private KeyService keyService;
-
-    public void dropAll(){
+    public void dropAll() {
         sessionRepository.deleteAll();
         userRepository.deleteAll();
         personRepository.deleteAll();
@@ -44,25 +38,62 @@ public class TestUtils {
         keyRepository.deleteAll();
     }
 
-    public void deleteTestFiles(){
+    public void deleteTestFiles() {
         File directory = new File("./files");
-        for(File file : directory.listFiles()){
+        for (File file : directory.listFiles()) {
             file.delete();
         }
         directory.delete();
     }
 
-    public RequestBodyAddUser createAddUserRequest(Person testPerson){
+    public RequestBodyAddUser createAddUserRequest(Person testPerson) {
         RequestBodyAddUser addUserRequest = new RequestBodyAddUser();
         addUserRequest.setLoginHash("newLoginHash");
-        addUserRequest.setUserKey("newKey");
+        addUserRequest.setMasterKey("newKey");
         addUserRequest.setPasswordKeySalt("newPasswordKeySalt");
         addUserRequest.setUsername("user");
-        addUserRequest.setPersonId(testPerson.getId());
+        addUserRequest.setPersonFirstName(testPerson.getFirstName());
+        addUserRequest.setPersonLastName(testPerson.getLastName());
+        addUserRequest.setPersonCommonName(testPerson.getCommonName());
         return addUserRequest;
     }
 
-    public RequestBodyResetPassword createResetPasswordRequest(UserEntity testUser){
+    public RequestBodyAddPerson createAddPersonRequest() throws IOException {
+        createTestFile();
+        RequestBodyAddPerson addPersonRequest = new RequestBodyAddPerson();
+        addPersonRequest.setFirstName("testF");
+        addPersonRequest.setLastName("testL");
+        addPersonRequest.setCommonName("testC");
+        addPersonRequest.setFaceFile("test");
+        addPersonRequest.setFaceKey("fileKey");
+        addPersonRequest.setFaceIv("fileIv");
+        addPersonRequest.setKey("key");
+        addPersonRequest.setIv("iv");
+        return addPersonRequest;
+    }
+
+    public RequestBodyUpdatePerson createUpdatePersonRequest(String firstName, String lastName, String commonName) {
+        RequestBodyUpdatePerson addUpdateRequest = new RequestBodyUpdatePerson();
+        addUpdateRequest.setOldFirstName(firstName);
+        addUpdateRequest.setOldLastName(lastName);
+        addUpdateRequest.setOldCommonName(commonName);
+        addUpdateRequest.setFirstName("testF");
+        addUpdateRequest.setLastName("newLast");
+        addUpdateRequest.setCommonName("testC");
+        addUpdateRequest.setFaceKey("newFileKey");
+        addUpdateRequest.setFaceIv("newFileIv");
+        return addUpdateRequest;
+    }
+
+    public RequestBodyDeletePerson createDeletePersonRequest(Person person) {
+        RequestBodyDeletePerson deletePersonRequest = new RequestBodyDeletePerson();
+        deletePersonRequest.setFirstName(person.getFirstName());
+        deletePersonRequest.setLastName(person.getLastName());
+        deletePersonRequest.setCommonName(person.getCommonName());
+        return deletePersonRequest;
+    }
+
+    public RequestBodyResetPassword createResetPasswordRequest(UserEntity testUser) {
         RequestBodyResetPassword resetPasswordRequest = new RequestBodyResetPassword();
         resetPasswordRequest.setLoginHash("modifiedLoginHash");
         resetPasswordRequest.setMasterKey("modifiedKey");
@@ -71,30 +102,34 @@ public class TestUtils {
         return resetPasswordRequest;
     }
 
-    public RequestBodyDeleteUser createDeleteUserRequest(UserEntity testUser){
+    public RequestBodyDeleteUser createDeleteUserRequest(UserEntity testUser) {
         RequestBodyDeleteUser deleteUserRequest = new RequestBodyDeleteUser();
         deleteUserRequest.setUsername(testUser.getUsername());
         return deleteUserRequest;
     }
 
-    public Person createTestPerson(String firstName, String lastName, String commonName) {
-        try {
-            new File("./files").mkdir();
-            new File("./files/test").createNewFile();
-            FileEntity fileEntity = new FileEntity(createTestKey(), "test");
-            fileRepository.save(fileEntity);
-            Person person = new Person(firstName, lastName, commonName, fileEntity, createTestKey());
-            personRepository.save(person);
-            return person;
-        } catch(IOException ex){
-            ex.printStackTrace();
-        }
-        return null;
+    public Person createTestPerson(String firstName, String lastName, String commonName) throws IOException {
+        createTestFile();
+        FileEntity fileEntity = new FileEntity(createTestKey(), "test");
+        fileRepository.save(fileEntity);
+        Person person = new Person(firstName, lastName, commonName, fileEntity, createTestKey());
+        personRepository.save(person);
+        return person;
     }
 
-    public Key createTestKey(){
+    public UserEntity createTestUser(Person person){
+        UserEntity user = new UserEntity("username", "salt", "hash", "masterKey", person);
+        return userRepository.save(user);
+    }
+
+    private Key createTestKey(){
         Key keyEntity = new Key("key", "iv");
         return keyRepository.save(keyEntity);
+    }
+
+    private void createTestFile() throws IOException {
+        new File("./files").mkdir();
+        new File("./files/test").createNewFile();
     }
 
 }

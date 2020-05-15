@@ -14,4 +14,5 @@ public interface UserRepository extends CrudRepository<UserEntity, String> {
     Optional<UserEntity> findByUsername(String username);
     boolean existsByPerson(Person person);
     boolean existsByUsername(String username);
+    Optional<UserEntity> findByPerson(Person person);
 }

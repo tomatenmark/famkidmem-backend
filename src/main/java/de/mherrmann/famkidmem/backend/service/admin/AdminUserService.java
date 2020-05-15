@@ -8,10 +8,8 @@ import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.exception.AddUserException;
 import de.mherrmann.famkidmem.backend.exception.EntityNotFoundException;
-import de.mherrmann.famkidmem.backend.repository.PersonRepository;
 import de.mherrmann.famkidmem.backend.repository.SessionRepository;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
-import de.mherrmann.famkidmem.backend.service.KeyService;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,17 +25,15 @@ public class AdminUserService {
 
     private final UserRepository userRepository;
     private final SessionRepository sessionRepository;
-    private final PersonRepository personRepository;
-    private final KeyService keyService;
+    private final AdminPersonService adminPersonService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminUserService.class);
 
     @Autowired
-    public AdminUserService(UserRepository userRepository, SessionRepository sessionRepository, PersonRepository personRepository, KeyService keyService) {
+    public AdminUserService(UserRepository userRepository, SessionRepository sessionRepository, AdminPersonService adminPersonService) {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;
-        this.personRepository = personRepository;
-        this.keyService = keyService;
+        this.adminPersonService = adminPersonService;
     }
 
     public void addUser(RequestBodyAddUser addUserRequest) throws AddUserException, EntityNotFoundException {
@@ -45,10 +41,10 @@ public class AdminUserService {
             LOGGER.error("Could not add user. User with username {} already exists", addUserRequest.getUsername());
             throw new AddUserException("User with username already exist: " + addUserRequest.getUsername());
         }
-        Person person = getPerson(addUserRequest.getPersonId());
+        Person person = getPerson(addUserRequest);
         String loginHashHash = Bcrypt.hash(addUserRequest.getLoginHash());
         UserEntity user = new UserEntity(addUserRequest.getUsername(), addUserRequest.getPasswordKeySalt(), loginHashHash,
-                addUserRequest.getUserKey(), person, keyService.createNewKey(addUserRequest.getKey(), addUserRequest.getIv()));
+                addUserRequest.getMasterKey(), person);
         user.setInit(true);
         userRepository.save(user);
         LOGGER.info("Successfully added user {}", addUserRequest.getUsername());
@@ -89,13 +85,11 @@ public class AdminUserService {
         return userOptional.get();
     }
 
-    private Person getPerson(String personId) throws AddUserException, EntityNotFoundException {
-        Optional<Person> personOptional = personRepository.findById(personId);
-        if(!personOptional.isPresent()){
-            LOGGER.error("Could not add user. Invalid personId {}", personId);
-            throw new EntityNotFoundException(Person.class, personId);
-        }
-        Person person = personOptional.get();
+    private Person getPerson(RequestBodyAddUser addUserRequest) throws AddUserException, EntityNotFoundException {
+        String firstName = addUserRequest.getPersonFirstName();
+        String lastName = addUserRequest.getPersonLastName();
+        String commonName = addUserRequest.getPersonCommonName();
+        Person person = adminPersonService.getPerson(firstName, lastName, commonName);
         if(userRepository.existsByPerson(person)){
             LOGGER.error("Could not add user. User for person {} {} already exists", person.getFirstName(), person.getLastName());
             throw new AddUserException("User for Person already exist: " + person.getCommonName());

@@ -11,7 +11,6 @@ import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
 import de.mherrmann.famkidmem.backend.service.admin.AdminUserService;
-import de.mherrmann.famkidmem.backend.service.UserService;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.junit.After;
 import org.junit.Before;
@@ -25,6 +24,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -48,9 +49,6 @@ public class AdminUserControllerTest {
     private Person testPerson;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private AdminUserService adminUserService;
 
     @Autowired
@@ -60,7 +58,7 @@ public class AdminUserControllerTest {
     private UserRepository userRepository;
 
     @Before
-    public void setup(){
+    public void setup() throws IOException {
         createAdminUser();
         testPerson = testUtils.createTestPerson("userF", "userL", "userC");
     }
@@ -89,9 +87,12 @@ public class AdminUserControllerTest {
     @Test
     public void shouldFailAddUserCausedByInvalidPerson() throws Exception {
         RequestBodyAddUser addUserRequest = createAddUserRequest();
-        addUserRequest.setPersonId("wrong");
+        addUserRequest.setPersonFirstName("wrong");
+        String firstName = addUserRequest.getPersonFirstName();
+        String lastName = addUserRequest.getPersonLastName();
+        String commonName = addUserRequest.getPersonCommonName();
 
-        shouldFailAddUser("Entity does not exist. Type: Person; designator: wrong", addUserRequest, 1);
+        shouldFailAddUser(String.format("Entity does not exist. Type: Person; designator: %s, %s, %s", firstName, lastName, commonName), addUserRequest, 1);
     }
 
     @Test
@@ -109,14 +110,16 @@ public class AdminUserControllerTest {
 
     @Test
     public void shouldFailAddUserCausedByUserAlreadyExists() throws Exception {
-        RequestBodyAddUser addUserRequest = createAddUserRequest();
         Person person = testUtils.createTestPerson("user2F", "user2L", "user2C");
+        RequestBodyAddUser addUserRequest = createAddUserRequest();
         try {
             adminUserService.addUser(addUserRequest);
         } catch (Exception ex){
             ex.printStackTrace();
         }
-        addUserRequest.setPersonId(person.getId());
+        addUserRequest.setPersonFirstName(person.getFirstName());
+        addUserRequest.setPersonLastName(person.getLastName());
+        addUserRequest.setPersonCommonName(person.getCommonName());
 
         shouldFailAddUser("User with username already exist: user", addUserRequest, 2);
     }
@@ -242,10 +245,10 @@ public class AdminUserControllerTest {
     }
 
 
-    private void createAdminUser() {
+    private void createAdminUser() throws IOException {
         Person person = testUtils.createTestPerson("adminF", "adminL", "adminL");
         String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("admin", "", loginHashHash, "masterKey", person,testUtils.createTestKey());
+        testUser = new UserEntity("admin", "", loginHashHash, "masterKey", person);
         testUser.setInit(false);
         testUser.setReset(false);
         userRepository.save(testUser);
