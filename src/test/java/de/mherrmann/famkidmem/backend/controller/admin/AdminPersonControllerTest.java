@@ -165,6 +165,25 @@ public class AdminPersonControllerTest {
         shouldFailDeletePerson("Could not delete person. Reason: This person still has an user. Username: username", deletePersonRequest);
     }
 
+    @Test
+    public void shouldGetPersons() throws Exception {
+        testUtils.createTestPerson("first", "last", "common");
+
+        MvcResult mvcResult = this.mockMvc.perform(get("/admin/person/get"))
+                .andExpect(status().is(HttpStatus.OK.value()))
+                .andReturn();
+
+        String message = jsonToResponseGetPersons(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToResponseGetPersons(mvcResult.getResponse().getContentAsString()).getDetails();
+        ResponseBodyGetPersons getPersonsResponse = jsonToResponseGetPersons(mvcResult.getResponse().getContentAsString());
+        assertThat(message).isEqualTo("ok");
+        assertThat(details).isEqualTo("Successfully get persons");
+        assertThat(getPersonsResponse.getPersons()).isNotEmpty();
+        assertThat(getPersonsResponse.getPersons().get(0).getCommonName()).isEqualTo("common");
+        assertThat(getPersonsResponse.getPersons().get(0).getId()).isNull();
+
+    }
+
     private void shouldFailAddPerson(String expectedDetails, RequestBodyAddPerson addPersonRequest) throws Exception {
         long countBefore = personRepository.count();
 
@@ -229,6 +248,14 @@ public class AdminPersonControllerTest {
     private static ResponseBody jsonToResponse(final String json) {
         try {
             return new ObjectMapper().readValue(json, ResponseBody.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static ResponseBodyGetPersons jsonToResponseGetPersons(final String json) {
+        try {
+            return new ObjectMapper().readValue(json, ResponseBodyGetPersons.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

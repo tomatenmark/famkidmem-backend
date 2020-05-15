@@ -1,9 +1,7 @@
 package de.mherrmann.famkidmem.backend.service.admin;
 
 import de.mherrmann.famkidmem.backend.Application;
-import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddPerson;
-import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeletePerson;
-import de.mherrmann.famkidmem.backend.body.admin.RequestBodyUpdatePerson;
+import de.mherrmann.famkidmem.backend.body.admin.*;
 import de.mherrmann.famkidmem.backend.entity.FileEntity;
 import de.mherrmann.famkidmem.backend.entity.Key;
 import de.mherrmann.famkidmem.backend.entity.Person;
@@ -20,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -61,6 +61,15 @@ public class AdminPersonService {
         Person person = getPerson(deletePersonRequest);
         checkForUser(person);
         delete(person);
+    }
+
+    public ResponseBodyGetPersons getPersons(){
+        List<Person> persons = new ArrayList<>();
+        Iterable<Person> personIterable = personRepository.findAll();
+        personIterable.forEach(persons::add);
+        ResponseBodyGetPersons usersResponse = new ResponseBodyGetPersons(persons);
+        LOGGER.info("Successfully get persons");
+        return usersResponse;
     }
 
     Person getPerson(String firstName, String lastName, String commonName) throws EntityNotFoundException {

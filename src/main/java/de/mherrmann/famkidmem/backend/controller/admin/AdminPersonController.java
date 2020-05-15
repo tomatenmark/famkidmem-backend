@@ -48,4 +48,13 @@ public class AdminPersonController {
         }
     }
 
+    @GetMapping(value = "/get")
+    public ResponseEntity<ResponseBodyGetPersons> getPersons(){
+        try {
+            return ResponseEntity.ok(adminPersonService.getPersons());
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(new ResponseBodyGetPersons(ex));
+        }
+    }
+
 }

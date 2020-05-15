@@ -157,6 +157,24 @@ public class AdminPersonServiceTest {
         shouldFailDeletePerson(deletePersonRequest, PersonActionException.class);
     }
 
+    @Test
+    public void shouldGetPersons() throws IOException {
+        ResponseBodyGetPersons getPersonsResponse = null;
+        Exception exception = null;
+        testUtils.createTestPerson("first", "last", "common");
+
+        try {
+            getPersonsResponse = adminPersonService.getPersons();
+        } catch(Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNull();
+        assertThat(getPersonsResponse).isNotNull();
+        assertThat(getPersonsResponse.getPersons()).isNotEmpty();
+        assertThat(getPersonsResponse.getPersons().get(0).getCommonName()).isEqualTo("common");
+    }
+
     private void shouldFailAddPerson(RequestBodyAddPerson addPersonRequest){
         long countBefore = personRepository.count();
         Exception exception = null;
