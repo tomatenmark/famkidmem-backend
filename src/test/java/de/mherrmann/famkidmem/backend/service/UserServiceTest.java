@@ -42,7 +42,7 @@ public class UserServiceTest {
     private SessionRepository sessionRepository;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() {
         createTestUser();
     }
 

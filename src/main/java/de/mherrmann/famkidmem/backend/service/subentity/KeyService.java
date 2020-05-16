@@ -1,4 +1,4 @@
-package de.mherrmann.famkidmem.backend.service;
+package de.mherrmann.famkidmem.backend.service.subentity;
 
 import de.mherrmann.famkidmem.backend.entity.Key;
 import de.mherrmann.famkidmem.backend.repository.KeyRepository;

@@ -1,4 +1,4 @@
-package de.mherrmann.famkidmem.backend.service;
+package de.mherrmann.famkidmem.backend.service.subentity;
 
 import de.mherrmann.famkidmem.backend.entity.FileEntity;
 import de.mherrmann.famkidmem.backend.entity.Key;
@@ -7,12 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FileService {
+public class FileEntityService {
 
     private final FileRepository fileRepository;
 
     @Autowired
-    public FileService(FileRepository fileRepository) {
+    public FileEntityService(FileRepository fileRepository) {
         this.fileRepository = fileRepository;
     }
 
