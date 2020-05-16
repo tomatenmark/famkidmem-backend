@@ -25,11 +25,24 @@ public class TestUtils {
     @Autowired
     private KeyRepository keyRepository;
 
+    @Autowired
+    private PersonRepository personRepository;
+
+    @Autowired
+    private YearRepository yearRepository;
+
+    @Autowired
+    private VideoRepository videoRepository;
+
+
     public void dropAll() {
         sessionRepository.deleteAll();
         userRepository.deleteAll();
         fileRepository.deleteAll();
         keyRepository.deleteAll();
+        videoRepository.deleteAll();
+        personRepository.deleteAll();
+        yearRepository.deleteAll();
     }
 
     public void deleteTestFiles() {
