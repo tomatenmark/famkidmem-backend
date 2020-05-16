@@ -6,7 +6,7 @@ import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
 import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetUsers;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
-import de.mherrmann.famkidmem.backend.exception.AddUserException;
+import de.mherrmann.famkidmem.backend.exception.AddEntityException;
 import de.mherrmann.famkidmem.backend.exception.EntityNotFoundException;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
@@ -17,8 +17,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -182,7 +180,7 @@ public class AdminUserServiceTest {
         }
 
         assertThat(exception).isNotNull();
-        assertThat(exception).isInstanceOf(AddUserException.class);
+        assertThat(exception).isInstanceOf(AddEntityException.class);
         assertThat(userRepository.count()).isEqualTo(countBefore);
     }
 

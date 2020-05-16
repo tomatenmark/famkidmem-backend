@@ -15,9 +15,9 @@ public class Video {
 
     private String title;
     private String description;
-    private int durationInMinutes;
-    private boolean createdInCologne;
-    private boolean createdInGardelgen;
+    private int durationInSeconds;
+    private boolean recordedInCologne;
+    private boolean recordedInGardelgen;
 
     @ManyToMany
     @LazyCollection(LazyCollectionOption.FALSE)
@@ -42,14 +42,14 @@ public class Video {
     private Video(){}
 
     public Video(
-            String title, String description, int durationInMinutes, boolean createdInCologne, boolean createdInGardelgen,
+            String title, String description, int durationInSeconds, boolean recordedInCologne, boolean recordedInGardelgen,
             List<Year> years, List<Person> persons, Key key, FileEntity thumbnail, FileEntity m3u8) {
         this.id = UUID.randomUUID().toString();
         this.title = title;
         this.description = description;
-        this.durationInMinutes = durationInMinutes;
-        this.createdInCologne = createdInCologne;
-        this.createdInGardelgen = createdInGardelgen;
+        this.durationInSeconds = durationInSeconds;
+        this.recordedInCologne = recordedInCologne;
+        this.recordedInGardelgen = recordedInGardelgen;
         this.years = years;
         this.persons = persons;
         this.key = key;
@@ -81,28 +81,28 @@ public class Video {
         this.description = description;
     }
 
-    public int getDurationInMinutes() {
-        return durationInMinutes;
+    public int getDurationInSeconds() {
+        return durationInSeconds;
     }
 
-    public void setDurationInMinutes(int durationInMinutes) {
-        this.durationInMinutes = durationInMinutes;
+    public void setDurationInSeconds(int durationInSeconds) {
+        this.durationInSeconds = durationInSeconds;
     }
 
-    public boolean isCreatedInCologne() {
-        return createdInCologne;
+    public boolean isRecordedInCologne() {
+        return recordedInCologne;
     }
 
-    public void setCreatedInCologne(boolean createdInCologne) {
-        this.createdInCologne = createdInCologne;
+    public void setRecordedInCologne(boolean recordedInCologne) {
+        this.recordedInCologne = recordedInCologne;
     }
 
-    public boolean isCreatedInGardelgen() {
-        return createdInGardelgen;
+    public boolean isRecordedInGardelgen() {
+        return recordedInGardelgen;
     }
 
-    public void setCreatedInGardelgen(boolean createdInGardelgen) {
-        this.createdInGardelgen = createdInGardelgen;
+    public void setRecordedInGardelgen(boolean recordedInGardelgen) {
+        this.recordedInGardelgen = recordedInGardelgen;
     }
 
     public List<Year> getYears() {
