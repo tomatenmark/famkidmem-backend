@@ -13,13 +13,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class KeyServiceTest {
+public class KeyEntityServiceTest {
 
     @Autowired
     private TestUtils testUtils;
 
     @Autowired
-    private KeyService keyService;
+    private KeyEntityService keyEntityService;
 
     @Autowired
     private KeyRepository keyRepository;
@@ -32,7 +32,7 @@ public class KeyServiceTest {
     @Test
     public void shouldAddKey(){
 
-        Key key = keyService.addKey("key", "iv");
+        Key key = keyEntityService.addKey("key", "iv");
 
         assertThat(key).isNotNull();
         assertThat(keyRepository.findAll().iterator().hasNext()).isTrue();
@@ -44,7 +44,7 @@ public class KeyServiceTest {
     public void shouldUpdateKey(){
         Key oldKey = keyRepository.save(new Key("key", "iv"));
 
-        Key key = keyService.updateKey("newKey", "newIv", oldKey);
+        Key key = keyEntityService.updateKey("newKey", "newIv", oldKey);
 
         assertThat(key).isNotNull();
         assertThat(keyRepository.count()).isEqualTo(1);
@@ -57,7 +57,7 @@ public class KeyServiceTest {
         Key key = keyRepository.save(new Key("key", "iv"));
         long keys = keyRepository.count();
 
-        keyService.delete(key);
+        keyEntityService.delete(key);
 
         assertThat(key).isNotNull();
         assertThat(keyRepository.count()).isEqualTo(0);

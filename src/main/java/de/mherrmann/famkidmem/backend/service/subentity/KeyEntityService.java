@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class KeyService {
+public class KeyEntityService {
 
     private final KeyRepository keyRepository;
 
     @Autowired
-    public KeyService(KeyRepository keyRepository) {
+    public KeyEntityService(KeyRepository keyRepository) {
         this.keyRepository = keyRepository;
     }
 
