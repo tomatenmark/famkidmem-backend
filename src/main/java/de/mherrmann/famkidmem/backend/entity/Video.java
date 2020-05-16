@@ -19,11 +19,11 @@ public class Video {
     private boolean createdInCologne;
     private boolean createdInGardelgen;
 
-    @OneToMany(mappedBy = "video_id", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "videoId", cascade = CascadeType.ALL)
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Year> years;
 
-    @OneToMany(mappedBy = "video_id", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "videoId", cascade = CascadeType.ALL)
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Person> persons;
 
