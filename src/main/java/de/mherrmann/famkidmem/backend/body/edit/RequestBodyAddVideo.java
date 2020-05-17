@@ -6,6 +6,7 @@ public class RequestBodyAddVideo {
 
     private String title;
     private String description;
+    private int durationInSeconds;
     private boolean recordedInCologne;
     private boolean recordedInGardelgen;
     private List<Integer> years;
@@ -33,6 +34,14 @@ public class RequestBodyAddVideo {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getDurationInSeconds() {
+        return durationInSeconds;
+    }
+
+    public void setDurationInSeconds(int durationInSeconds) {
+        this.durationInSeconds = durationInSeconds;
     }
 
     public boolean isRecordedInCologne() {
