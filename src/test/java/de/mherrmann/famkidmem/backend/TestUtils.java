@@ -1,7 +1,7 @@
 package de.mherrmann.famkidmem.backend;
 
 import de.mherrmann.famkidmem.backend.body.admin.*;
-import de.mherrmann.famkidmem.backend.entity.Key;
+import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 @Service
 public class TestUtils {
@@ -38,11 +39,11 @@ public class TestUtils {
     public void dropAll() {
         sessionRepository.deleteAll();
         userRepository.deleteAll();
-        fileRepository.deleteAll();
-        keyRepository.deleteAll();
         videoRepository.deleteAll();
         personRepository.deleteAll();
         yearRepository.deleteAll();
+        fileRepository.deleteAll();
+        keyRepository.deleteAll();
     }
 
     public void deleteTestFiles() {
@@ -78,19 +79,27 @@ public class TestUtils {
         return deleteUserRequest;
     }
 
-    public UserEntity createTestUser(){
-        UserEntity user = new UserEntity("username", "display","salt", "hash", "masterKey");
-        return userRepository.save(user);
+    public RequestBodyAddVideo createAddVideoRequest() throws IOException {
+        RequestBodyAddVideo addVideoRequest = new RequestBodyAddVideo();
+        addVideoRequest.setTitle("title");
+        addVideoRequest.setKey("key");
+        addVideoRequest.setIv("iv");
+        addVideoRequest.setM3u8Filename("m3u8");
+        addVideoRequest.setM3u8Key("m3u8Key");
+        addVideoRequest.setM3u8Iv("m3u8Iv");
+        addVideoRequest.setThumbnailFilename("thumbnail");
+        addVideoRequest.setThumbnailKey("thumbnailKey");
+        addVideoRequest.setThumbnailIv("thumbnailIv");
+        addVideoRequest.setPersons(Arrays.asList("person1", "person2"));
+        addVideoRequest.setYears(Arrays.asList(1994, 1995));
+        createTestFile("m3u8");
+        createTestFile("thumbnail");
+        return addVideoRequest;
     }
 
-    private Key createTestKey(){
-        Key keyEntity = new Key("key", "iv");
-        return keyRepository.save(keyEntity);
-    }
-
-    private void createTestFile() throws IOException {
+    private void createTestFile(String filename) throws IOException {
         new File("./files").mkdir();
-        new File("./files/test").createNewFile();
+        new File("./files/"+filename).createNewFile();
     }
 
 }
