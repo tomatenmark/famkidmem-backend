@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class Application {
 
-    public static String filesDir;
+    public static String filesDir = "./files/";
 
     public static void main(String[] args) {
 
@@ -19,9 +19,6 @@ public class Application {
                 filesDir = arg.substring(arg.indexOf('=')+1);
                 break;
             }
-        }
-        if(filesDir == null){
-            filesDir = "./files/";
         }
     }
 }
