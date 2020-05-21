@@ -2,6 +2,7 @@ package de.mherrmann.famkidmem.backend;
 
 import de.mherrmann.famkidmem.backend.body.admin.*;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
+import de.mherrmann.famkidmem.backend.body.edit.RequestBodyUpdateVideo;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +83,7 @@ public class TestUtils {
     public RequestBodyAddVideo createAddVideoRequest() throws IOException {
         RequestBodyAddVideo addVideoRequest = new RequestBodyAddVideo();
         addVideoRequest.setTitle("title");
+        addVideoRequest.setDescription("description");
         addVideoRequest.setKey("key");
         addVideoRequest.setIv("iv");
         addVideoRequest.setM3u8Filename("m3u8");
@@ -92,9 +94,27 @@ public class TestUtils {
         addVideoRequest.setThumbnailIv("thumbnailIv");
         addVideoRequest.setPersons(Arrays.asList("person1", "person2"));
         addVideoRequest.setYears(Arrays.asList(1994, 1995));
+        addVideoRequest.setRecordedInCologne(true);
+        addVideoRequest.setRecordedInGardelgen(false);
         createTestFile("m3u8");
         createTestFile("thumbnail");
         return addVideoRequest;
+    }
+
+    public RequestBodyUpdateVideo createUpdateVideoRequest() {
+        RequestBodyUpdateVideo updateVideoRequest = new RequestBodyUpdateVideo();
+        updateVideoRequest.setDesignator("title");
+        updateVideoRequest.setTitle("newTitle");
+        updateVideoRequest.setDescription("newDescription");
+        updateVideoRequest.setKey("newKey");
+        updateVideoRequest.setIv("newIv");
+        updateVideoRequest.setThumbnailKey("newThumbnailKey");
+        updateVideoRequest.setThumbnailIv("newThumbnailIv");
+        updateVideoRequest.setPersons(Arrays.asList("person2", "person3"));
+        updateVideoRequest.setYears(Arrays.asList(1994, 1997));
+        updateVideoRequest.setRecordedInCologne(false);
+        updateVideoRequest.setRecordedInGardelgen(true);
+        return updateVideoRequest;
     }
 
     private void createTestFile(String filename) throws IOException {

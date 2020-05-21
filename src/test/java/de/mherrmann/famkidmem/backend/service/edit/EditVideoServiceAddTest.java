@@ -2,6 +2,7 @@ package de.mherrmann.famkidmem.backend.service.edit;
 
 import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
+import de.mherrmann.famkidmem.backend.entity.Video;
 import de.mherrmann.famkidmem.backend.exception.AddEntityException;
 import de.mherrmann.famkidmem.backend.repository.VideoRepository;
 import org.junit.After;
@@ -18,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class EditVideoServiceTest {
+public class EditVideoServiceAddTest {
 
     @Autowired
     private EditVideoService editVideoService;
@@ -136,21 +137,26 @@ public class EditVideoServiceTest {
     }
 
     private void assertToBe(RequestBodyAddVideo addVideoRequest){
-        assertThat(videoRepository.findByTitle(addVideoRequest.getTitle()).get().getTitle()).isEqualTo(addVideoRequest.getTitle());
-        assertThat(videoRepository.findByTitle(addVideoRequest.getTitle()).get().getKey().getKey()).isEqualTo(addVideoRequest.getKey());
-        assertThat(videoRepository.findByTitle(addVideoRequest.getTitle()).get().getKey().getIv()).isEqualTo(addVideoRequest.getIv());
-        assertThat(videoRepository.findByTitle(addVideoRequest.getTitle()).get().getM3u8().getKey().getKey()).isEqualTo(addVideoRequest.getM3u8Key());
-        assertThat(videoRepository.findByTitle(addVideoRequest.getTitle()).get().getM3u8().getKey().getIv()).isEqualTo(addVideoRequest.getM3u8Iv());
-        assertThat(videoRepository.findByTitle(addVideoRequest.getTitle()).get().getM3u8().getFilename()).isEqualTo(addVideoRequest.getM3u8Filename());
-        assertThat(videoRepository.findByTitle(addVideoRequest.getTitle()).get().getThumbnail().getKey().getKey()).isEqualTo(addVideoRequest.getThumbnailKey());
-        assertThat(videoRepository.findByTitle(addVideoRequest.getTitle()).get().getThumbnail().getKey().getIv()).isEqualTo(addVideoRequest.getThumbnailIv());
-        assertThat(videoRepository.findByTitle(addVideoRequest.getTitle()).get().getThumbnail().getFilename()).isEqualTo(addVideoRequest.getThumbnailFilename());
-        assertThat(videoRepository.findByTitle(addVideoRequest.getTitle()).get().getPersons()).isNotEmpty();
-        assertThat(videoRepository.findByTitle(addVideoRequest.getTitle()).get().getYears()).isNotEmpty();
-        assertThat(videoRepository.findByTitle(addVideoRequest.getTitle()).get().getPersons().get(0).getName()).isEqualTo(addVideoRequest.getPersons().get(0));
-        assertThat(videoRepository.findByTitle(addVideoRequest.getTitle()).get().getPersons().get(1).getName()).isEqualTo(addVideoRequest.getPersons().get(1));
-        assertThat(videoRepository.findByTitle(addVideoRequest.getTitle()).get().getYears().get(0).getValue()).isEqualTo(addVideoRequest.getYears().get(0));
-        assertThat(videoRepository.findByTitle(addVideoRequest.getTitle()).get().getYears().get(1).getValue()).isEqualTo(addVideoRequest.getYears().get(1));
+        Video video = videoRepository.findByTitle(addVideoRequest.getTitle()).get();
+        assertThat(video.getTitle()).isEqualTo(addVideoRequest.getTitle());
+        assertThat(video.getDescription()).isEqualTo(addVideoRequest.getDescription());
+        assertThat(video.getKey().getKey()).isEqualTo(addVideoRequest.getKey());
+        assertThat(video.getKey().getIv()).isEqualTo(addVideoRequest.getIv());
+        assertThat(video.getM3u8().getKey().getKey()).isEqualTo(addVideoRequest.getM3u8Key());
+        assertThat(video.getM3u8().getKey().getIv()).isEqualTo(addVideoRequest.getM3u8Iv());
+        assertThat(video.getM3u8().getFilename()).isEqualTo(addVideoRequest.getM3u8Filename());
+        assertThat(video.getThumbnail().getKey().getKey()).isEqualTo(addVideoRequest.getThumbnailKey());
+        assertThat(video.getThumbnail().getKey().getIv()).isEqualTo(addVideoRequest.getThumbnailIv());
+        assertThat(video.getThumbnail().getFilename()).isEqualTo(addVideoRequest.getThumbnailFilename());
+        assertThat(video.getPersons()).isNotEmpty();
+        assertThat(video.getYears()).isNotEmpty();
+        assertThat(video.getPersons().get(0).getName()).isEqualTo(addVideoRequest.getPersons().get(0));
+        assertThat(video.getPersons().get(1).getName()).isEqualTo(addVideoRequest.getPersons().get(1));
+        assertThat(video.getYears().get(0).getValue()).isEqualTo(addVideoRequest.getYears().get(0));
+        assertThat(video.getYears().get(1).getValue()).isEqualTo(addVideoRequest.getYears().get(1));
+        assertThat(video.isRecordedInCologne()).isEqualTo(addVideoRequest.isRecordedInCologne());
+        assertThat(video.isRecordedInGardelgen()).isEqualTo(addVideoRequest.isRecordedInGardelgen());
+
     }
 
     private void shouldFailAddVideo(RequestBodyAddVideo addVideoRequest){
