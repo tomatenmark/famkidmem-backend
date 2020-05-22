@@ -5,7 +5,7 @@ import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
 import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetUsers;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
-import de.mherrmann.famkidmem.backend.exception.AddUserException;
+import de.mherrmann.famkidmem.backend.exception.AddEntityException;
 import de.mherrmann.famkidmem.backend.exception.EntityNotFoundException;
 import de.mherrmann.famkidmem.backend.repository.SessionRepository;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
@@ -33,7 +33,7 @@ public class AdminUserService {
         this.sessionRepository = sessionRepository;
     }
 
-    public void addUser(RequestBodyAddUser addUserRequest) throws AddUserException {
+    public void addUser(RequestBodyAddUser addUserRequest) throws AddEntityException {
         doChecks(addUserRequest);
         String loginHashHash = Bcrypt.hash(addUserRequest.getLoginHash());
         UserEntity user = new UserEntity(addUserRequest.getUsername(), addUserRequest.getDisplayName(), addUserRequest.getPasswordKeySalt(), loginHashHash,
@@ -69,14 +69,14 @@ public class AdminUserService {
         LOGGER.info("Successfully reset password for user {}", resetPasswordRequest.getUsername());
     }
 
-    private void doChecks(RequestBodyAddUser addUserRequest) throws AddUserException {
+    private void doChecks(RequestBodyAddUser addUserRequest) throws AddEntityException {
         if(userRepository.existsByUsername(addUserRequest.getUsername())){
             LOGGER.error("Could not add user. User with username {} already exists", addUserRequest.getUsername());
-            throw new AddUserException("User with username already exist: " + addUserRequest.getUsername());
+            throw new AddEntityException("User with username already exist: " + addUserRequest.getUsername());
         }
         if(addUserRequest.getDisplayName().isEmpty()){
             LOGGER.error("Could not add user. Display name can not be empty.");
-            throw new AddUserException("Display name can not be empty.");
+            throw new AddEntityException("Display name can not be empty.");
         }
     }
 
