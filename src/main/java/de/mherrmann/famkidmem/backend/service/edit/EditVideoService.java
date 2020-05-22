@@ -55,7 +55,7 @@ public class EditVideoService {
         update(video, updateVideoRequest);
     }
 
-    public void deleteVideo(String designator) throws EntityActionException, EntityNotFoundException {
+    public void deleteVideo(String designator) throws EntityNotFoundException {
         Video video = getVideo(designator);
         delete(video);
     }
