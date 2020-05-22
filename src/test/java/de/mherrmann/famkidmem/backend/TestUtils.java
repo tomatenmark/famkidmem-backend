@@ -81,23 +81,63 @@ public class TestUtils {
     }
 
     public RequestBodyAddVideo createAddVideoRequest() throws IOException {
+        return createAddAnotherVideoRequest(
+                "title",
+                "description",
+                "key",
+                "iv",
+                "m3u8",
+                "m3u8Key",
+                "m3u8Iv",
+                "thumbnail",
+                "thumbnailKey",
+                "thumbnailIv",
+                "person1",
+                "person2",
+                1994,
+                1995);
+    }
+
+    public RequestBodyAddVideo createAddAnotherVideoRequest() throws IOException {
+        return createAddAnotherVideoRequest(
+                "video2",
+                "description",
+                "key2",
+                "iv2",
+                "m3u82",
+                "m3u8Key2",
+                "m3u8Iv2",
+                "thumbnail2",
+                "thumbnailKey2",
+                "thumbnailIv2",
+                "person3",
+                "person4",
+                1996,
+                1997);
+    }
+
+    private RequestBodyAddVideo createAddAnotherVideoRequest(
+            String title, String description, String key, String iv, String m3u8, String m3u8Key, String m3u8Iv,
+            String thumbnail, String thumbnailKey, String thumbnailIv, String person1, String person2, int year1, int year2)
+                throws IOException {
+
         RequestBodyAddVideo addVideoRequest = new RequestBodyAddVideo();
-        addVideoRequest.setTitle("title");
-        addVideoRequest.setDescription("description");
-        addVideoRequest.setKey("key");
-        addVideoRequest.setIv("iv");
-        addVideoRequest.setM3u8Filename("m3u8");
-        addVideoRequest.setM3u8Key("m3u8Key");
-        addVideoRequest.setM3u8Iv("m3u8Iv");
-        addVideoRequest.setThumbnailFilename("thumbnail");
-        addVideoRequest.setThumbnailKey("thumbnailKey");
-        addVideoRequest.setThumbnailIv("thumbnailIv");
-        addVideoRequest.setPersons(Arrays.asList("person1", "person2"));
-        addVideoRequest.setYears(Arrays.asList(1994, 1995));
+        addVideoRequest.setTitle(title);
+        addVideoRequest.setDescription(description);
+        addVideoRequest.setKey(key);
+        addVideoRequest.setIv(iv);
+        addVideoRequest.setM3u8Filename(m3u8);
+        addVideoRequest.setM3u8Key(m3u8Key);
+        addVideoRequest.setM3u8Iv(m3u8Iv);
+        addVideoRequest.setThumbnailFilename(thumbnail);
+        addVideoRequest.setThumbnailKey(thumbnailKey);
+        addVideoRequest.setThumbnailIv(thumbnailIv);
+        addVideoRequest.setPersons(Arrays.asList(person1, person2));
+        addVideoRequest.setYears(Arrays.asList(year1, year2));
         addVideoRequest.setRecordedInCologne(true);
         addVideoRequest.setRecordedInGardelgen(false);
-        createTestFile("m3u8");
-        createTestFile("thumbnail");
+        createTestFile(m3u8);
+        createTestFile(thumbnail);
         return addVideoRequest;
     }
 

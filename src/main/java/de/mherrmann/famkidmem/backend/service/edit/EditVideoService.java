@@ -55,6 +55,11 @@ public class EditVideoService {
         update(video, updateVideoRequest);
     }
 
+    public void deleteVideo(String designator) throws EntityActionException, EntityNotFoundException {
+        Video video = getVideo(designator);
+        delete(video);
+    }
+
     private void add(RequestBodyAddVideo addVideoRequest){
         Key key = keyEntityService.addKey(addVideoRequest.getKey(), addVideoRequest.getIv());
         Key thumbnailKey = keyEntityService.addKey(addVideoRequest.getThumbnailKey(), addVideoRequest.getThumbnailIv());
@@ -92,6 +97,19 @@ public class EditVideoService {
         videoRepository.save(video);
         personsBefore.forEach(this::deletePersonIfOrphan);
         yearsBefore.forEach(this::deleteYearIfOrphan);
+    }
+
+    private void delete(Video video){
+        List<Person> persons = video.getPersons();
+        List<Year> years = video.getYears();
+        videoRepository.delete(video);
+        fileEntityService.delete(video.getThumbnail());
+        fileEntityService.delete(video.getM3u8());
+        keyEntityService.delete(video.getKey());
+        keyEntityService.delete(video.getThumbnail().getKey());
+        keyEntityService.delete(video.getM3u8().getKey());
+        persons.forEach(this::deletePersonIfOrphan);
+        years.forEach(this::deleteYearIfOrphan);
     }
 
     private void deletePersonIfOrphan(Person person){
