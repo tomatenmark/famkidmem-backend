@@ -111,25 +111,4 @@ public class UserService {
         long threshold = System.currentTimeMillis() - SESSION_TIME_TO_LIVE;
         sessionRepository.deleteAllByLastRequestBeforeAndUserEntity(new Timestamp(threshold), user);
     }
-
-    /*
-
-    Admin
-displayname: Admin
-username: 40j@8v3bPP5E2$
-loginHash: Sruv2RRpoau+67KjnCc/I7FoXc8O2fYrQ/qKRLXBPvY=
-userMasterKey: nb/wXqv7yxSzTA2+9sZATg==
-isAdmin: true
-isEditor: true
-
-Mark
-displayname: Admin
-username: Kh#vu2eA*!Glx1
-loginHash: 7itleld/CDe06OFsMQdg8gMi1Yvid8zjUeek3FwPdoM= app.js:12:13
-userMasterKey: Oxa4WslY/Ndxi4DMFd2XtQ==
-isAdmin: false
-isEditor: false
-
-
-     */
 }
