@@ -16,8 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -231,11 +229,7 @@ public class UserServiceTest {
 
 
     private void createTestUser() {
-        String loginHashHash = Bcrypt.hash(LOGIN_HASH);
-        testUser = new UserEntity("username", "", "salt", loginHashHash, "masterKey");
-        testUser.setInit(true);
-        testUser.setReset(true);
-        userRepository.save(testUser);
+        testUser = testUtils.createTestUser(LOGIN_HASH);
     }
 
 }

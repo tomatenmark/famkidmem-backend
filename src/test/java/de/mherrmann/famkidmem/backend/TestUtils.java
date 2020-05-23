@@ -5,6 +5,7 @@ import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyUpdateVideo;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.*;
+import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,6 +54,14 @@ public class TestUtils {
             file.delete();
         }
         directory.delete();
+    }
+
+    public UserEntity createTestUser(String loginHash) {
+        String loginHashHash = Bcrypt.hash(loginHash);
+        UserEntity testUser = new UserEntity("username", "", "salt", loginHashHash, "masterKey");
+        testUser.setInit(true);
+        testUser.setReset(true);
+        return userRepository.save(testUser);
     }
 
     public RequestBodyAddUser createAddUserRequest() {
