@@ -47,17 +47,20 @@ public class EditVideoService {
     public void addVideo(RequestBodyAddVideo addVideoRequest) throws AddEntityException {
         validateNew(addVideoRequest);
         add(addVideoRequest);
+        LOGGER.info("Successfully added video {}", addVideoRequest.getTitle());
     }
 
     public void updateVideo(RequestBodyUpdateVideo updateVideoRequest) throws EntityActionException, EntityNotFoundException {
         Video video = getVideo(updateVideoRequest.getDesignator());
         validateUpdate(updateVideoRequest);
         update(video, updateVideoRequest);
+        LOGGER.info("Successfully updated video with new name {}", updateVideoRequest.getTitle());
     }
 
     public void deleteVideo(String designator) throws EntityNotFoundException {
         Video video = getVideo(designator);
         delete(video);
+        LOGGER.info("Successfully removed video {}", designator);
     }
 
     private void add(RequestBodyAddVideo addVideoRequest){
