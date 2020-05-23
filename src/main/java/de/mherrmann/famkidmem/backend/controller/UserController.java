@@ -49,7 +49,7 @@ public class UserController {
         try {
             userService.changeUsername(usernameChange.getAccessToken(), usernameChange.getNewUsername());
             return ResponseEntity.ok(new ResponseBody("ok", "Successfully changed username"));
-        } catch(SecurityException ex){
+        } catch(Exception ex){
             return ResponseEntity.badRequest().body(new ResponseBody("error", ex.getMessage(), ex));
         }
     }
@@ -59,7 +59,7 @@ public class UserController {
         try {
             userService.changePassword(passwordChange.getAccessToken(), passwordChange.getNewLoginHash(), passwordChange.getNewPasswordKeySalt(), passwordChange.getNewMasterKey());
             return ResponseEntity.ok(new ResponseBody("ok", "Successfully changed password"));
-        } catch(SecurityException ex){
+        } catch(Exception ex){
             return ResponseEntity.badRequest().body(new ResponseBody("error", ex.getMessage(), ex));
         }
     }
