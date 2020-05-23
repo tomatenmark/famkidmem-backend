@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -169,6 +170,9 @@ public class TestUtils {
     private void createTestFile(String filename) throws IOException {
         new File("./files").mkdir();
         new File("./files/"+filename).createNewFile();
+        FileWriter myWriter = new FileWriter("./files/"+filename);
+        myWriter.write(filename);
+        myWriter.close();
     }
 
 }

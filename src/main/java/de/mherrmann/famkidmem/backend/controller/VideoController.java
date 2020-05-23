@@ -1,7 +1,7 @@
 package de.mherrmann.famkidmem.backend.controller;
 
 import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentIndex;
-import de.mherrmann.famkidmem.backend.exception.SecurityException;
+import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentFileBase64;
 import de.mherrmann.famkidmem.backend.service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +22,17 @@ public class VideoController {
     public ResponseEntity<ResponseBodyContentIndex> getIndex(@PathVariable String accessToken) {
         try {
             return ResponseEntity.ok(videoService.getIndex(accessToken));
-        } catch(SecurityException ex){
+        } catch(Exception ex){
             return ResponseEntity.badRequest().body(new ResponseBodyContentIndex(ex));
+        }
+    }
+
+    @GetMapping(value = "/base64/{accessToken}/{filename}")
+    public ResponseEntity<ResponseBodyContentFileBase64> getFileBase64(@PathVariable String accessToken, @PathVariable String filename) {
+        try {
+            return ResponseEntity.ok(videoService.getFileBase64(accessToken, filename));
+        } catch(Exception ex){
+            return ResponseEntity.badRequest().body(new ResponseBodyContentFileBase64(ex));
         }
     }
 }

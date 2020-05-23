@@ -1,18 +1,22 @@
 package de.mherrmann.famkidmem.backend.service;
 
 import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentIndex;
+import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentFileBase64;
 import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.entity.Video;
 import de.mherrmann.famkidmem.backend.entity.Year;
+import de.mherrmann.famkidmem.backend.exception.FileNotFoundException;
 import de.mherrmann.famkidmem.backend.repository.PersonRepository;
 import de.mherrmann.famkidmem.backend.repository.VideoRepository;
 import de.mherrmann.famkidmem.backend.repository.YearRepository;
+import de.mherrmann.famkidmem.backend.utils.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,21 +27,31 @@ public class VideoService {
     private final PersonRepository personRepository;
     private final YearRepository yearRepository;
     private final UserService userService;
+    private final FileUtil fileUtil;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoService.class);
 
     @Autowired
-    public VideoService(VideoRepository videoRepository, PersonRepository personRepository, YearRepository yearRepository, UserService userService) {
+    public VideoService(
+            VideoRepository videoRepository, PersonRepository personRepository, YearRepository yearRepository,
+            UserService userService, FileUtil fileUtil) {
         this.videoRepository = videoRepository;
         this.personRepository = personRepository;
         this.yearRepository = yearRepository;
         this.userService = userService;
+        this.fileUtil = fileUtil;
     }
 
     public ResponseBodyContentIndex getIndex(String accessToken) throws SecurityException {
         UserEntity user = userService.getUser(accessToken, "get video index");
         LOGGER.info("Successfully got video index. AccessToken: {}", accessToken);
         return new ResponseBodyContentIndex(user.getMasterKey(), getVideos(), getPersons(), getYears());
+    }
+
+    public ResponseBodyContentFileBase64 getFileBase64(String accessToken, String filename) throws SecurityException, FileNotFoundException, IOException {
+        UserEntity user = userService.getUser(accessToken, "get file base64");
+        LOGGER.info("Successfully got file base64 encoded. AccessToken: {}", accessToken);
+        return new ResponseBodyContentFileBase64(user.getMasterKey(), fileUtil.getBase64EncodedContent(filename));
     }
 
     private List<Video> getVideos(){

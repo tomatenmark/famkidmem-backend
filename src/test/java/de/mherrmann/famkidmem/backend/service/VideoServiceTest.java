@@ -1,10 +1,12 @@
 package de.mherrmann.famkidmem.backend.service;
 
+import de.mherrmann.famkidmem.backend.Application;
 import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentIndex;
+import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentFileBase64;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
-import de.mherrmann.famkidmem.backend.repository.*;
+import de.mherrmann.famkidmem.backend.exception.FileNotFoundException;
 import de.mherrmann.famkidmem.backend.service.edit.EditVideoService;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
 import org.junit.After;
@@ -22,6 +24,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class VideoServiceTest {
 
     private static final String LOGIN_HASH = "loginHash";
+    private static final String THUMBNAIL_BASE64 = "dGh1bWJuYWls";
+    private static final String M3U8_BASE64 = "bTN1OA==";
 
     private UserEntity testUser;
     private ResponseBodyLogin testLogin;
@@ -36,9 +40,6 @@ public class VideoServiceTest {
     private VideoService videoService;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private TestUtils testUtils;
 
     @Before
@@ -51,6 +52,7 @@ public class VideoServiceTest {
 
     @After
     public void teardown(){
+        Application.filesDir = "./files/";
         testUtils.dropAll();
         testUtils.deleteTestFiles();
     }
@@ -84,6 +86,26 @@ public class VideoServiceTest {
         assertThat(exception).isInstanceOf(SecurityException.class);
     }
 
+    @Test
+    public void shouldGetThumbnail(){
+        shouldGetFileBase64("thumbnail", THUMBNAIL_BASE64);
+    }
+
+    @Test
+    public void shouldGetM3u8(){
+        shouldGetFileBase64("m3u8", M3U8_BASE64);
+    }
+
+    @Test
+    public void shouldFailGetThumbnailCausedByInvalidLogin(){
+        shouldFailGetThumbnail("invalid", "thumbnail", SecurityException.class);
+    }
+
+    @Test
+    public void shouldFailGetThumbnailCausedByFileNotFound(){
+        shouldFailGetThumbnail(testLogin.getAccessToken(), "invalid", FileNotFoundException.class);
+    }
+
     private void assertIndex(ResponseBodyContentIndex contentIndex){
         assertThat(contentIndex).isNotNull();
         assertThat(contentIndex.getVideos().size()).isEqualTo(2);
@@ -99,6 +121,34 @@ public class VideoServiceTest {
         assertThat(contentIndex.getYears().get(2)).isEqualTo(1996);
         assertThat(contentIndex.getYears().get(3)).isEqualTo(1997);
         assertThat(contentIndex.getMasterKey()).isEqualTo(testUser.getMasterKey());
+    }
+
+    private void shouldGetFileBase64(String filename, String base64){
+        Exception exception = null;
+        ResponseBodyContentFileBase64 thumbnail = null;
+
+        try {
+            thumbnail = videoService.getFileBase64(testLogin.getAccessToken(), filename);
+        } catch(Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNull();
+        assertThat(thumbnail).isNotNull();
+        assertThat(thumbnail.getBase64()).isEqualTo(base64);
+    }
+
+    private void shouldFailGetThumbnail(String accessToken, String filename, Class exceptionClass){
+        Exception exception = null;
+
+        try {
+            videoService.getFileBase64(accessToken, filename);
+        } catch(Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNotNull();
+        assertThat(exception).isInstanceOf(exceptionClass);
     }
 
     private void createTestUser() {
