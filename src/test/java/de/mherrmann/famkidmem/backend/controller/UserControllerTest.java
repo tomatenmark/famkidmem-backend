@@ -132,7 +132,7 @@ public class UserControllerTest {
         String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
         assertThat(sessionRepository.findByAccessToken(login.getAccessToken()).isPresent()).isTrue();
         assertThat(message).isEqualTo("error");
-        assertThat(details).isEqualTo("You are not allowed to do this: logout");
+        assertThat(details).isEqualTo("You are not allowed to do this: logout user");
     }
 
     @Test

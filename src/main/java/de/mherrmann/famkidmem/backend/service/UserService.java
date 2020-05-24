@@ -53,12 +53,7 @@ public class UserService {
     }
 
     public void logout(String accessToken, boolean global) throws SecurityException {
-        Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
-        if(!sessionOptional.isPresent()){
-            LOGGER.error("Could not logout user. Invalid accessToken {}", accessToken);
-            throw new SecurityException("logout");
-        }
-        UserSession session = sessionOptional.get();
+        UserSession session = getUserSession(accessToken, "logout user");
         if(global){
             UserEntity user = session.getUserEntity();
             LOGGER.info("Successfully logged out {} from all sessions", session.getUserEntity().getUsername());
@@ -70,12 +65,7 @@ public class UserService {
     }
 
     public void changeUsername(String accessToken, String newUsername) throws SecurityException {
-        Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
-        if(!sessionOptional.isPresent()){
-            LOGGER.error("Could not change username. Invalid accessToken {}", accessToken);
-            throw new SecurityException("change username");
-        }
-        UserEntity user = sessionOptional.get().getUserEntity();
+        UserEntity user = getUser(accessToken, "change username");
         String oldUsername = user.getUsername();
         user.setUsername(newUsername);
         if(user.isInit()){
@@ -87,18 +77,26 @@ public class UserService {
     }
 
     public void changePassword(String accessToken, String newLoginHash, String newPasswordKeySalt, String newMasterKey) throws SecurityException {
-        Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
-        if(!sessionOptional.isPresent()){
-            LOGGER.error("Could not change password. Invalid accessToken {}", accessToken);
-            throw new SecurityException("change password");
-        }
-        UserEntity user = sessionOptional.get().getUserEntity();
+        UserEntity user = getUser(accessToken, "change password");
         user.setLoginHashHash(Bcrypt.hash(newLoginHash));
         user.setMasterKey(newMasterKey);
         user.setPasswordKeySalt(newPasswordKeySalt);
         user.setReset(false);
         userRepository.save(user);
         LOGGER.info("Successfully changed password for user {}", user.getUsername());
+    }
+
+    UserEntity getUser(String accessToken, String action) throws SecurityException {
+        return getUserSession(accessToken, action).getUserEntity();
+    }
+
+    UserSession getUserSession(String accessToken, String action) throws SecurityException {
+        Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
+        if(!sessionOptional.isPresent()){
+            LOGGER.error("Could not {}. Invalid accessToken {}", action, accessToken);
+            throw new SecurityException(action);
+        }
+        return sessionOptional.get();
     }
 
     private void createNewHash(UserEntity user, String loginHash){
@@ -113,25 +111,4 @@ public class UserService {
         long threshold = System.currentTimeMillis() - SESSION_TIME_TO_LIVE;
         sessionRepository.deleteAllByLastRequestBeforeAndUserEntity(new Timestamp(threshold), user);
     }
-
-    /*
-
-    Admin
-displayname: Admin
-username: 40j@8v3bPP5E2$
-loginHash: Sruv2RRpoau+67KjnCc/I7FoXc8O2fYrQ/qKRLXBPvY=
-userMasterKey: nb/wXqv7yxSzTA2+9sZATg==
-isAdmin: true
-isEditor: true
-
-Mark
-displayname: Admin
-username: Kh#vu2eA*!Glx1
-loginHash: 7itleld/CDe06OFsMQdg8gMi1Yvid8zjUeek3FwPdoM= app.js:12:13
-userMasterKey: Oxa4WslY/Ndxi4DMFd2XtQ==
-isAdmin: false
-isEditor: false
-
-
-     */
 }

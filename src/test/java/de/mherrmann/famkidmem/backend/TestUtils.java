@@ -5,10 +5,12 @@ import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyUpdateVideo;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.*;
+import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -53,6 +55,14 @@ public class TestUtils {
             file.delete();
         }
         directory.delete();
+    }
+
+    public UserEntity createTestUser(String loginHash) {
+        String loginHashHash = Bcrypt.hash(loginHash);
+        UserEntity testUser = new UserEntity("username", "", "salt", loginHashHash, "masterKey");
+        testUser.setInit(true);
+        testUser.setReset(true);
+        return userRepository.save(testUser);
     }
 
     public RequestBodyAddUser createAddUserRequest() {
@@ -157,9 +167,12 @@ public class TestUtils {
         return updateVideoRequest;
     }
 
-    private void createTestFile(String filename) throws IOException {
+    public void createTestFile(String filename) throws IOException {
         new File("./files").mkdir();
         new File("./files/"+filename).createNewFile();
+        FileWriter myWriter = new FileWriter("./files/"+filename);
+        myWriter.write(filename);
+        myWriter.close();
     }
 
 }
