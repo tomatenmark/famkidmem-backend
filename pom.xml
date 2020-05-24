@@ -13,7 +13,7 @@
     </parent>
 
     <groupId>de.mherrmann.famkidmem</groupId>
-    <artifactId>web-backend</artifactId>
+    <artifactId>famkidmem-web-backend</artifactId>
     <description>Web-Backend for Family Kid Memories (Online version for 'selbstgedrehte videos')</description>
     <version>1.0_alpha1</version>
 
