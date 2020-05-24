@@ -29,6 +29,7 @@ public class CustomErrorController implements ErrorController {
     }
 
     @Override
+    @Deprecated
     public String getErrorPath() {
         return "/error";
     }
