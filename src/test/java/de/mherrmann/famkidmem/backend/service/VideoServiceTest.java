@@ -15,6 +15,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +50,7 @@ public class VideoServiceTest {
         editVideoService.addVideo(testUtils.createAddAnotherVideoRequest());
         createTestUser();
         testLogin  = userService.login(testUser.getUsername(), LOGIN_HASH);
+        testUtils.createTestFile("sequence.ts");
     }
 
     @After
@@ -97,13 +100,41 @@ public class VideoServiceTest {
     }
 
     @Test
-    public void shouldFailGetThumbnailCausedByInvalidLogin(){
-        shouldFailGetThumbnail("invalid", "thumbnail", SecurityException.class);
+    public void shouldFailGetFileBase64CausedByInvalidLogin(){
+        shouldFailGetFileBase64("invalid", "thumbnail", SecurityException.class);
     }
 
     @Test
-    public void shouldFailGetThumbnailCausedByFileNotFound(){
-        shouldFailGetThumbnail(testLogin.getAccessToken(), "invalid", FileNotFoundException.class);
+    public void shouldFailGetFileBase64CausedByFileNotFound(){
+        shouldFailGetFileBase64(testLogin.getAccessToken(), "invalid", FileNotFoundException.class);
+    }
+
+    @Test
+    public void shouldGetTsFile() {
+        Exception exception = null;
+        ResponseEntity response = null;
+
+        try {
+            response = videoService.getTsFile(testLogin.getAccessToken(), "sequence.ts");
+        } catch(Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNull();
+        assertThat(response).isNotNull();
+        assertThat(response.getHeaders().get("Content-Length").get(0)).isEqualTo("11");
+        assertThat(response.getHeaders().get("Content-Type").get(0)).isEqualTo("video/vnd.dlna.mpeg-tts");
+        assertThat(((ByteArrayResource)response.getBody()).getByteArray().length).isEqualTo(11);
+    }
+
+    @Test
+    public void shouldFailGetTsFileCausedByInvalidLogin(){
+        shouldFailGetTsFile("invalid", "sequence.ts", SecurityException.class);
+    }
+
+    @Test
+    public void shouldFailGetTsFileCausedByFileNotFound(){
+        shouldFailGetTsFile(testLogin.getAccessToken(), "invalid.ts", FileNotFoundException.class);
     }
 
     private void assertIndex(ResponseBodyContentIndex contentIndex){
@@ -138,11 +169,24 @@ public class VideoServiceTest {
         assertThat(thumbnail.getBase64()).isEqualTo(base64);
     }
 
-    private void shouldFailGetThumbnail(String accessToken, String filename, Class exceptionClass){
+    private void shouldFailGetFileBase64(String accessToken, String filename, Class exceptionClass){
         Exception exception = null;
 
         try {
             videoService.getFileBase64(accessToken, filename);
+        } catch(Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNotNull();
+        assertThat(exception).isInstanceOf(exceptionClass);
+    }
+
+    private void shouldFailGetTsFile(String accessToken, String filename, Class exceptionClass){
+        Exception exception = null;
+
+        try {
+            videoService.getTsFile(accessToken, filename);
         } catch(Exception ex){
             exception = ex;
         }

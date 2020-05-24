@@ -167,7 +167,7 @@ public class TestUtils {
         return updateVideoRequest;
     }
 
-    private void createTestFile(String filename) throws IOException {
+    public void createTestFile(String filename) throws IOException {
         new File("./files").mkdir();
         new File("./files/"+filename).createNewFile();
         FileWriter myWriter = new FileWriter("./files/"+filename);
