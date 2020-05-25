@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface YearRepository extends CrudRepository<Year, String> {
     Optional<Year> findByValue(int value);
+    Iterable<Year> findAllByOrderByValueAsc();
 }

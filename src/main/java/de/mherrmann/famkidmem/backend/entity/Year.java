@@ -2,6 +2,7 @@ package de.mherrmann.famkidmem.backend.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import java.util.UUID;
 
 @Entity
@@ -11,6 +12,9 @@ public class Year {
     private String id;
 
     private int value;
+
+    @Transient
+    private boolean enabled;
 
     private Year() {}
 
@@ -33,5 +37,13 @@ public class Year {
 
     public void setValue(int value) {
         this.value = value;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

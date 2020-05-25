@@ -8,13 +8,15 @@ public class RequestBodyUpdateVideo {
     private String title;
     private String description;
     private boolean recordedInCologne;
-    private boolean recordedInGardelgen;
+    private boolean recordedInGardelegen;
     private List<Integer> years;
     private List<String> persons;
     private String key;
     private String iv;
     private String thumbnailKey;
     private String thumbnailIv;
+    private int showDateValues;
+    private long timestamp;
 
     public String getDesignator() {
         return designator;
@@ -48,12 +50,12 @@ public class RequestBodyUpdateVideo {
         this.recordedInCologne = recordedInCologne;
     }
 
-    public boolean isRecordedInGardelgen() {
-        return recordedInGardelgen;
+    public boolean isRecordedInGardelegen() {
+        return recordedInGardelegen;
     }
 
-    public void setRecordedInGardelgen(boolean recordedInGardelgen) {
-        this.recordedInGardelgen = recordedInGardelgen;
+    public void setRecordedInGardelegen(boolean recordedInGardelegen) {
+        this.recordedInGardelegen = recordedInGardelegen;
     }
 
     public List<Integer> getYears() {
@@ -102,5 +104,21 @@ public class RequestBodyUpdateVideo {
 
     public void setThumbnailIv(String thumbnailIv) {
         this.thumbnailIv = thumbnailIv;
+    }
+
+    public int getShowDateValues() {
+        return showDateValues;
+    }
+
+    public void setShowDateValues(int showDateValues) {
+        this.showDateValues = showDateValues;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 }

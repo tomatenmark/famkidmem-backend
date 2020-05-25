@@ -14,4 +14,5 @@ public interface VideoRepository extends CrudRepository<Video, String> {
     boolean existsByPersonsContains(Person person);
     boolean existsByYearsContains(Year year);
     Optional<Video> findByTitle(String title);
+    Iterable<Video> findAllByOrderByTimestamp();
 }

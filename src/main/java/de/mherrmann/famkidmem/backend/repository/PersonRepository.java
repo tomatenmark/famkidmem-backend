@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface PersonRepository extends CrudRepository<Person, String> {
     Optional<Person> findByName(String name);
+    Iterable<Person> findAllByOrderByNameAsc();
 }

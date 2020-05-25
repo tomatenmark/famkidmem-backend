@@ -143,9 +143,11 @@ public class EditVideoServiceUpdateTest {
         assertThat(video.getYears().get(0).getValue()).isEqualTo(updateVideoRequest.getYears().get(0));
         assertThat(video.getYears().get(1).getValue()).isEqualTo(updateVideoRequest.getYears().get(1));
         assertThat(video.isRecordedInCologne()).isEqualTo(updateVideoRequest.isRecordedInCologne());
-        assertThat(video.isRecordedInGardelgen()).isEqualTo(updateVideoRequest.isRecordedInGardelgen());
+        assertThat(video.isRecordedInGardelegen()).isEqualTo(updateVideoRequest.isRecordedInGardelegen());
         assertThat(personRepository.findByName("person1").isPresent()).isFalse();
         assertThat(yearRepository.findByValue(1995).isPresent()).isFalse();
+        assertThat(video.getTimestamp().getTime()).isEqualTo(updateVideoRequest.getTimestamp());
+        assertThat(video.getShowDateValues()).isEqualTo(updateVideoRequest.getShowDateValues());
     }
 
     private void shouldFailUpdateVideo(RequestBodyUpdateVideo updateVideoRequest, Class exceptionClass){

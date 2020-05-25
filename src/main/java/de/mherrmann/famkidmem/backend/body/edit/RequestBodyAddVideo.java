@@ -8,7 +8,7 @@ public class RequestBodyAddVideo {
     private String description;
     private int durationInSeconds;
     private boolean recordedInCologne;
-    private boolean recordedInGardelgen;
+    private boolean recordedInGardelegen;
     private List<Integer> years;
     private List<String> persons;
     private String key;
@@ -19,6 +19,8 @@ public class RequestBodyAddVideo {
     private String m3u8Filename;
     private String m3u8Key;
     private String m3u8Iv;
+    private int showDateValues;
+    private long timestamp;
 
     public String getTitle() {
         return title;
@@ -52,12 +54,12 @@ public class RequestBodyAddVideo {
         this.recordedInCologne = recordedInCologne;
     }
 
-    public boolean isRecordedInGardelgen() {
-        return recordedInGardelgen;
+    public boolean isRecordedInGardelegen() {
+        return recordedInGardelegen;
     }
 
-    public void setRecordedInGardelgen(boolean recordedInGardelgen) {
-        this.recordedInGardelgen = recordedInGardelgen;
+    public void setRecordedInGardelegen(boolean recordedInGardelegen) {
+        this.recordedInGardelegen = recordedInGardelegen;
     }
 
     public List<Integer> getYears() {
@@ -138,5 +140,21 @@ public class RequestBodyAddVideo {
 
     public void setM3u8Iv(String m3u8Iv) {
         this.m3u8Iv = m3u8Iv;
+    }
+
+    public int getShowDateValues() {
+        return showDateValues;
+    }
+
+    public void setShowDateValues(int showDateValues) {
+        this.showDateValues = showDateValues;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 }

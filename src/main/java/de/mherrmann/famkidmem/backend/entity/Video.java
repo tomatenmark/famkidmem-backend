@@ -4,6 +4,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,14 +18,21 @@ public class Video {
     private String description;
     private int durationInSeconds;
     private boolean recordedInCologne;
-    private boolean recordedInGardelgen;
+    private boolean recordedInGardelegen;
+    private int showDateValues;
+
+    private Timestamp timestamp;
+
+
 
     @ManyToMany
     @LazyCollection(LazyCollectionOption.FALSE)
+    @OrderColumn(name="index")
     private List<Year> years;
 
     @ManyToMany
     @LazyCollection(LazyCollectionOption.FALSE)
+    @OrderColumn(name="index")
     private List<Person> persons;
 
     @OneToOne
@@ -42,19 +50,21 @@ public class Video {
     private Video(){}
 
     public Video(
-            String title, String description, int durationInSeconds, boolean recordedInCologne, boolean recordedInGardelgen,
-            List<Year> years, List<Person> persons, Key key, FileEntity thumbnail, FileEntity m3u8) {
+            String title, String description, int durationInSeconds, boolean recordedInCologne, boolean recordedInGardelegen,
+            List<Year> years, List<Person> persons, Key key, FileEntity thumbnail, FileEntity m3u8, int showDateValues, Timestamp timestamp) {
         this.id = UUID.randomUUID().toString();
         this.title = title;
         this.description = description;
         this.durationInSeconds = durationInSeconds;
         this.recordedInCologne = recordedInCologne;
-        this.recordedInGardelgen = recordedInGardelgen;
+        this.recordedInGardelegen = recordedInGardelegen;
         this.years = years;
         this.persons = persons;
         this.key = key;
         this.thumbnail = thumbnail;
         this.m3u8 = m3u8;
+        setShowDateValues(showDateValues);
+        this.timestamp = timestamp;
     }
 
     public String getId() {
@@ -97,12 +107,12 @@ public class Video {
         this.recordedInCologne = recordedInCologne;
     }
 
-    public boolean isRecordedInGardelgen() {
-        return recordedInGardelgen;
+    public boolean isRecordedInGardelegen() {
+        return recordedInGardelegen;
     }
 
-    public void setRecordedInGardelgen(boolean recordedInGardelgen) {
-        this.recordedInGardelgen = recordedInGardelgen;
+    public void setRecordedInGardelegen(boolean recordedInGardelegen) {
+        this.recordedInGardelegen = recordedInGardelegen;
     }
 
     public List<Year> getYears() {
@@ -143,5 +153,21 @@ public class Video {
 
     public void setM3u8(FileEntity m3u8) {
         this.m3u8 = m3u8;
+    }
+
+    public int getShowDateValues() {
+        return showDateValues;
+    }
+
+    public void setShowDateValues(int showDateValues) {
+        this.showDateValues = showDateValues % 4;
+    }
+
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
     }
 }

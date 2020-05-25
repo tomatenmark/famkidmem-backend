@@ -5,6 +5,7 @@ import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentIndex;
 import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentFileBase64;
+import de.mherrmann.famkidmem.backend.body.edit.RequestBodyUpdateVideo;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.exception.FileNotFoundException;
 import de.mherrmann.famkidmem.backend.service.edit.EditVideoService;
@@ -18,6 +19,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -73,6 +76,22 @@ public class VideoServiceTest {
 
         assertThat(exception).isNull();
         assertIndex(contentIndex);
+    }
+
+    @Test
+    public void shouldGetIndexWithOrder() {
+        Exception exception = null;
+        ResponseBodyContentIndex contentIndex = null;
+        prepareOrderTest();
+
+        try {
+            contentIndex = videoService.getIndex(testLogin.getAccessToken());
+        } catch(Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNull();
+        assertIndexWithOrder(contentIndex);
     }
 
     @Test
@@ -154,6 +173,26 @@ public class VideoServiceTest {
         assertThat(contentIndex.getMasterKey()).isEqualTo(testUser.getMasterKey());
     }
 
+    private void assertIndexWithOrder(ResponseBodyContentIndex contentIndex){
+        assertThat(contentIndex).isNotNull();
+        assertThat(contentIndex.getVideos().size()).isEqualTo(2);
+        assertThat(contentIndex.getVideos().get(0).getTitle()).isEqualTo("video2");
+        assertThat(contentIndex.getVideos().get(1).getTitle()).isEqualTo("title");
+        assertThat(contentIndex.getPersons().size()).isEqualTo(4);
+        assertThat(contentIndex.getPersons().get(0)).isEqualTo("personFour");
+        assertThat(contentIndex.getPersons().get(1)).isEqualTo("personOne");
+        assertThat(contentIndex.getPersons().get(2)).isEqualTo("personThree");
+        assertThat(contentIndex.getPersons().get(3)).isEqualTo("personTwo");
+        assertThat(contentIndex.getYears().get(0)).isEqualTo(2001);
+        assertThat(contentIndex.getYears().get(1)).isEqualTo(2002);
+        assertThat(contentIndex.getYears().get(2)).isEqualTo(2003);
+        assertThat(contentIndex.getYears().get(3)).isEqualTo(2004);
+        assertThat(contentIndex.getVideos().get(1).getPersons().get(0).getName()).isEqualTo("personOne");
+        assertThat(contentIndex.getVideos().get(1).getPersons().get(1).getName()).isEqualTo("personTwo");
+        assertThat(contentIndex.getVideos().get(1).getYears().get(0).getValue()).isEqualTo(2002);
+        assertThat(contentIndex.getVideos().get(1).getYears().get(1).getValue()).isEqualTo(2004);
+    }
+
     private void shouldGetFileBase64(String filename, String base64){
         Exception exception = null;
         ResponseBodyContentFileBase64 thumbnail = null;
@@ -197,6 +236,26 @@ public class VideoServiceTest {
 
     private void createTestUser() {
         testUser = testUtils.createTestUser(LOGIN_HASH);
+    }
+
+    private void prepareOrderTest(){
+        RequestBodyUpdateVideo updateVideo1Request = testUtils.createUpdateVideoRequest();
+        RequestBodyUpdateVideo updateVideo2Request = testUtils.createUpdateVideoRequest();
+        updateVideo1Request.setTimestamp(System.currentTimeMillis()+80000);
+        updateVideo1Request.setPersons(Arrays.asList("personTwo", "personOne"));
+        updateVideo2Request.setPersons(Arrays.asList("personThree", "personFour"));
+        updateVideo1Request.setYears(Arrays.asList(2004, 2002));
+        updateVideo2Request.setYears(Arrays.asList(2001, 2003));
+        updateVideo1Request.setTitle("title");
+        updateVideo1Request.setDesignator("title");
+        updateVideo2Request.setTitle("video2");
+        updateVideo2Request.setDesignator("video2");
+        try {
+            editVideoService.updateVideo(updateVideo1Request);
+            editVideoService.updateVideo(updateVideo2Request);
+        } catch(Exception ex){
+            ex.printStackTrace();
+        }
     }
 
 }
