@@ -93,7 +93,6 @@ public class TestUtils {
     public RequestBodyAddVideo createAddVideoRequest() throws IOException {
         return createAddAnotherVideoRequest(
                 "title",
-                "description",
                 "key",
                 "iv",
                 "m3u8",
@@ -105,13 +104,13 @@ public class TestUtils {
                 "person1",
                 "person2",
                 1994,
-                1995);
+                1995,
+                System.currentTimeMillis());
     }
 
     public RequestBodyAddVideo createAddAnotherVideoRequest() throws IOException {
         return createAddAnotherVideoRequest(
                 "video2",
-                "description",
                 "key2",
                 "iv2",
                 "m3u82",
@@ -123,17 +122,18 @@ public class TestUtils {
                 "person3",
                 "person4",
                 1996,
-                1997);
+                1997,
+                System.currentTimeMillis()+60000);
     }
 
     private RequestBodyAddVideo createAddAnotherVideoRequest(
-            String title, String description, String key, String iv, String m3u8, String m3u8Key, String m3u8Iv,
-            String thumbnail, String thumbnailKey, String thumbnailIv, String person1, String person2, int year1, int year2)
+            String title, String key, String iv, String m3u8, String m3u8Key, String m3u8Iv, String thumbnail,
+            String thumbnailKey, String thumbnailIv, String person1, String person2, int year1, int year2, long time)
                 throws IOException {
 
         RequestBodyAddVideo addVideoRequest = new RequestBodyAddVideo();
         addVideoRequest.setTitle(title);
-        addVideoRequest.setDescription(description);
+        addVideoRequest.setDescription("description");
         addVideoRequest.setKey(key);
         addVideoRequest.setIv(iv);
         addVideoRequest.setM3u8Filename(m3u8);
@@ -145,7 +145,9 @@ public class TestUtils {
         addVideoRequest.setPersons(Arrays.asList(person1, person2));
         addVideoRequest.setYears(Arrays.asList(year1, year2));
         addVideoRequest.setRecordedInCologne(true);
-        addVideoRequest.setRecordedInGardelgen(false);
+        addVideoRequest.setRecordedInGardelegen(false);
+        addVideoRequest.setTimestamp(time);
+        addVideoRequest.setShowDateValues(2);
         createTestFile(m3u8);
         createTestFile(thumbnail);
         return addVideoRequest;
@@ -163,7 +165,9 @@ public class TestUtils {
         updateVideoRequest.setPersons(Arrays.asList("person2", "person3"));
         updateVideoRequest.setYears(Arrays.asList(1994, 1997));
         updateVideoRequest.setRecordedInCologne(false);
-        updateVideoRequest.setRecordedInGardelgen(true);
+        updateVideoRequest.setRecordedInGardelegen(true);
+        updateVideoRequest.setTimestamp(System.currentTimeMillis());
+        updateVideoRequest.setShowDateValues(2);
         return updateVideoRequest;
     }
 

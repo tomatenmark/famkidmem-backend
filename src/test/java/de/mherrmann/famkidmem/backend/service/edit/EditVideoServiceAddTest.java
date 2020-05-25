@@ -155,7 +155,9 @@ public class EditVideoServiceAddTest {
         assertThat(video.getYears().get(0).getValue()).isEqualTo(addVideoRequest.getYears().get(0));
         assertThat(video.getYears().get(1).getValue()).isEqualTo(addVideoRequest.getYears().get(1));
         assertThat(video.isRecordedInCologne()).isEqualTo(addVideoRequest.isRecordedInCologne());
-        assertThat(video.isRecordedInGardelgen()).isEqualTo(addVideoRequest.isRecordedInGardelgen());
+        assertThat(video.isRecordedInGardelegen()).isEqualTo(addVideoRequest.isRecordedInGardelegen());
+        assertThat(video.getTimestamp().getTime()).isEqualTo(addVideoRequest.getTimestamp());
+        assertThat(video.getShowDateValues()).isEqualTo(addVideoRequest.getShowDateValues());
 
     }
 

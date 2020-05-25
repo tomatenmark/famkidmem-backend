@@ -64,21 +64,21 @@ public class VideoService {
 
     private List<Video> getVideos(){
         List<Video> videos = new ArrayList<>();
-        Iterable<Video> videoIterable = videoRepository.findAll();
+        Iterable<Video> videoIterable = videoRepository.findAllByOrderByTimestamp();
         videoIterable.forEach(videos::add);
         return videos;
     }
 
     private List<String> getPersons(){
         List<String> persons = new ArrayList<>();
-        Iterable<Person> personsIterable = personRepository.findAll();
+        Iterable<Person> personsIterable = personRepository.findAllByOrderByNameAsc();
         personsIterable.forEach(e->persons.add(e.getName()));
         return persons;
     }
 
     private List<Integer> getYears(){
         List<Integer> years = new ArrayList<>();
-        Iterable<Year> yearsIterable = yearRepository.findAll();
+        Iterable<Year> yearsIterable = yearRepository.findAllByOrderByValueAsc();
         yearsIterable.forEach(e->years.add(e.getValue()));
         return years;
     }

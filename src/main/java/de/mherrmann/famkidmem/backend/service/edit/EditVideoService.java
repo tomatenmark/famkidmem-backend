@@ -18,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,12 +78,14 @@ public class EditVideoService {
                 addVideoRequest.getDescription(),
                 addVideoRequest.getDurationInSeconds(),
                 addVideoRequest.isRecordedInCologne(),
-                addVideoRequest.isRecordedInGardelgen(),
+                addVideoRequest.isRecordedInGardelegen(),
                 years,
                 persons,
                 key,
                 thumbnail,
-                m3u8
+                m3u8,
+                addVideoRequest.getShowDateValues(),
+                new Timestamp(addVideoRequest.getTimestamp())
         );
         videoRepository.save(video);
     }
@@ -92,7 +96,9 @@ public class EditVideoService {
         video.setTitle(updateVideoRequest.getTitle());
         video.setDescription(updateVideoRequest.getDescription());
         video.setRecordedInCologne(updateVideoRequest.isRecordedInCologne());
-        video.setRecordedInGardelgen(updateVideoRequest.isRecordedInGardelgen());
+        video.setRecordedInGardelegen(updateVideoRequest.isRecordedInGardelegen());
+        video.setShowDateValues(updateVideoRequest.getShowDateValues());
+        video.setTimestamp(new Timestamp(updateVideoRequest.getTimestamp()));
         List<Person> personsBefore = video.getPersons();
         List<Year> yearsBefore = video.getYears();
         video.setYears(getYears(updateVideoRequest.getYears()));
@@ -128,6 +134,7 @@ public class EditVideoService {
     }
 
     private List<Person> getPersons(List<String> names){
+        Collections.sort(names);
         List<Person> persons = new ArrayList<>();
         for(String name : names){
             persons.add(personEntityService.getPerson(name));
@@ -136,6 +143,7 @@ public class EditVideoService {
     }
 
     private List<Year> getYears(List<Integer> values){
+        Collections.sort(values);
         List<Year> years = new ArrayList<>();
         for(Integer value : values){
             years.add(yearEntityService.getYear(value));
