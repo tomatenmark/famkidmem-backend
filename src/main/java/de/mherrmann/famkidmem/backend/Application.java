@@ -11,7 +11,7 @@ public class Application {
 
     public static void main(String[] args) {
         defineFilesDir(args);
-        Bcrypt.hash("preparing Brypt");
+        Bcrypt.hash("preparing Bcrypt");
         SpringApplication.run(Application.class, args);
     }
 
