@@ -1,10 +1,7 @@
 package de.mherrmann.famkidmem.backend.service.edit;
 
 import de.mherrmann.famkidmem.backend.TestUtils;
-import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
-import de.mherrmann.famkidmem.backend.body.edit.RequestBodyUpdateVideo;
 import de.mherrmann.famkidmem.backend.entity.Video;
-import de.mherrmann.famkidmem.backend.exception.EntityActionException;
 import de.mherrmann.famkidmem.backend.exception.EntityNotFoundException;
 import de.mherrmann.famkidmem.backend.repository.*;
 import org.junit.After;
@@ -15,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

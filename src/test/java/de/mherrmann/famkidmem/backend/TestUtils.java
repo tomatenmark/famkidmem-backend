@@ -174,9 +174,9 @@ public class TestUtils {
     public void createTestFile(String filename) throws IOException {
         new File("./files").mkdir();
         new File("./files/"+filename).createNewFile();
-        FileWriter myWriter = new FileWriter("./files/"+filename);
-        myWriter.write(filename);
-        myWriter.close();
+        FileWriter fileWriter = new FileWriter("./files/"+filename);
+        fileWriter.write(filename);
+        fileWriter.close();
     }
 
 }
