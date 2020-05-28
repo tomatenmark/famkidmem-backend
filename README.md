@@ -13,8 +13,8 @@ This repository contains the sources for the FamKidMem Web-backend.\
 # Features
 * **User-Management**
   * **Login/Logout**  (/api/user)
-  * **Maintain Users** (/admin)
-* **Add, update and delete Videos** (/edit/video/ | encrypted)
+  * **Maintain Users** (/cms/admin)
+* **Add, update and delete Videos** (/cms/edit/video/ | encrypted)
 * **Get Video Index, Thumbnails, m3u8 files and ts files** (/api/video and /api/ts | encrypted)
 
 # Documentation
