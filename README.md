@@ -27,15 +27,11 @@ This repository contains the sources for the FamKidMem Web-backend.\
 **java -jar famkidmem-web-backend...jar [--files-dir <path-to-files>]**\
 \# where path to files is: Path to directory where the files (thumbnails, m3u8, ts) should be stored.
 
-# Usage rules
-* Do **not** change the server.address settings. 127.0.0.1 means no one can call the server directly
-* Use nginx for frontend server
-* Add proxy pass for **/api** to frontend server (like nginx)\
-  **location /api/ {\
-  proxy_pass http://127.0.0.1:9003/api/;\
-  }**
-* Do **not** add any proxy pass for **/admin**, **/edit** or **/swagger-ui.html**, etc.
-* Call **/admin**, **/edit** or **/swagger-ui.html** over ssh tunnel to underlying server or locally.
+# ApiKey
+You will a need a file named **ccms_auth_token_hash** in same directory like the jar file.\
+This file has to contain a bcrypt hash of desired auth_token for /ccms/... paths.\
+This is needed to authorize the ccms application.\
+The ccms application has to send the auth_token in header **CCMS_AUTH_TOKEN**
 
 # All Repos for FamKidMem
 * Web-Backend: https://github.com/tomatenmark/famkidmem-backend
