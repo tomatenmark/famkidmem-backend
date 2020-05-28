@@ -1,4 +1,4 @@
-package de.mherrmann.famkidmem.backend.controller.edit;
+package de.mherrmann.famkidmem.backend.controller.ccms;
 
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/edit/video")
+@RequestMapping(value = "/ccms/edit/video")
 public class EditVideoController {
 
     private final EditVideoService editVideoService;

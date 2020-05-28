@@ -179,4 +179,15 @@ public class TestUtils {
         fileWriter.close();
     }
 
+    public void createAuthTokenHashFile() throws IOException {
+        new File("./ccms_auth_token_hash").createNewFile();
+        FileWriter fileWriter = new FileWriter("./ccms_auth_token_hash");
+        fileWriter.write("$2a$13$3c7JEfBO9uTpvILcHFj4tuDR7krJQPgFMH7vzPRIMU3eLZL9NgKMS");
+        fileWriter.close();
+    }
+
+    public void deleteAuthTokenHashFile() throws IOException {
+        new File("./ccms_auth_token_hash").delete();
+    }
+
 }

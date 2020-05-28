@@ -1,4 +1,4 @@
-package de.mherrmann.famkidmem.backend.controller.admin;
+package de.mherrmann.famkidmem.backend.controller.ccms;
 
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/admin/user")
+@RequestMapping(value = "/ccms/admin/user")
 public class AdminUserController {
 
     private final AdminUserService adminUserService;
