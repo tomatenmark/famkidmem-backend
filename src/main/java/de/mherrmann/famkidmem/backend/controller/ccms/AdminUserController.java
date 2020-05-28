@@ -5,7 +5,7 @@ import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
 import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetUsers;
-import de.mherrmann.famkidmem.backend.service.admin.AdminUserService;
+import de.mherrmann.famkidmem.backend.service.ccms.AdminUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

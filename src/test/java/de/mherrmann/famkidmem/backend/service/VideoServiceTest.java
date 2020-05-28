@@ -8,7 +8,7 @@ import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentFileBase64
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyUpdateVideo;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.exception.FileNotFoundException;
-import de.mherrmann.famkidmem.backend.service.edit.EditVideoService;
+import de.mherrmann.famkidmem.backend.service.ccms.EditVideoService;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
 import org.junit.After;
 import org.junit.Before;

@@ -1,9 +1,10 @@
-package de.mherrmann.famkidmem.backend.service.edit;
+package de.mherrmann.famkidmem.backend.service.ccms;
 
 import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.entity.Video;
 import de.mherrmann.famkidmem.backend.exception.EntityNotFoundException;
 import de.mherrmann.famkidmem.backend.repository.*;
+import de.mherrmann.famkidmem.backend.service.ccms.EditVideoService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

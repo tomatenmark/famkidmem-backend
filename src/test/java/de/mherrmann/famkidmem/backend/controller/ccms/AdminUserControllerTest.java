@@ -9,7 +9,7 @@ import de.mherrmann.famkidmem.backend.body.admin.RequestBodyResetPassword;
 import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetUsers;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
-import de.mherrmann.famkidmem.backend.service.admin.AdminUserService;
+import de.mherrmann.famkidmem.backend.service.ccms.AdminUserService;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.junit.After;
 import org.junit.Before;

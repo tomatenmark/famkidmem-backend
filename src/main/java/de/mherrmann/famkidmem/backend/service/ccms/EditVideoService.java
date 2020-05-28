@@ -1,4 +1,4 @@
-package de.mherrmann.famkidmem.backend.service.edit;
+package de.mherrmann.famkidmem.backend.service.ccms;
 
 import de.mherrmann.famkidmem.backend.Application;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;

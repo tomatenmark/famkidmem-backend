@@ -3,7 +3,7 @@ package de.mherrmann.famkidmem.backend.controller.ccms;
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyUpdateVideo;
-import de.mherrmann.famkidmem.backend.service.edit.EditVideoService;
+import de.mherrmann.famkidmem.backend.service.ccms.EditVideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -6,7 +6,7 @@ import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyUpdateVideo;
 import de.mherrmann.famkidmem.backend.repository.VideoRepository;
-import de.mherrmann.famkidmem.backend.service.edit.EditVideoService;
+import de.mherrmann.famkidmem.backend.service.ccms.EditVideoService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
