@@ -1,4 +1,4 @@
-package de.mherrmann.famkidmem.backend.service.admin;
+package de.mherrmann.famkidmem.backend.service.ccms;
 
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyDeleteUser;

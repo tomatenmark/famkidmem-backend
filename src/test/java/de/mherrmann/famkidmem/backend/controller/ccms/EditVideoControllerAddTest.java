@@ -1,14 +1,11 @@
-package de.mherrmann.famkidmem.backend.controller.edit;
+package de.mherrmann.famkidmem.backend.controller.ccms;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
-import de.mherrmann.famkidmem.backend.entity.UserEntity;
-import de.mherrmann.famkidmem.backend.repository.UserRepository;
 import de.mherrmann.famkidmem.backend.repository.VideoRepository;
-import de.mherrmann.famkidmem.backend.service.admin.AdminUserService;
-import de.mherrmann.famkidmem.backend.service.edit.EditVideoService;
+import de.mherrmann.famkidmem.backend.service.ccms.EditVideoService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -45,9 +43,15 @@ public class EditVideoControllerAddTest {
     @Autowired
     private EditVideoService editVideoService;
 
+    @Before
+    public void setUp() throws IOException {
+        testUtils.createAuthTokenHashFile();
+    }
+
     @After
-    public void teardown(){
+    public void teardown() throws IOException {
         testUtils.deleteTestFiles();
+        testUtils.deleteAuthTokenHashFile();
         testUtils.dropAll();
     }
 
@@ -56,7 +60,8 @@ public class EditVideoControllerAddTest {
         RequestBodyAddVideo addVideoRequest = testUtils.createAddVideoRequest();
         long countBefore = videoRepository.count();
 
-        MvcResult mvcResult = this.mockMvc.perform(post("/edit/video/add")
+        MvcResult mvcResult = this.mockMvc.perform(post("/ccms/edit/video/add")
+                .header("CCMS_AUTH_TOKEN", "token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(addVideoRequest)))
                 .andExpect(status().is(HttpStatus.OK.value()))
@@ -159,7 +164,8 @@ public class EditVideoControllerAddTest {
     private void shouldFailAddVideo(RequestBodyAddVideo addVideoRequest, String expectedDetails) throws Exception {
         long countBefore = videoRepository.count();
 
-        MvcResult mvcResult = this.mockMvc.perform(post("/edit/video/add")
+        MvcResult mvcResult = this.mockMvc.perform(post("/ccms/edit/video/add")
+                .header("CCMS_AUTH_TOKEN", "token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(addVideoRequest)))
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))

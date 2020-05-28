@@ -1,10 +1,11 @@
-package de.mherrmann.famkidmem.backend.service.edit;
+package de.mherrmann.famkidmem.backend.service.ccms;
 
 import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
 import de.mherrmann.famkidmem.backend.entity.Video;
 import de.mherrmann.famkidmem.backend.exception.AddEntityException;
 import de.mherrmann.famkidmem.backend.repository.VideoRepository;
+import de.mherrmann.famkidmem.backend.service.ccms.EditVideoService;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;

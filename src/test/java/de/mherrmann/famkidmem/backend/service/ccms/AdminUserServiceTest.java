@@ -1,4 +1,4 @@
-package de.mherrmann.famkidmem.backend.service.admin;
+package de.mherrmann.famkidmem.backend.service.ccms;
 
 import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.admin.RequestBodyAddUser;
@@ -9,6 +9,7 @@ import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.exception.AddEntityException;
 import de.mherrmann.famkidmem.backend.exception.EntityNotFoundException;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
+import de.mherrmann.famkidmem.backend.service.ccms.AdminUserService;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.junit.After;
 import org.junit.Before;
