@@ -4,6 +4,8 @@ import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.io.File;
+
 @SpringBootApplication
 public class Application {
 
@@ -21,6 +23,15 @@ public class Application {
                 filesDir = arg.substring(arg.indexOf('=')+1);
                 break;
             }
+        }
+        checkFilesDirAvailable();
+    }
+
+    private static void checkFilesDirAvailable(){
+        File file = new File(filesDir);
+        if(!file.exists() || !file.isDirectory() || !file.canRead() || !file.canWrite()){
+            System.err.println("Fatal ERROR: defined filesDir does not exist, is not a directory or is not accessible! Shutting down");
+            System.exit(1);
         }
     }
 }
