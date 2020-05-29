@@ -9,7 +9,6 @@ import de.mherrmann.famkidmem.backend.exception.EntityNotFoundException;
 import de.mherrmann.famkidmem.backend.repository.PersonRepository;
 import de.mherrmann.famkidmem.backend.repository.VideoRepository;
 import de.mherrmann.famkidmem.backend.repository.YearRepository;
-import de.mherrmann.famkidmem.backend.service.ccms.EditVideoService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

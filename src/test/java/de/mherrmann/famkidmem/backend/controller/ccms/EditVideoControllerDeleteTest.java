@@ -49,7 +49,7 @@ public class EditVideoControllerDeleteTest {
     }
 
     @After
-    public void teardown() throws IOException {
+    public void teardown() {
         testUtils.deleteTestFiles();
         testUtils.deleteAuthTokenHashFile();
         testUtils.dropAll();

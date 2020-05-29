@@ -62,7 +62,7 @@ public class AdminUserControllerTest {
     }
 
     @After
-    public void teardown() throws IOException {
+    public void teardown() {
         testUtils.dropAll();
         testUtils.deleteAuthTokenHashFile();
     }
