@@ -34,7 +34,7 @@ public class AuthTokenTest {
     }
 
     @After
-    public void teardown() throws IOException {
+    public void teardown() {
         testUtils.deleteAuthTokenHashFile();
     }
 
