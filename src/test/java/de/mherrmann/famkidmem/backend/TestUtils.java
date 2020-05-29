@@ -172,7 +172,7 @@ public class TestUtils {
     }
 
     public void createTestFile(String filename) throws IOException {
-        new File("./files").mkdir();
+        createTestFilesDirectory();
         new File("./files/"+filename).createNewFile();
         FileWriter fileWriter = new FileWriter("./files/"+filename);
         fileWriter.write(filename);
@@ -186,8 +186,12 @@ public class TestUtils {
         fileWriter.close();
     }
 
-    public void deleteAuthTokenHashFile() throws IOException {
+    public void deleteAuthTokenHashFile() {
         new File("./ccms_auth_token_hash").delete();
+    }
+
+    public void createTestFilesDirectory(){
+        new File("./files").mkdir();
     }
 
 }
