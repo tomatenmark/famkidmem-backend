@@ -79,6 +79,15 @@ public class FileUploadControllerTest {
         shouldFail(multipartFile, "error: Can not save empty file.");
     }
 
+    @Test
+    public void shouldFailCausedByIOError() throws Exception {
+        MockMultipartFile multipartFile = new MockMultipartFile("file", TEST_NAME,
+                "text/plain", TEST_CONTENT.getBytes());
+        testUtils.deleteTestFiles();
+
+        shouldFail(multipartFile, "error: Could not save file. I/O Error");
+    }
+
     private void shouldFail(MockMultipartFile multipartFile, String expectedResponse) throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(multipart("/ccms/upload/").file(multipartFile)
                 .header("CCMS_AUTH_TOKEN", "token"))
@@ -86,8 +95,11 @@ public class FileUploadControllerTest {
                 .andReturn();
 
         assertThat(new File(TEST_DIRECTORY + TEST_NAME).exists()).isFalse();
-        assertThat(new File(TEST_DIRECTORY).list().length).isEqualTo(0);
+        File directory = new File(TEST_DIRECTORY);
         assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo(expectedResponse);
+        if(directory.exists()){
+            assertThat(directory.list().length).isEqualTo(0);
+        }
     }
 
 

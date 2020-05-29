@@ -76,6 +76,15 @@ public class FileUploadServiceTest {
         shouldFail(multipartFile);
     }
 
+    @Test
+    public void shouldFailCausedByIOError(){
+        MockMultipartFile multipartFile = new MockMultipartFile("file", TEST_NAME,
+                "text/plain", TEST_CONTENT.getBytes());
+        testUtils.deleteTestFiles();
+
+        shouldFail(multipartFile);
+    }
+
     private void shouldFail(MockMultipartFile multipartFile){
         Exception exception = null;
 
@@ -88,7 +97,10 @@ public class FileUploadServiceTest {
         assertThat(exception).isNotNull();
         assertThat(exception).isInstanceOf(FileUploadException.class);
         assertThat(new File(TEST_DIRECTORY + TEST_NAME).exists()).isFalse();
-        assertThat(new File(TEST_DIRECTORY).list().length).isEqualTo(0);
+        File directory = new File(TEST_DIRECTORY);
+        if(directory.exists()){
+            assertThat(directory.list().length).isEqualTo(0);
+        }
     }
 
 }

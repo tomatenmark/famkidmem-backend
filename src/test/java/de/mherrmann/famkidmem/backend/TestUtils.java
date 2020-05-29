@@ -51,6 +51,9 @@ public class TestUtils {
 
     public void deleteTestFiles() {
         File directory = new File("./files");
+        if(!directory.exists()){
+            return;
+        }
         for (File file : directory.listFiles()) {
             file.delete();
         }
