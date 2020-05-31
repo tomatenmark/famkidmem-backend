@@ -69,6 +69,20 @@ public class FileUploadServiceTest {
     }
 
     @Test
+    public void shouldFailCausedByEponymousFile(){
+        MockMultipartFile multipartFile = new MockMultipartFile("file", TEST_NAME,
+                "text/plain", TEST_CONTENT.getBytes());
+        try {
+            fileUploadService.store(multipartFile);
+        } catch(Exception ex){
+            ex.printStackTrace();
+        }
+
+
+        shouldFail(multipartFile);
+    }
+
+    @Test
     public void shouldFailCausedByEmptyContent(){
         MockMultipartFile multipartFile = new MockMultipartFile("file", TEST_NAME,
                 "text/plain", new byte[]{});
@@ -87,6 +101,8 @@ public class FileUploadServiceTest {
 
     private void shouldFail(MockMultipartFile multipartFile){
         Exception exception = null;
+        File directory = new File(TEST_DIRECTORY);
+        int filesBefore = directory.exists() ? directory.list().length : -1;
 
         try {
             fileUploadService.store(multipartFile);
@@ -94,13 +110,10 @@ public class FileUploadServiceTest {
             exception = ex;
         }
 
+        int filesNow = directory.exists() ? directory.list().length : -1;
         assertThat(exception).isNotNull();
         assertThat(exception).isInstanceOf(FileUploadException.class);
-        assertThat(new File(TEST_DIRECTORY + TEST_NAME).exists()).isFalse();
-        File directory = new File(TEST_DIRECTORY);
-        if(directory.exists()){
-            assertThat(directory.list().length).isEqualTo(0);
-        }
+        assertThat(filesNow).isEqualTo(filesBefore);
     }
 
 }

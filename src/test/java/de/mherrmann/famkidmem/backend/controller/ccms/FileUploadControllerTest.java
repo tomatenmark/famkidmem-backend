@@ -1,6 +1,7 @@
 package de.mherrmann.famkidmem.backend.controller.ccms;
 
 import de.mherrmann.famkidmem.backend.TestUtils;
+import de.mherrmann.famkidmem.backend.service.ccms.FileUploadService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,14 +26,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 public class FileUploadControllerTest {
 
+    private static final String TEST_CONTENT = "Content";
+    private static final String TEST_NAME = "test.txt";
+    private static final String TEST_DIRECTORY = "./files/";
 
 
     @Autowired
     private MockMvc mockMvc;
 
-    private static final String TEST_CONTENT = "Content";
-    private static final String TEST_NAME = "test.txt";
-    private static final String TEST_DIRECTORY = "./files/";
+    @Autowired
+    private FileUploadService fileUploadService;
 
     @Autowired
     private TestUtils testUtils;
@@ -72,6 +75,20 @@ public class FileUploadControllerTest {
     }
 
     @Test
+    public void shouldFailCausedByEponymousFile() throws Exception {
+        MockMultipartFile multipartFile = new MockMultipartFile("file", TEST_NAME,
+                "text/plain", TEST_CONTENT.getBytes());
+        try {
+            fileUploadService.store(multipartFile);
+        } catch(Exception ex){
+            ex.printStackTrace();
+        }
+
+
+        shouldFail(multipartFile, "error: File with same name already exists.");
+    }
+
+    @Test
     public void shouldFailCausedByEmptyContent() throws Exception {
         MockMultipartFile multipartFile = new MockMultipartFile("file", TEST_NAME,
                 "text/plain", new byte[]{});
@@ -89,17 +106,17 @@ public class FileUploadControllerTest {
     }
 
     private void shouldFail(MockMultipartFile multipartFile, String expectedResponse) throws Exception {
+        File directory = new File(TEST_DIRECTORY);
+        int filesBefore = directory.exists() ? directory.list().length : -1;
+
         MvcResult mvcResult = this.mockMvc.perform(multipart("/ccms/upload/").file(multipartFile)
                 .header("CCMS_AUTH_TOKEN", "token"))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
-        assertThat(new File(TEST_DIRECTORY + TEST_NAME).exists()).isFalse();
-        File directory = new File(TEST_DIRECTORY);
+        int filesNow = directory.exists() ? directory.list().length : -1;
         assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo(expectedResponse);
-        if(directory.exists()){
-            assertThat(directory.list().length).isEqualTo(0);
-        }
+        assertThat(filesNow).isEqualTo(filesBefore);
     }
 
 
