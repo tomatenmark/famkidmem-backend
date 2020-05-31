@@ -2,3 +2,5 @@
 target
 *.iml
 files/
+*.log
+*.gz
