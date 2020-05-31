@@ -26,10 +26,6 @@ public class FileUploadService {
             LOGGER.error("Can not save file with empty name.");
             throw new FileUploadException("Can not save file with empty name.");
         }
-        if(new File(Application.filesDir + file.getOriginalFilename()).exists()){
-            LOGGER.error("File with name {} already exists", file.getOriginalFilename());
-            throw new FileUploadException("File with same name already exists.");
-        }
         if(file.isEmpty()){
             LOGGER.error("Can not save empty file");
             throw new FileUploadException("Can not save empty file.");

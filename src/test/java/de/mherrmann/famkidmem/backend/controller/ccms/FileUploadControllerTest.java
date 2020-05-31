@@ -1,7 +1,6 @@
 package de.mherrmann.famkidmem.backend.controller.ccms;
 
 import de.mherrmann.famkidmem.backend.TestUtils;
-import de.mherrmann.famkidmem.backend.service.ccms.FileUploadService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,9 +32,6 @@ public class FileUploadControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private FileUploadService fileUploadService;
 
     @Autowired
     private TestUtils testUtils;
@@ -72,20 +68,6 @@ public class FileUploadControllerTest {
                 "text/plain", TEST_CONTENT.getBytes());
 
         shouldFail(multipartFile, "error: Can not save file with empty name.");
-    }
-
-    @Test
-    public void shouldFailCausedByEponymousFile() throws Exception {
-        MockMultipartFile multipartFile = new MockMultipartFile("file", TEST_NAME,
-                "text/plain", TEST_CONTENT.getBytes());
-        try {
-            fileUploadService.store(multipartFile);
-        } catch(Exception ex){
-            ex.printStackTrace();
-        }
-
-
-        shouldFail(multipartFile, "error: File with same name already exists.");
     }
 
     @Test
