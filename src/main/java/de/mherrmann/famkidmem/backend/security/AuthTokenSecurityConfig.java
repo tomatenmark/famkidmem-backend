@@ -2,7 +2,6 @@ package de.mherrmann.famkidmem.backend.security;
 
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,7 +17,6 @@ import java.nio.file.Paths;
 
 @Configuration
 @EnableWebSecurity
-@PropertySource("classpath:application.properties")
 @Order(1)
 public class AuthTokenSecurityConfig extends WebSecurityConfigurerAdapter {
 
