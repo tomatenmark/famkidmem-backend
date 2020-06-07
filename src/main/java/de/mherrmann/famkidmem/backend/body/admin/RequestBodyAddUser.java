@@ -7,11 +7,6 @@ public class RequestBodyAddUser {
     private String loginHash;
     private String passwordKeySalt;
     private String masterKey;
-    private String personFirstName;
-    private String personLastName;
-    private String personCommonName;
-    private String key;
-    private String iv;
 
     public String getUsername() {
         return username;
@@ -51,45 +46,5 @@ public class RequestBodyAddUser {
 
     public void setMasterKey(String masterKey) {
         this.masterKey = masterKey;
-    }
-
-    public String getPersonFirstName() {
-        return personFirstName;
-    }
-
-    public void setPersonFirstName(String personFirstName) {
-        this.personFirstName = personFirstName;
-    }
-
-    public String getPersonLastName() {
-        return personLastName;
-    }
-
-    public void setPersonLastName(String personLastName) {
-        this.personLastName = personLastName;
-    }
-
-    public String getPersonCommonName() {
-        return personCommonName;
-    }
-
-    public void setPersonCommonName(String personCommonName) {
-        this.personCommonName = personCommonName;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getIv() {
-        return iv;
-    }
-
-    public void setIv(String iv) {
-        this.iv = iv;
     }
 }
