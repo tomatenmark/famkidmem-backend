@@ -1,6 +1,7 @@
 package de.mherrmann.famkidmem.backend.controller.ccms;
 
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
+import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetVideos;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyUpdateVideo;
 import de.mherrmann.famkidmem.backend.service.ccms.EditVideoService;
@@ -17,6 +18,15 @@ public class EditVideoController {
     @Autowired
     public EditVideoController(EditVideoService editVideoService) {
         this.editVideoService = editVideoService;
+    }
+
+    @GetMapping(value = "/get")
+    public ResponseEntity<ResponseBodyGetVideos> getVideos(){
+        try {
+            return ResponseEntity.ok(editVideoService.getVideos());
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(new ResponseBodyGetVideos(ex));
+        }
     }
 
     @PostMapping(value = "/add")

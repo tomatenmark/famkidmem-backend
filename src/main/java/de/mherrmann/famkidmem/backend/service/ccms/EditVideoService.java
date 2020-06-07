@@ -1,6 +1,8 @@
 package de.mherrmann.famkidmem.backend.service.ccms;
 
 import de.mherrmann.famkidmem.backend.Application;
+import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetVideos;
+import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentIndex;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyUpdateVideo;
 import de.mherrmann.famkidmem.backend.entity.*;
@@ -44,6 +46,14 @@ public class EditVideoService {
         this.fileEntityService = fileEntityService;
         this.personEntityService = personEntityService;
         this.yearEntityService = yearEntityService;
+    }
+
+
+    public ResponseBodyGetVideos getVideos() throws SecurityException {
+        List<Video> videos = new ArrayList<>();
+        Iterable<Video> videoIterable = videoRepository.findAllByOrderByTimestamp();
+        videoIterable.forEach(videos::add);
+        return new ResponseBodyGetVideos(videos);
     }
 
     public void addVideo(RequestBodyAddVideo addVideoRequest) throws AddEntityException {
