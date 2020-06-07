@@ -1,5 +1,7 @@
 package de.mherrmann.famkidmem.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
@@ -23,6 +25,7 @@ public class Person {
         this.name = name;
     }
 
+    @JsonIgnore
     public String getId() {
         return id;
     }

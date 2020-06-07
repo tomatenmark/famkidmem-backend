@@ -1,5 +1,6 @@
 package de.mherrmann.famkidmem.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -67,6 +68,7 @@ public class Video {
         this.timestamp = timestamp;
     }
 
+    @JsonIgnore
     public String getId() {
         return id;
     }
