@@ -94,7 +94,7 @@ public class TestUtils {
     }
 
     public RequestBodyAddVideo createAddVideoRequest() throws IOException {
-        return createAddAnotherVideoRequest(
+        return createAddVideoRequest(
                 "title",
                 "key",
                 "iv",
@@ -112,7 +112,7 @@ public class TestUtils {
     }
 
     public RequestBodyAddVideo createAddAnotherVideoRequest() throws IOException {
-        return createAddAnotherVideoRequest(
+        return createAddVideoRequest(
                 "video2",
                 "key2",
                 "iv2",
@@ -129,7 +129,7 @@ public class TestUtils {
                 System.currentTimeMillis()+60000);
     }
 
-    private RequestBodyAddVideo createAddAnotherVideoRequest(
+    private RequestBodyAddVideo createAddVideoRequest(
             String title, String key, String iv, String m3u8, String m3u8Key, String m3u8Iv, String thumbnail,
             String thumbnailKey, String thumbnailIv, String person1, String person2, int year1, int year2, long time)
                 throws IOException {
