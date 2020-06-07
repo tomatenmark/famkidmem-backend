@@ -4,3 +4,4 @@ target
 files/
 *.log
 *.gz
+ccms_auth_token_hash
