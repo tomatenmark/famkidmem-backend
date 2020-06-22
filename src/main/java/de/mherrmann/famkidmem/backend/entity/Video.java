@@ -162,7 +162,7 @@ public class Video {
     }
 
     public void setShowDateValues(int showDateValues) {
-        this.showDateValues = showDateValues % 4;
+        this.showDateValues = showDateValues % 8;
     }
 
     public Timestamp getTimestamp() {
