@@ -18,7 +18,7 @@ public class FileUploadController {
         this.fileUploadService = fileUploadService;
     }
 
-    @PostMapping("/ccms/upload/")
+    @PostMapping("/ccms/upload")
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file){
         try {
             fileUploadService.store(file);
