@@ -195,17 +195,17 @@ public class VideoServiceTest {
 
     private void shouldGetFileBase64(String filename, String base64){
         Exception exception = null;
-        ResponseBodyContentFileBase64 thumbnail = null;
+        ResponseBodyContentFileBase64 content = null;
 
         try {
-            thumbnail = videoService.getFileBase64(testLogin.getAccessToken(), filename);
+            content = videoService.getFileBase64(testLogin.getAccessToken(), filename);
         } catch(Exception ex){
             exception = ex;
         }
 
         assertThat(exception).isNull();
-        assertThat(thumbnail).isNotNull();
-        assertThat(thumbnail.getBase64()).isEqualTo(base64);
+        assertThat(content).isNotNull();
+        assertThat(content.getBase64()).isEqualTo(base64);
     }
 
     private void shouldFailGetFileBase64(String accessToken, String filename, Class exceptionClass){
