@@ -2,6 +2,7 @@ package de.mherrmann.famkidmem.backend.controller.ccms;
 
 import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetVideos;
+import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentFileBase64;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyUpdateVideo;
 import de.mherrmann.famkidmem.backend.service.ccms.EditVideoService;
@@ -26,6 +27,15 @@ public class EditVideoController {
             return ResponseEntity.ok(editVideoService.getVideos());
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ResponseBodyGetVideos(ex));
+        }
+    }
+
+    @GetMapping(value = "/base64/{filename}")
+    public ResponseEntity<ResponseBodyContentFileBase64> getFileBase64(@PathVariable String filename) {
+        try {
+            return ResponseEntity.ok(editVideoService.getFileBase64(filename));
+        } catch(Exception ex){
+            return ResponseEntity.badRequest().body(new ResponseBodyContentFileBase64(ex));
         }
     }
 

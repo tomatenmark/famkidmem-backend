@@ -2,6 +2,7 @@ package de.mherrmann.famkidmem.backend.service.ccms;
 
 import de.mherrmann.famkidmem.backend.Application;
 import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetVideos;
+import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentFileBase64;
 import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentIndex;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyUpdateVideo;
@@ -9,17 +10,20 @@ import de.mherrmann.famkidmem.backend.entity.*;
 import de.mherrmann.famkidmem.backend.exception.AddEntityException;
 import de.mherrmann.famkidmem.backend.exception.EntityActionException;
 import de.mherrmann.famkidmem.backend.exception.EntityNotFoundException;
+import de.mherrmann.famkidmem.backend.exception.FileNotFoundException;
 import de.mherrmann.famkidmem.backend.repository.VideoRepository;
 import de.mherrmann.famkidmem.backend.service.subentity.FileEntityService;
 import de.mherrmann.famkidmem.backend.service.subentity.KeyEntityService;
 import de.mherrmann.famkidmem.backend.service.subentity.PersonEntityService;
 import de.mherrmann.famkidmem.backend.service.subentity.YearEntityService;
+import de.mherrmann.famkidmem.backend.utils.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,18 +38,20 @@ public class EditVideoService {
     private final FileEntityService fileEntityService;
     private final PersonEntityService personEntityService;
     private final YearEntityService yearEntityService;
+    private final FileUtil fileUtil;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EditVideoService.class);
 
     @Autowired
     public EditVideoService(
             VideoRepository videoRepository, KeyEntityService keyEntityService, FileEntityService fileEntityService,
-            PersonEntityService personEntityService, YearEntityService yearEntityService) {
+            PersonEntityService personEntityService, YearEntityService yearEntityService, FileUtil fileUtil) {
         this.videoRepository = videoRepository;
         this.keyEntityService = keyEntityService;
         this.fileEntityService = fileEntityService;
         this.personEntityService = personEntityService;
         this.yearEntityService = yearEntityService;
+        this.fileUtil = fileUtil;
     }
 
 
@@ -54,6 +60,10 @@ public class EditVideoService {
         Iterable<Video> videoIterable = videoRepository.findAllByOrderByTimestamp();
         videoIterable.forEach(videos::add);
         return new ResponseBodyGetVideos(videos);
+    }
+
+    public ResponseBodyContentFileBase64 getFileBase64(String filename) throws SecurityException, FileNotFoundException, IOException {
+        return new ResponseBodyContentFileBase64(null, fileUtil.getBase64EncodedContent(filename));
     }
 
     public void addVideo(RequestBodyAddVideo addVideoRequest) throws AddEntityException {
