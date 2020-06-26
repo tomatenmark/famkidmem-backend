@@ -3,22 +3,17 @@ package de.mherrmann.famkidmem.backend.service.ccms;
 import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetVideos;
 import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentFileBase64;
-import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
-import de.mherrmann.famkidmem.backend.entity.Video;
-import de.mherrmann.famkidmem.backend.exception.AddEntityException;
 import de.mherrmann.famkidmem.backend.exception.FileNotFoundException;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
-import de.mherrmann.famkidmem.backend.repository.VideoRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,9 +28,6 @@ public class EditVideoServiceGetTest {
     private EditVideoService editVideoService;
 
     @Autowired
-    private VideoRepository videoRepository;
-
-    @Autowired
     private TestUtils testUtils;
 
     @Before
@@ -43,6 +35,7 @@ public class EditVideoServiceGetTest {
         editVideoService.addVideo(testUtils.createAddVideoRequest());
         testUtils.createTestFile("thumbnail");
         testUtils.createTestFile("m3u8");
+        testUtils.createTestFile("sequence.ts");
     }
 
     @After
@@ -85,6 +78,38 @@ public class EditVideoServiceGetTest {
 
         try {
             editVideoService.getFileBase64("invalid");
+        } catch(Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNotNull();
+        assertThat(exception).isInstanceOf(FileNotFoundException.class);
+    }
+
+    @Test
+    public void shouldGetTsFile() {
+        Exception exception = null;
+        ResponseEntity response = null;
+
+        try {
+            response = editVideoService.getTsFile("sequence.ts");
+        } catch(Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNull();
+        assertThat(response).isNotNull();
+        assertThat(response.getHeaders().get("Content-Length").get(0)).isEqualTo("11");
+        assertThat(response.getHeaders().get("Content-Type").get(0)).isEqualTo("video/vnd.dlna.mpeg-tts");
+        assertThat(((ByteArrayResource)response.getBody()).getByteArray().length).isEqualTo(11);
+    }
+
+    @Test
+    public void shouldFailGetTsFileCausedByFileNotFound(){
+        Exception exception = null;
+
+        try {
+            editVideoService.getTsFile("invalid.ts");
         } catch(Exception ex){
             exception = ex;
         }

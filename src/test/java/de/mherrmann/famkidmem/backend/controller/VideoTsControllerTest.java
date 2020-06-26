@@ -47,15 +47,17 @@ public class VideoTsControllerTest {
         createTestUser();
         testLogin  = userService.login(testUser.getUsername(), LOGIN_HASH);
         testUtils.createTestFile("sequence.ts");
+        testUtils.createAuthTokenHashFile();
     }
 
     @After
     public void teardown(){
         testUtils.dropAll();
+        testUtils.deleteAuthTokenHashFile();
     }
 
     @Test
-    public void shouldGetTsFile() throws Exception {
+    public void shouldGetTsFileAuthorizedByLogin() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get("/api/ts/{accessToken}/{filename}", testLogin.getAccessToken(), "sequence.ts"))
                 .andExpect(status().is(HttpStatus.OK.value()))
                 .andReturn();
@@ -73,6 +75,30 @@ public class VideoTsControllerTest {
     @Test
     public void shouldFailGetTsFileCausedByFileNotFound() throws Exception {
         shouldFailGetTsFile(testLogin.getAccessToken(), "invalid.ts", "File does not exist or is not a file. filename: invalid.ts");
+    }
+
+    @Test
+    public void shouldGetTsFileAuthorizedByApiKey() throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(get("/ccms/video/ts/{filename}", "sequence.ts")
+                .header("CCMS_AUTH_TOKEN", "token"))
+                .andExpect(status().is(HttpStatus.OK.value()))
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("sequence.ts");
+        assertThat(mvcResult.getResponse().getHeaders("Content-Length").get(0)).isEqualTo("11");
+        assertThat(mvcResult.getResponse().getHeaders("Content-Type").get(0)).isEqualTo("video/vnd.dlna.mpeg-tts");
+    }
+
+    @Test
+    public void shouldFailGetTsFileAuthorizedByApiKeyCausedByFileNotFound() throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(get("/ccms/video/ts/{filename}", "invalid.ts")
+                .header("CCMS_AUTH_TOKEN", "token"))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andReturn();
+
+        ResponseBody body = jsonToLoginResponse(mvcResult.getResponse().getContentAsString());
+        assertThat(body.getMessage()).isEqualTo("error");
+        assertThat(body.getDetails()).isEqualTo("File does not exist or is not a file. filename: invalid.ts");
     }
 
     private void shouldFailGetTsFile(String accessToken, String filename, String expectedDetails) throws Exception {

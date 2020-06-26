@@ -20,6 +20,7 @@ import de.mherrmann.famkidmem.backend.utils.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -64,6 +65,12 @@ public class EditVideoService {
 
     public ResponseBodyContentFileBase64 getFileBase64(String filename) throws SecurityException, FileNotFoundException, IOException {
         return new ResponseBodyContentFileBase64(null, fileUtil.getBase64EncodedContent(filename));
+    }
+
+    public ResponseEntity getTsFile(String filename) throws FileNotFoundException, IOException {
+        ResponseEntity responseEntity = fileUtil.getContentResponseEntity(filename);
+        LOGGER.info("Successfully got ts file");
+        return responseEntity;
     }
 
     public void addVideo(RequestBodyAddVideo addVideoRequest) throws AddEntityException {
