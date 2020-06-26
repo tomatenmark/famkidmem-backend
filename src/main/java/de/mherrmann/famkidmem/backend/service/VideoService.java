@@ -14,6 +14,7 @@ import de.mherrmann.famkidmem.backend.utils.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -55,9 +56,9 @@ public class VideoService {
         return new ResponseBodyContentFileBase64(user.getMasterKey(), fileUtil.getBase64EncodedContent(filename));
     }
 
-    public ResponseEntity getTsFile(String accessToken, String filename) throws SecurityException, FileNotFoundException, IOException {
+    public ResponseEntity<ByteArrayResource> getTsFile(String accessToken, String filename) throws SecurityException, FileNotFoundException, IOException {
         userService.getUser(accessToken, "get ts file");
-        ResponseEntity responseEntity = fileUtil.getContentResponseEntity(filename);
+        ResponseEntity<ByteArrayResource> responseEntity = fileUtil.getContentResponseEntity(filename);
         LOGGER.info("Successfully got ts file. AccessToken: {}", accessToken);
         return responseEntity;
     }

@@ -35,7 +35,7 @@ public class FileUtil {
         }
     }
 
-    public ResponseEntity getContentResponseEntity(String filename) throws FileNotFoundException, IOException {
+    public ResponseEntity<ByteArrayResource> getContentResponseEntity(String filename) throws FileNotFoundException, IOException {
         File file = new File(Application.filesDir + filename.replaceAll("\\.+", "."));
         if(!file.exists() || file.isDirectory()){
             LOGGER.error("Could not get ts file contents. File: {}. File does not exist or is a directory.", filename);
