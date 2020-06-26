@@ -33,7 +33,7 @@ public class VideoTsController {
     }
 
     @ResponseBody
-    @GetMapping(value = "/ccms/video/ts/{filename}")
+    @GetMapping(value = "/ccms/edit/video/ts/{filename}")
     public ResponseEntity<ByteArrayResource> getTsAuthorizedByApiKey(@PathVariable String filename) {
         try {
             return editVideoService.getTsFile(filename);
