@@ -67,7 +67,23 @@ public class EditVideoControllerGetTest {
         String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
         List<Video> videos = jsonToResponse(mvcResult.getResponse().getContentAsString()).getVideos();
         assertThat(message).isEqualTo("ok");
-        assertThat(details).isEqualTo("Successfully get videos");
+        assertThat(details).isEqualTo("Successfully got videos");
+        assertThat(videos.size()).isEqualTo(1);
+        assertThat(videos.get(0).getTitle()).isEqualTo("title");
+    }
+
+    @Test
+    public void shouldGetSingleVideo() throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(get("/ccms/edit/video/get/title")
+                .header("CCMS_AUTH_TOKEN", "token"))
+                .andExpect(status().is(HttpStatus.OK.value()))
+                .andReturn();
+
+        String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        List<Video> videos = jsonToResponse(mvcResult.getResponse().getContentAsString()).getVideos();
+        assertThat(message).isEqualTo("ok");
+        assertThat(details).isEqualTo("Successfully got video");
         assertThat(videos.size()).isEqualTo(1);
         assertThat(videos.get(0).getTitle()).isEqualTo("title");
     }

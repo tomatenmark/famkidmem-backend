@@ -64,6 +64,14 @@ public class EditVideoService {
         return new ResponseBodyGetVideos(videos);
     }
 
+    public ResponseBodyGetVideos getSingleVideo(String title) throws EntityNotFoundException {
+        List<Video> videos = new ArrayList<>();
+        videos.add(getVideo(title));
+        ResponseBodyGetVideos videoResponse = new ResponseBodyGetVideos(videos);
+        videoResponse.setDetails("Successfully got video");
+        return videoResponse;
+    }
+
     public ResponseBodyContentFileBase64 getFileBase64(String filename) throws SecurityException, FileNotFoundException, IOException {
         return new ResponseBodyContentFileBase64(null, fileUtil.getBase64EncodedContent(filename));
     }

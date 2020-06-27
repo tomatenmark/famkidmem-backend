@@ -30,6 +30,15 @@ public class EditVideoController {
         }
     }
 
+    @GetMapping(value = "/get/{title}")
+    public ResponseEntity<ResponseBodyGetVideos> getSingleVideo(@PathVariable String title){
+        try {
+            return ResponseEntity.ok(editVideoService.getSingleVideo(title));
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(new ResponseBodyGetVideos(ex));
+        }
+    }
+
     @GetMapping(value = "/base64/{filename}")
     public ResponseEntity<ResponseBodyContentFileBase64> getFileBase64(@PathVariable String filename) {
         try {

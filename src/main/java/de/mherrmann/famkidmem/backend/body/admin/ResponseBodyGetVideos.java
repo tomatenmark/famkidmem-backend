@@ -13,7 +13,7 @@ public class ResponseBodyGetVideos extends ResponseBody {
     public ResponseBodyGetVideos(){}
 
     public ResponseBodyGetVideos(List<Video> videos){
-        super("ok", "Successfully get videos");
+        super("ok", "Successfully got videos");
         this.setVideos(videos);
     }
 

@@ -63,6 +63,24 @@ public class EditVideoServiceGetTest {
     }
 
     @Test
+    public void shouldGetSingleVideo() {
+        ResponseBodyGetVideos responseBodyGetVideos = null;
+        Exception exception = null;
+
+        try {
+            responseBodyGetVideos = editVideoService.getSingleVideo("title");
+        } catch (Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNull();
+        assertThat(responseBodyGetVideos).isNotNull();
+        assertThat(responseBodyGetVideos.getVideos()).isNotNull();
+        assertThat(responseBodyGetVideos.getVideos().size()).isEqualTo(1);
+        assertThat(responseBodyGetVideos.getVideos().get(0).getTitle()).isEqualTo("title");
+    }
+
+    @Test
     public void shouldGetThumbnail(){
         shouldGetFileBase64("thumbnail", THUMBNAIL_BASE64);
     }
