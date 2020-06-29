@@ -65,7 +65,6 @@ public class EditVideoService {
     }
 
     public ResponseBodyGetVideos getSingleVideo(String title) throws EntityNotFoundException {
-        title = title.replace('_', '/').replace('-', '+');
         List<Video> videos = new ArrayList<>();
         videos.add(getVideo(title));
         ResponseBodyGetVideos videoResponse = new ResponseBodyGetVideos(videos);
