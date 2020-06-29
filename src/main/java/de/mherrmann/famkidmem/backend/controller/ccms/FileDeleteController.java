@@ -18,7 +18,7 @@ public class FileDeleteController {
     }
 
     @DeleteMapping("/ccms/delete/{fileName}")
-    public ResponseEntity<String> handleFileUpload(@PathVariable String fileName){
+    public ResponseEntity<String> handleFileDeletion(@PathVariable String fileName){
         try {
             fileDeleteService.deleteFile(fileName);
             return ResponseEntity.ok("ok");
