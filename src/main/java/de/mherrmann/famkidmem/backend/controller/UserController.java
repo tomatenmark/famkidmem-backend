@@ -5,6 +5,7 @@ import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangePassword;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangeUsername;
+import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedChangeUsernameAndPassword;
 import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedLogout;
 import de.mherrmann.famkidmem.backend.exception.LoginException;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
@@ -27,7 +28,7 @@ public class UserController {
     @PostMapping(value = "/login")
     public ResponseEntity<ResponseBodyLogin> login(@RequestBody RequestBodyLogin login) {
         try {
-            ResponseBodyLogin body = userService.login(login.getUsername(), login.getLoginHash());
+            ResponseBodyLogin body = userService.login(login.getUsername(), login.getLoginHash(), login.isPermanent());
             return ResponseEntity.ok(body);
         } catch(LoginException ex){
             return ResponseEntity.badRequest().body(new ResponseBodyLogin(ex));
@@ -59,6 +60,21 @@ public class UserController {
         try {
             userService.changePassword(passwordChange.getAccessToken(), passwordChange.getNewLoginHash(), passwordChange.getNewPasswordKeySalt(), passwordChange.getNewMasterKey());
             return ResponseEntity.ok(new ResponseBody("ok", "Successfully changed password"));
+        } catch(Exception ex){
+            return ResponseEntity.badRequest().body(new ResponseBody("error", ex.getMessage(), ex));
+        }
+    }
+
+    @PostMapping(value = "/change/both")
+    public ResponseEntity<ResponseBody> changeUsernameAndPassword(@RequestBody RequestBodyAuthorizedChangeUsernameAndPassword usernameAndPasswordChangeRequest) {
+        try {
+            userService.changeUsernameAndPassword(
+                    usernameAndPasswordChangeRequest.getAccessToken(),
+                    usernameAndPasswordChangeRequest.getNewUsername(),
+                    usernameAndPasswordChangeRequest.getNewLoginHash(),
+                    usernameAndPasswordChangeRequest.getNewPasswordKeySalt(),
+                    usernameAndPasswordChangeRequest.getNewMasterKey());
+            return ResponseEntity.ok(new ResponseBody("ok", "Successfully changed username and password"));
         } catch(Exception ex){
             return ResponseEntity.badRequest().body(new ResponseBody("error", ex.getMessage(), ex));
         }

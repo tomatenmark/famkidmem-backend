@@ -52,7 +52,7 @@ public class VideoServiceTest {
         editVideoService.addVideo(testUtils.createAddVideoRequest());
         editVideoService.addVideo(testUtils.createAddAnotherVideoRequest());
         createTestUser();
-        testLogin  = userService.login(testUser.getUsername(), LOGIN_HASH);
+        testLogin  = userService.login(testUser.getUsername(), LOGIN_HASH, true);
         testUtils.createTestFile("sequence.ts");
     }
 

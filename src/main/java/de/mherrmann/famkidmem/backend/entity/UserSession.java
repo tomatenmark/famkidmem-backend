@@ -11,20 +11,22 @@ public class UserSession {
     private String id;
 
     private String accessToken;
+    private boolean permanent;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity userEntity;
 
-    private Timestamp lastRequest;
+    private Timestamp created;
 
     private UserSession(){}
 
-    public UserSession(UserEntity user, String accessToken){
+    public UserSession(UserEntity user, String accessToken, boolean permanent){
         this.id = UUID.randomUUID().toString();
         this.setUserEntity(user);
         this.setAccessToken(accessToken);
-        this.setLastRequest(new Timestamp(System.currentTimeMillis()));
+        this.setCreated(new Timestamp(System.currentTimeMillis()));
+        this.permanent = permanent;
     }
 
     public String getId() {
@@ -51,11 +53,19 @@ public class UserSession {
         this.userEntity = userEntity;
     }
 
-    public Timestamp getLastRequest() {
-        return lastRequest;
+    public Timestamp getCreated() {
+        return created;
     }
 
-    public void setLastRequest(Timestamp lastRequest) {
-        this.lastRequest = lastRequest;
+    public void setCreated(Timestamp created) {
+        this.created = created;
+    }
+
+    public boolean isPermanent() {
+        return permanent;
+    }
+
+    public void setPermanent(boolean permanent) {
+        this.permanent = permanent;
     }
 }

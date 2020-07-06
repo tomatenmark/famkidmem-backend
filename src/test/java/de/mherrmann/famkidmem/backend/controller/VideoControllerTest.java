@@ -54,7 +54,7 @@ public class VideoControllerTest {
         editVideoService.addVideo(testUtils.createAddVideoRequest());
         editVideoService.addVideo(testUtils.createAddAnotherVideoRequest());
         createTestUser();
-        testLogin  = userService.login(testUser.getUsername(), LOGIN_HASH);
+        testLogin  = userService.login(testUser.getUsername(), LOGIN_HASH, true);
     }
 
     @After

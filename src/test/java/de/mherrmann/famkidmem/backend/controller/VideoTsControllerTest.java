@@ -1,8 +1,6 @@
 package de.mherrmann.famkidmem.backend.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mherrmann.famkidmem.backend.TestUtils;
-import de.mherrmann.famkidmem.backend.body.ResponseBody;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.service.UserService;
@@ -45,7 +43,7 @@ public class VideoTsControllerTest {
     @Before
     public void setup() throws Exception {
         createTestUser();
-        testLogin  = userService.login(testUser.getUsername(), LOGIN_HASH);
+        testLogin  = userService.login(testUser.getUsername(), LOGIN_HASH, true);
         testUtils.createTestFile("sequence.ts");
         testUtils.createAuthTokenHashFile();
     }
@@ -69,12 +67,12 @@ public class VideoTsControllerTest {
 
     @Test
     public void shouldFailGetTsFileCausedByInvalidLogin() throws Exception {
-        shouldFailGetTsFile("invalid", "sequence.ts", "You are not allowed to do this: get ts file");
+        shouldFailGetTsFile("invalid", "sequence.ts");
     }
 
     @Test
     public void shouldFailGetTsFileCausedByFileNotFound() throws Exception {
-        shouldFailGetTsFile(testLogin.getAccessToken(), "invalid.ts", "File does not exist or is not a file. filename: invalid.ts");
+        shouldFailGetTsFile(testLogin.getAccessToken(), "invalid.ts");
     }
 
     @Test
@@ -96,31 +94,19 @@ public class VideoTsControllerTest {
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
                 .andReturn();
 
-        ResponseBody body = jsonToLoginResponse(mvcResult.getResponse().getContentAsString());
-        assertThat(body.getMessage()).isEqualTo("error");
-        assertThat(body.getDetails()).isEqualTo("File does not exist or is not a file. filename: invalid.ts");
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("");
     }
 
-    private void shouldFailGetTsFile(String accessToken, String filename, String expectedDetails) throws Exception {
+    private void shouldFailGetTsFile(String accessToken, String filename) throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get("/api/ts/{accessToken}/{filename}", accessToken, filename))
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
                 .andReturn();
 
-        ResponseBody body = jsonToLoginResponse(mvcResult.getResponse().getContentAsString());
-        assertThat(body.getMessage()).isEqualTo("error");
-        assertThat(body.getDetails()).isEqualTo(expectedDetails);
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("");
     }
 
 
     private void createTestUser() {
         testUser = testUtils.createTestUser(LOGIN_HASH);
-    }
-
-    private static ResponseBody jsonToLoginResponse(final String json) {
-        try {
-            return new ObjectMapper().readValue(json, ResponseBody.class);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }

@@ -11,12 +11,16 @@ import java.util.Optional;
 
 @Repository
 public interface SessionRepository extends CrudRepository<UserSession, String> {
+
     Optional<UserSession> findByAccessToken(String accessToken);
 
     int countAllByUserEntity(UserEntity user);
 
     @Transactional
-    void deleteAllByLastRequestBeforeAndUserEntity(Timestamp threshold, UserEntity user);
+    void deleteAllByPermanentIsFalseAndCreatedBefore(Timestamp threshold);
+
+    @Transactional
+    void deleteAllByPermanentIsFalseAndUserEntity(UserEntity user);
 
     @Transactional
     void deleteAllByUserEntity(UserEntity userEntity);

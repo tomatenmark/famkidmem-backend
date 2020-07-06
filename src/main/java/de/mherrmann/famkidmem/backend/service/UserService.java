@@ -33,7 +33,7 @@ public class UserService {
         this.sessionRepository = sessionRepository;
     }
 
-    public ResponseBodyLogin login(String username, String loginHash) throws LoginException {
+    public ResponseBodyLogin login(String username, String loginHash, boolean permanent) throws LoginException {
         Optional<UserEntity> userOptional = userRepository.findByUsername(username);
         if(!userOptional.isPresent()){
             LOGGER.error("Could not login user. Invalid username {}", username);
@@ -46,7 +46,7 @@ public class UserService {
             throw new LoginException();
         }
         String accessToken = UUID.randomUUID().toString();
-        addUserSession(user, accessToken);
+        addUserSession(user, accessToken, permanent);
         createNewHash(user, loginHash);
         LOGGER.info("Successfully logged in {} with accessToken {}", user.getUsername(), accessToken);
         return new ResponseBodyLogin(accessToken, user.getPasswordKeySalt());
@@ -65,25 +65,35 @@ public class UserService {
     }
 
     public void changeUsername(String accessToken, String newUsername) throws SecurityException {
-        UserEntity user = getUser(accessToken, "change username");
-        String oldUsername = user.getUsername();
-        user.setUsername(newUsername);
-        if(user.isInit()){
-            user.setInit(false);
-            user.setReset(true);
-        }
-        userRepository.save(user);
-        LOGGER.info("Successfully changed username from {} to {}", oldUsername, newUsername);
+        UserEntity user = getUser(accessToken, "change username and/or password");
+        changeUsernameAndOrPassword(user, newUsername, null, user.getPasswordKeySalt(), user.getMasterKey());
     }
 
     public void changePassword(String accessToken, String newLoginHash, String newPasswordKeySalt, String newMasterKey) throws SecurityException {
-        UserEntity user = getUser(accessToken, "change password");
-        user.setLoginHashHash(Bcrypt.hash(newLoginHash));
+        UserEntity user = getUser(accessToken, "change username and/or password");
+        user.setReset(false);
+        changeUsernameAndOrPassword(user, user.getUsername(), newLoginHash, newPasswordKeySalt, newMasterKey);
+    }
+
+    public void changeUsernameAndPassword(String accessToken, String newUsername, String newLoginHash, String newPasswordKeySalt, String newMasterKey) throws SecurityException {
+        UserEntity user = getUser(accessToken, "change username and/or password");
+        user.setInit(false);
+        changeUsernameAndOrPassword(user, newUsername, newLoginHash, newPasswordKeySalt, newMasterKey);
+    }
+
+    private void changeUsernameAndOrPassword(UserEntity user, String newUsername, String newLoginHash,
+                                          String newPasswordKeySalt, String newMasterKey) throws SecurityException {
+
+        String oldUsername = user.getUsername();
+        user.setUsername(newUsername);
+        if(newLoginHash != null){
+            user.setLoginHashHash(Bcrypt.hash(newLoginHash));
+        }
         user.setMasterKey(newMasterKey);
         user.setPasswordKeySalt(newPasswordKeySalt);
         user.setReset(false);
         userRepository.save(user);
-        LOGGER.info("Successfully changed password for user {}", user.getUsername());
+        LOGGER.info("Successfully changed username and/or password. {} -> {}", oldUsername, user.getUsername());
     }
 
     UserEntity getUser(String accessToken, String action) throws SecurityException {
@@ -105,10 +115,15 @@ public class UserService {
         userRepository.save(user);
     }
 
-    private void addUserSession(UserEntity user, String accessToken){
-        UserSession session = new UserSession(user, accessToken);
+    private void addUserSession(UserEntity user, String accessToken, boolean permanent){
+        deleteOldSessions(user);
+        UserSession session = new UserSession(user, accessToken, permanent);
         sessionRepository.save(session);
+    }
+
+    private void deleteOldSessions(UserEntity user){
         long threshold = System.currentTimeMillis() - SESSION_TIME_TO_LIVE;
-        sessionRepository.deleteAllByLastRequestBeforeAndUserEntity(new Timestamp(threshold), user);
+        sessionRepository.deleteAllByPermanentIsFalseAndCreatedBefore(new Timestamp(threshold));
+        sessionRepository.deleteAllByPermanentIsFalseAndUserEntity(user);
     }
 }

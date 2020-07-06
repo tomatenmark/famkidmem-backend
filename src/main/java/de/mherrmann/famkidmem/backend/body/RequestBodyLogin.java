@@ -5,6 +5,7 @@ public class RequestBodyLogin {
 
     private String username;
     private String loginHash;
+    private boolean permanent;
 
     public RequestBodyLogin(){}
 
@@ -22,5 +23,13 @@ public class RequestBodyLogin {
 
     public void setLoginHash(String loginHash) {
         this.loginHash = loginHash;
+    }
+
+    public boolean isPermanent() {
+        return permanent;
+    }
+
+    public void setPermanent(boolean permanent) {
+        this.permanent = permanent;
     }
 }
