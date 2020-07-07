@@ -59,7 +59,7 @@ public class EditVideoControllerGetTest {
     @Test
     public void shouldGetVideos() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get("/ccms/edit/video/get")
-                .header("CCMS_AUTH_TOKEN", "token"))
+                .header("CCMS-AUTH-TOKEN", "token"))
                 .andExpect(status().is(HttpStatus.OK.value()))
                 .andReturn();
 
@@ -75,7 +75,7 @@ public class EditVideoControllerGetTest {
     @Test
     public void shouldGetSingleVideo() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get("/ccms/edit/video/get/title")
-                .header("CCMS_AUTH_TOKEN", "token"))
+                .header("CCMS-AUTH-TOKEN", "token"))
                 .andExpect(status().is(HttpStatus.OK.value()))
                 .andReturn();
 
@@ -101,7 +101,7 @@ public class EditVideoControllerGetTest {
     @Test
     public void shouldGetFileBase64CausedByFileNotFound() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get("/ccms/edit/video/base64/{filename}", "invalid")
-                .header("CCMS_AUTH_TOKEN", "token"))
+                .header("CCMS-AUTH-TOKEN", "token"))
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
                 .andReturn();
 
@@ -114,7 +114,7 @@ public class EditVideoControllerGetTest {
 
     private void shouldGetFileBase64(String filename, String base64String) throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get("/ccms/edit/video/base64/{filename}", filename)
-                .header("CCMS_AUTH_TOKEN", "token"))
+                .header("CCMS-AUTH-TOKEN", "token"))
                 .andExpect(status().is(HttpStatus.OK.value()))
                 .andReturn();
 

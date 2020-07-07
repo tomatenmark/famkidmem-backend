@@ -70,7 +70,7 @@ public class AdminUserControllerTest {
     @Test
     public void shouldAddUser() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(post("/ccms/admin/user/add")
-                .header("CCMS_AUTH_TOKEN", "token")
+                .header("CCMS-AUTH-TOKEN", "token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(createAddUserRequest())))
                 .andExpect(status().is(HttpStatus.OK.value()))
@@ -107,7 +107,7 @@ public class AdminUserControllerTest {
     public void shouldDeleteUser() throws Exception {
         RequestBodyDeleteUser deleteUserRequest = testUtils.createDeleteUserRequest(testUser);
         MvcResult mvcResult = this.mockMvc.perform(delete("/ccms/admin/user/delete")
-                .header("CCMS_AUTH_TOKEN", "token")
+                .header("CCMS-AUTH-TOKEN", "token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(deleteUserRequest)))
                 .andExpect(status().is(HttpStatus.OK.value()))
@@ -132,7 +132,7 @@ public class AdminUserControllerTest {
     public void shouldResetPassword() throws Exception {
         RequestBodyResetPassword resetPasswordRequest = testUtils.createResetPasswordRequest(testUser);
         MvcResult mvcResult = this.mockMvc.perform(post("/ccms/admin/user/reset")
-                .header("CCMS_AUTH_TOKEN", "token")
+                .header("CCMS-AUTH-TOKEN", "token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(resetPasswordRequest)))
                 .andExpect(status().is(HttpStatus.OK.value()))
@@ -156,7 +156,7 @@ public class AdminUserControllerTest {
     @Test
     public void shouldGetUsers() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get("/ccms/admin/user/get/")
-                .header("CCMS_AUTH_TOKEN", "token"))
+                .header("CCMS-AUTH-TOKEN", "token"))
                 .andExpect(status().is(HttpStatus.OK.value()))
                 .andReturn();
 
@@ -178,7 +178,7 @@ public class AdminUserControllerTest {
 
     private void shouldFailAddUser(String expectedDetails, RequestBodyAddUser addUserRequest, int users) throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(post("/ccms/admin/user/add")
-                .header("CCMS_AUTH_TOKEN", "token")
+                .header("CCMS-AUTH-TOKEN", "token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(addUserRequest)))
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
@@ -193,7 +193,7 @@ public class AdminUserControllerTest {
 
     private void shouldFailDeleteUser(String expectedDetails, RequestBodyDeleteUser deleteUserRequest) throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(delete("/ccms/admin/user/delete")
-                .header("CCMS_AUTH_TOKEN", "token")
+                .header("CCMS-AUTH-TOKEN", "token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(deleteUserRequest)))
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
@@ -208,7 +208,7 @@ public class AdminUserControllerTest {
 
     private void shouldFailResetPassword(String expectedDetails, RequestBodyResetPassword resetPasswordRequest) throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(post("/ccms/admin/user/reset")
-                .header("CCMS_AUTH_TOKEN", "token")
+                .header("CCMS-AUTH-TOKEN", "token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(resetPasswordRequest)))
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))

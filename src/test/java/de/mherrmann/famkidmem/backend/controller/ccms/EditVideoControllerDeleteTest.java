@@ -59,7 +59,7 @@ public class EditVideoControllerDeleteTest {
     public void shouldDeleteVideo() throws Exception {
 
         MvcResult mvcResult = this.mockMvc.perform(delete("/ccms/edit/video/delete/{designator}", "title")
-                .header("CCMS_AUTH_TOKEN", "token"))
+                .header("CCMS-AUTH-TOKEN", "token"))
                 .andExpect(status().is(HttpStatus.OK.value()))
                 .andReturn();
 
@@ -74,7 +74,7 @@ public class EditVideoControllerDeleteTest {
     @Test
     public void shouldFailDeleteVideoCausedByEntityNotFound() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(delete("/ccms/edit/video/delete/{designator}", "invalid")
-                .header("CCMS_AUTH_TOKEN", "token"))
+                .header("CCMS-AUTH-TOKEN", "token"))
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
                 .andReturn();
 

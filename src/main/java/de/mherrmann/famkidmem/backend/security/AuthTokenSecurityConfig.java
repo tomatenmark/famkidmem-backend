@@ -23,7 +23,7 @@ public class AuthTokenSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception
     {
-        PreAuthTokenHeaderFilter filter = new PreAuthTokenHeaderFilter("CCMS_AUTH_TOKEN");
+        PreAuthTokenHeaderFilter filter = new PreAuthTokenHeaderFilter("CCMS-AUTH-TOKEN");
 
         filter.setAuthenticationManager(authentication -> {
             String principal = (String) authentication.getPrincipal();

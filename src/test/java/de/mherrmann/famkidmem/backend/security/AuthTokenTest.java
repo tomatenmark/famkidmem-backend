@@ -42,21 +42,21 @@ public class AuthTokenTest {
     @Test
     public void shouldBeStatusOk() throws Exception {
         this.mockMvc.perform(get("/ccms/admin/user/get")
-                .header("CCMS_AUTH_TOKEN", "token"))
+                .header("CCMS-AUTH-TOKEN", "token"))
                 .andExpect(status().is(HttpStatus.OK.value()));
     }
 
     @Test
     public void shouldBeStatusForbiddenCausedByInvalidToken() throws Exception {
         this.mockMvc.perform(get("/ccms/admin/user/get")
-                .header("CCMS_AUTH_TOKEN", "invalid"))
+                .header("CCMS-AUTH-TOKEN", "invalid"))
                 .andExpect(status().is(HttpStatus.FORBIDDEN.value()));
     }
 
     @Test
     public void shouldBeStatusForbiddenCausedByEmptyToken() throws Exception {
         this.mockMvc.perform(get("/ccms/admin/user/get")
-                .header("CCMS_AUTH_TOKEN", ""))
+                .header("CCMS-AUTH-TOKEN", ""))
                 .andExpect(status().is(HttpStatus.FORBIDDEN.value()));
     }
 

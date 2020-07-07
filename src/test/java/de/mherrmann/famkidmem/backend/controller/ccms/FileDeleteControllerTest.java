@@ -49,7 +49,7 @@ public class FileDeleteControllerTest {
     @Test
     public void shouldDeleteFile() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(delete("/ccms/delete/{fileName}", TEST_NAME)
-                .header("CCMS_AUTH_TOKEN", "token"))
+                .header("CCMS-AUTH-TOKEN", "token"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -60,7 +60,7 @@ public class FileDeleteControllerTest {
     @Test
     public void shouldFailDeleteFile() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(delete("/ccms/delete/{fileName}", "invalid")
-                .header("CCMS_AUTH_TOKEN", "token"))
+                .header("CCMS-AUTH-TOKEN", "token"))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 

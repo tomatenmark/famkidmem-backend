@@ -61,7 +61,7 @@ public class EditVideoControllerAddTest {
         long countBefore = videoRepository.count();
 
         MvcResult mvcResult = this.mockMvc.perform(post("/ccms/edit/video/add")
-                .header("CCMS_AUTH_TOKEN", "token")
+                .header("CCMS-AUTH-TOKEN", "token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(addVideoRequest)))
                 .andExpect(status().is(HttpStatus.OK.value()))
@@ -165,7 +165,7 @@ public class EditVideoControllerAddTest {
         long countBefore = videoRepository.count();
 
         MvcResult mvcResult = this.mockMvc.perform(post("/ccms/edit/video/add")
-                .header("CCMS_AUTH_TOKEN", "token")
+                .header("CCMS-AUTH-TOKEN", "token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(addVideoRequest)))
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))

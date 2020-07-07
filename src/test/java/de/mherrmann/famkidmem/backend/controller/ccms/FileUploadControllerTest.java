@@ -54,7 +54,7 @@ public class FileUploadControllerTest {
                 "text/plain", TEST_CONTENT.getBytes());
 
         MvcResult mvcResult = this.mockMvc.perform(multipart("/ccms/upload").file(multipartFile)
-                .header("CCMS_AUTH_TOKEN", "token"))
+                .header("CCMS-AUTH-TOKEN", "token"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -92,7 +92,7 @@ public class FileUploadControllerTest {
         int filesBefore = directory.exists() ? directory.list().length : -1;
 
         MvcResult mvcResult = this.mockMvc.perform(multipart("/ccms/upload").file(multipartFile)
-                .header("CCMS_AUTH_TOKEN", "token"))
+                .header("CCMS-AUTH-TOKEN", "token"))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 

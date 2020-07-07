@@ -78,7 +78,7 @@ public class VideoTsControllerTest {
     @Test
     public void shouldGetTsFileAuthorizedByApiKey() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get("/ccms/edit/video/ts/{filename}", "sequence.ts")
-                .header("CCMS_AUTH_TOKEN", "token"))
+                .header("CCMS-AUTH-TOKEN", "token"))
                 .andExpect(status().is(HttpStatus.OK.value()))
                 .andReturn();
 
@@ -90,7 +90,7 @@ public class VideoTsControllerTest {
     @Test
     public void shouldFailGetTsFileAuthorizedByApiKeyCausedByFileNotFound() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get("/ccms/edit/video/ts/{filename}", "invalid.ts")
-                .header("CCMS_AUTH_TOKEN", "token"))
+                .header("CCMS-AUTH-TOKEN", "token"))
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
                 .andReturn();
 

@@ -31,7 +31,7 @@ This repository contains the sources for the FamKidMem Web-backend.\
 You will a need a file named **ccms_auth_token_hash** in same directory like the jar file.\
 This file has to contain a bcrypt hash of desired auth_token for /ccms/... paths.\
 This is needed to authorize the ccms application.\
-The ccms application has to send the auth_token in header **CCMS_AUTH_TOKEN**
+The ccms application has to send the auth_token in header **CCMS-AUTH-TOKEN**
 
 # All Repos for FamKidMem
 * Web-Backend: https://github.com/tomatenmark/famkidmem-backend
