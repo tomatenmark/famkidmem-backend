@@ -92,6 +92,7 @@
             <artifactId>spring-security-web</artifactId>
             <version>RELEASE</version>
         </dependency>
+
     </dependencies>
 
     <build>

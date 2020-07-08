@@ -30,7 +30,7 @@ public class UserController {
         try {
             ResponseBodyLogin body = userService.login(login.getUsername(), login.getLoginHash(), login.isPermanent());
             return ResponseEntity.ok(body);
-        } catch(LoginException ex){
+        } catch(RuntimeException ex){
             return ResponseEntity.badRequest().body(new ResponseBodyLogin(ex));
         }
     }

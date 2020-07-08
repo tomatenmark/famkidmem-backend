@@ -1,6 +1,7 @@
 package de.mherrmann.famkidmem.backend.service;
 
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
+import de.mherrmann.famkidmem.backend.exception.LockException;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import de.mherrmann.famkidmem.backend.entity.UserSession;
@@ -22,33 +23,41 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final SessionRepository sessionRepository;
+    private final LockService lockService;
 
-    private static final long SESSION_TIME_TO_LIVE = 24*60*60*1000;
+    private static final long SESSION_TIME_TO_LIVE = 24*60*60*1000; //One day
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
-    public UserService(UserRepository userRepository, SessionRepository sessionRepository) {
+    public UserService(UserRepository userRepository, SessionRepository sessionRepository, LockService lockService) {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;
+        this.lockService = lockService;
     }
 
-    public ResponseBodyLogin login(String username, String loginHash, boolean permanent) throws LoginException {
+    public ResponseBodyLogin login(String username, String loginHash, boolean permanent) throws LoginException, LockException {
+        if(lockService.isLocked(username)){
+            throw new LockException();
+        }
         Optional<UserEntity> userOptional = userRepository.findByUsername(username);
         if(!userOptional.isPresent()){
             LOGGER.error("Could not login user. Invalid username {}", username);
+            lockService.countAttempt(username);
             throw new LoginException();
         }
         UserEntity user = userOptional.get();
         String loginHashHash = user.getLoginHashHash();
         if(!Bcrypt.check(loginHash, loginHashHash)){
             LOGGER.error("Could not login user. Invalid loginHash");
+            lockService.countAttempt(username);
             throw new LoginException();
         }
         String accessToken = UUID.randomUUID().toString();
         addUserSession(user, accessToken, permanent);
         createNewHash(user, loginHash);
         LOGGER.info("Successfully logged in {} with accessToken {}", user.getUsername(), accessToken);
+        lockService.reset(username);
         return new ResponseBodyLogin(accessToken, user.getPasswordKeySalt());
     }
 

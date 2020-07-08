@@ -3,6 +3,7 @@ package de.mherrmann.famkidmem.backend.service;
 import de.mherrmann.famkidmem.backend.TestUtils;
 import de.mherrmann.famkidmem.backend.body.ResponseBodyLogin;
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
+import de.mherrmann.famkidmem.backend.exception.LockException;
 import de.mherrmann.famkidmem.backend.exception.LoginException;
 import de.mherrmann.famkidmem.backend.exception.SecurityException;
 import de.mherrmann.famkidmem.backend.repository.SessionRepository;
@@ -14,9 +15,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -38,6 +41,9 @@ public class UserServiceTest {
 
     @Autowired
     private SessionRepository sessionRepository;
+
+    @MockBean
+    private LockService lockService;
 
     @Before
     public void setup() {
@@ -66,7 +72,7 @@ public class UserServiceTest {
 
         try {
             login = userService.login("wrong", LOGIN_HASH, true);
-        } catch (LoginException ex){
+        } catch (Exception ex){
             exception = ex;
         }
 
@@ -82,13 +88,30 @@ public class UserServiceTest {
 
         try {
             login = userService.login(testUser.getUsername(), "wrong", true);
-        } catch (LoginException ex){
+        } catch (Exception ex){
             exception = ex;
         }
 
         assertThat(login).isNull();
         assertThat(exception).isNotNull();
         assertThat(exception).isInstanceOf(LoginException.class);
+    }
+
+    @Test
+    public void shouldFailLoginCausedByLock(){
+        ResponseBodyLogin login = null;
+        Exception exception = null;
+        given(lockService.isLocked(testUser.getUsername())).willReturn(true);
+
+        try {
+            login = userService.login(testUser.getUsername(), LOGIN_HASH, true);
+        } catch (Exception ex){
+            exception = ex;
+        }
+
+        assertThat(login).isNull();
+        assertThat(exception).isNotNull();
+        assertThat(exception).isInstanceOf(LockException.class);
     }
 
     @Test

@@ -12,6 +12,7 @@ import de.mherrmann.famkidmem.backend.body.authorized.RequestBodyAuthorizedLogou
 import de.mherrmann.famkidmem.backend.entity.UserEntity;
 import de.mherrmann.famkidmem.backend.repository.SessionRepository;
 import de.mherrmann.famkidmem.backend.repository.UserRepository;
+import de.mherrmann.famkidmem.backend.service.LockService;
 import de.mherrmann.famkidmem.backend.service.UserService;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.junit.After;
@@ -21,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -31,6 +33,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -54,6 +57,9 @@ public class UserControllerTest {
 
     @Autowired
     private SessionRepository sessionRepository;
+
+    @MockBean
+    private LockService lockService;
 
     private UserEntity testUser;
 
@@ -80,7 +86,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldFailLogin() throws Exception {
+    public void shouldFailLoginCausedByInvalidCredentials() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(post("/api/user/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(createLogin(false, true))))
@@ -94,6 +100,24 @@ public class UserControllerTest {
         assertThat(message).isEqualTo("error");
         assertThat(ex).isEqualTo("LoginException");
         assertThat(details).isEqualTo("Username or Password is wrong");
+    }
+
+    @Test
+    public void shouldFailLoginCausedByLock() throws Exception {
+        given(lockService.isLocked(testUser.getUsername())).willReturn(true);
+
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/user/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(createLogin(true, true))))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andReturn();
+
+        String ex = jsonToLoginResponse(mvcResult.getResponse().getContentAsString()).getException();
+        String message = jsonToLoginResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToLoginResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        assertThat(message).isEqualTo("error");
+        assertThat(ex).isEqualTo("LockException");
+        assertThat(details).isEqualTo("This user is locked for login. Too much invalid login attempts");
     }
 
     @Test
