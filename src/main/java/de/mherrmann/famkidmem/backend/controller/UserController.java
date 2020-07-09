@@ -80,4 +80,13 @@ public class UserController {
         }
     }
 
+    @GetMapping(value = "/key/{accessToken}")
+    public ResponseEntity<ResponseBody> getMasterKey(@PathVariable String accessToken) {
+        try {
+            return ResponseEntity.ok(new ResponseBody("ok", userService.getMasterKey(accessToken)));
+        } catch(Exception ex){
+            return ResponseEntity.badRequest().body(new ResponseBody("error", ex.getMessage(), ex));
+        }
+    }
+
 }

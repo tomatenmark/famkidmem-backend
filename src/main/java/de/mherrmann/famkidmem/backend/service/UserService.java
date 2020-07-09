@@ -90,6 +90,12 @@ public class UserService {
         changeUsernameAndOrPassword(user, newUsername, newLoginHash, newPasswordKeySalt, newMasterKey);
     }
 
+    public String getMasterKey(String accessToken) throws SecurityException {
+        UserEntity user = getUser(accessToken, "get masterKey");
+        LOGGER.info("Successfully got masterKey for user {]", user.getUsername());
+        return user.getMasterKey();
+    }
+
     private void changeUsernameAndOrPassword(UserEntity user, String newUsername, String newLoginHash,
                                           String newPasswordKeySalt, String newMasterKey) throws SecurityException {
 

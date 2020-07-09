@@ -34,6 +34,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -260,6 +261,34 @@ public class UserControllerTest {
         assertThat(message).isEqualTo("error");
         assertThat(details).isEqualTo("You are not allowed to do this: change username and/or password");
         assertThat(Bcrypt.check("newValue", loginHashHash)).isFalse();
+    }
+
+    @Test
+    public void shouldGetMasterKey() throws Exception {
+        ResponseBodyLogin login = userService.login(testUser.getUsername(), LOGIN_HASH, true);
+
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/user/key/{accessToken}", login.getAccessToken()))
+                .andExpect(status().is(HttpStatus.OK.value()))
+                .andReturn();
+
+        String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        assertThat(message).isEqualTo("ok");
+        assertThat(details).isEqualTo("masterKey");
+    }
+
+    @Test
+    public void shouldFailGetMasterKey() throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/user/key/invalid"))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andReturn();
+
+        String message = jsonToResponse(mvcResult.getResponse().getContentAsString()).getMessage();
+        String details = jsonToResponse(mvcResult.getResponse().getContentAsString()).getDetails();
+        String exception = jsonToResponse(mvcResult.getResponse().getContentAsString()).getException();
+        assertThat(message).isEqualTo("error");
+        assertThat(details).isEqualTo("You are not allowed to do this: get masterKey");
+        assertThat(exception).isEqualTo("SecurityException");
     }
 
     private void shouldLogin(boolean permanent) throws Exception {

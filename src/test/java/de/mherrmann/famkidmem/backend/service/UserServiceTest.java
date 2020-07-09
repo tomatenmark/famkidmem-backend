@@ -283,6 +283,36 @@ public class UserServiceTest {
         assertThat(key).isNotEqualTo("key");
     }
 
+    @Test
+    public void shouldGetMasterKey(){
+        ResponseBodyLogin login = userService.login(testUser.getUsername(), LOGIN_HASH, true);
+        Exception exception = null;
+        String masterKey = null;
+
+        try {
+            masterKey = userService.getMasterKey(login.getAccessToken());
+        } catch(Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNull();
+        assertThat("masterKey").isEqualTo(masterKey);
+    }
+
+    @Test
+    public void shouldFailGetMaster(){
+        Exception exception = null;
+
+        try {
+            userService.getMasterKey("invalid");
+        } catch(Exception ex){
+            exception = ex;
+        }
+
+        assertThat(exception).isNotNull();
+        assertThat(exception).isInstanceOf(SecurityException.class);
+    }
+
     private void shouldLogin(boolean permanent){
         ResponseBodyLogin login = null;
         Exception exception = null;

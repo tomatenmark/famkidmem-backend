@@ -65,6 +65,7 @@ public class TestUtils {
         UserEntity testUser = new UserEntity("username", "", "salt", loginHashHash, "masterKey");
         testUser.setInit(true);
         testUser.setReset(true);
+        testUser.setMasterKey("masterKey");
         return userRepository.save(testUser);
     }
 
