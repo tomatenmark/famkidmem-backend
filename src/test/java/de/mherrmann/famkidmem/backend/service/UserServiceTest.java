@@ -122,7 +122,7 @@ public class UserServiceTest {
 
         try {
             userService.logout(login1.getAccessToken(), false);
-        } catch(SecurityException ex){
+        } catch(Exception ex){
             exception = ex;
         }
 
@@ -140,7 +140,7 @@ public class UserServiceTest {
 
         try {
             userService.logout(login1.getAccessToken(), true);
-        } catch(SecurityException ex){
+        } catch(Exception ex){
             exception = ex;
         }
 
@@ -157,7 +157,7 @@ public class UserServiceTest {
 
         try {
             userService.logout("wrong token", false);
-        } catch(SecurityException ex){
+        } catch(Exception ex){
             exception = ex;
         }
 
@@ -175,7 +175,7 @@ public class UserServiceTest {
 
         try {
             userService.changeUsername(accessToken, "newValue");
-        } catch(SecurityException ex){
+        } catch(Exception ex){
             exception = ex;
         }
 
@@ -190,7 +190,7 @@ public class UserServiceTest {
 
         try {
             userService.changeUsername("wrong", "newValue");
-        } catch(SecurityException ex){
+        } catch(Exception ex){
             exception = ex;
         }
 
@@ -207,7 +207,7 @@ public class UserServiceTest {
 
         try {
             userService.changePassword(login.getAccessToken(), "newValue", "salt", "key");
-        } catch(SecurityException ex){
+        } catch(Exception ex){
             exception = ex;
         }
 
@@ -227,7 +227,7 @@ public class UserServiceTest {
 
         try {
             userService.changePassword("wrong", "newValue", "salt", "key");
-        } catch(SecurityException ex){
+        } catch(Exception ex){
             exception = ex;
         }
 
@@ -249,7 +249,7 @@ public class UserServiceTest {
         try {
             userService.changeUsernameAndPassword(login.getAccessToken(), "newUsername","newValue",
                     "salt", "key");
-        } catch(SecurityException ex){
+        } catch(Exception ex){
             exception = ex;
         }
 
@@ -270,7 +270,7 @@ public class UserServiceTest {
         try {
             userService.changeUsernameAndPassword("wrong", "newUsername","newValue",
                     "salt", "key");
-        } catch(SecurityException ex){
+        } catch(Exception ex){
             exception = ex;
         }
 
