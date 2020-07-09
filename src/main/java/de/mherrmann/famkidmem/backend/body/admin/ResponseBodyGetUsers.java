@@ -13,7 +13,7 @@ public class ResponseBodyGetUsers extends ResponseBody {
     public ResponseBodyGetUsers(){}
 
     public ResponseBodyGetUsers(List<UserEntity> users){
-        super("ok", "Successfully get users");
+        super("ok", "Successfully got users");
         this.setUsers(users);
     }
 

@@ -164,7 +164,7 @@ public class AdminUserControllerTest {
         String message = usersResponse.getMessage();
         String details = usersResponse.getDetails();
         assertThat(message).isEqualTo("ok");
-        assertThat(details).isEqualTo("Successfully get users");
+        assertThat(details).isEqualTo("Successfully got users");
         assertThat(usersResponse.getUsers()).isNotNull();
         assertInternalThingsKeptInternal(usersResponse);
     }
