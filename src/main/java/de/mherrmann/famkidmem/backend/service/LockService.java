@@ -24,15 +24,6 @@ public class LockService {
         return attemptData.count >= LOCK_MAX_TRIES && diff < lockDurance;
     }
 
-    synchronized void resetLockIfTimedOut(String username){
-        AttemptData attemptData = attemptDataMap.getOrDefault(username, new AttemptData());
-        long now = getCurrentTimeMillis();
-        long diff = now - attemptData.last;
-        if(diff >= lockDurance && attemptData.count >= 10){
-            reset(username);
-        }
-    }
-
     synchronized void countAttempt(String username){
         AttemptData attemptData = attemptDataMap.getOrDefault(username, new AttemptData());
         attemptData.count++;

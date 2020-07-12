@@ -70,4 +70,17 @@ public class LockServiceTest {
 
         assertThat(locked).isFalse();
     }
+
+    @Test
+    public void shouldBeStillLocked(){
+        for(int i = 1; i <= LockService.LOCK_MAX_TRIES; i++){
+            lockService.countAttempt(TEST_USER_NAME);
+        }
+        LockService.fakeTimeout = true;
+        lockService.countAttempt(TEST_USER_NAME);
+
+        boolean locked = lockService.isLocked(TEST_USER_NAME);
+
+        assertThat(locked).isTrue();
+    }
 }
