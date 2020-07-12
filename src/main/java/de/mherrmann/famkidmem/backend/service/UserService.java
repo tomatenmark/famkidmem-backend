@@ -40,6 +40,7 @@ public class UserService {
         if(lockService.isLocked(username)){
             throw new LockException();
         }
+        lockService.resetLockIfTimedOut(username);
         Optional<UserEntity> userOptional = userRepository.findByUsername(username);
         if(!userOptional.isPresent()){
             LOGGER.error("Could not login user. Invalid username {}", username);
@@ -115,7 +116,7 @@ public class UserService {
         return getUserSession(accessToken, action).getUserEntity();
     }
 
-    UserSession getUserSession(String accessToken, String action) throws SecurityException {
+    private UserSession getUserSession(String accessToken, String action) throws SecurityException {
         Optional<UserSession> sessionOptional = sessionRepository.findByAccessToken(accessToken);
         if(!sessionOptional.isPresent()){
             LOGGER.error("Could not {}. Invalid accessToken {}", action, accessToken);
