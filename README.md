@@ -1,5 +1,5 @@
-# FamKidMem
-WebApp and Tools to share Videos online, but securely encrypted. One Admin/Editor, Many Users/Whatchers.
+# FamKidMem (Family Moments)
+'Selbstgedrehte Videos'
 
 # Backend
 This repository contains the sources for the FamKidMem Web-backend.\
@@ -28,21 +28,7 @@ This file has to contain a bcrypt hash of desired auth_token for /ccms/... paths
 This is needed to authorize the ccms application.\
 The ccms application has to send the auth_token in header **CCMS-AUTH-TOKEN**
 
-# All Repos for FamKidMem
-* Web-Backend: https://github.com/tomatenmark/famkidmem-backend
-* Control & Content-Management-System (CCMS): https://github.com/tomatenmark/famkidmem-ccms
-* Frontend: https://github.com/tomatenmark/famkidmem-frontend
-
-# Security Architecture
-https://famkidmem.de/security-architecture.pdf
-
-# License
-CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/
-
-# Disclaimer
-**This software is for privacy, not to hide crime. Please do not use it to encrypt your illegal contents. Thank you**
-
 # Credits
-* Spring boot
-* javax.crypto
-* FFmpeg
+* Spring boot and Vue.js
+* javax.crypto and crypto-js
+* FFmpeg and HLS
