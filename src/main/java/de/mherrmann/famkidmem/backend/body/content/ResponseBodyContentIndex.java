@@ -1,8 +1,6 @@
 package de.mherrmann.famkidmem.backend.body.content;
 
-import de.mherrmann.famkidmem.backend.entity.Person;
 import de.mherrmann.famkidmem.backend.entity.Video;
-import de.mherrmann.famkidmem.backend.entity.Year;
 
 import java.util.List;
 
