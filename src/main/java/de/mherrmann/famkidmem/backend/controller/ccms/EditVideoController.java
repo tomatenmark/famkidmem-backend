@@ -70,6 +70,7 @@ public class EditVideoController {
 
     @DeleteMapping(value = "/delete/{designator}")
     public ResponseEntity<ResponseBody> deleteVideo(@PathVariable String designator){
+        designator = designator.replace('_', '/').replace('-', '+');
         try {
             editVideoService.deleteVideo(designator);
             return ResponseEntity.ok(new ResponseBody("ok", "Successfully removed video: " + designator));

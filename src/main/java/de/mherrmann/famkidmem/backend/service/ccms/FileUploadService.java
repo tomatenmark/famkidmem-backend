@@ -21,7 +21,7 @@ public class FileUploadService {
     public void store(MultipartFile file) throws FileUploadException {
         doChecks(file);
         storeFile(file);
-        LOGGER.info("Successfully saved file {}", file.getName());
+        LOGGER.info("Successfully saved file {}", file.getOriginalFilename());
     }
 
     private void doChecks(MultipartFile file) throws FileUploadException {
