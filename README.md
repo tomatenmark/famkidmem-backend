@@ -8,7 +8,7 @@ This repository contains the sources for the FamKidMem Web-backend.\
 # Features
 * **User-Management**
   * **Login/Logout**  (/api/user)
-  * **Maintain Users** (/cms/admin)
+  * **Maintain Users** (/ccms/admin)
 * **Add, update and delete Videos** (/cms/edit/video/ | encrypted)
 * **Get Video Index, Thumbnails, m3u8 files and ts files** (/api/video and /api/ts | encrypted)
 
@@ -29,6 +29,4 @@ This is needed to authorize the ccms application.\
 The ccms application has to send the auth_token in header **CCMS-AUTH-TOKEN**
 
 # Credits
-* Spring boot and Vue.js
-* javax.crypto and crypto-js
-* FFmpeg and HLS
+* Spring boot
