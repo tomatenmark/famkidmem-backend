@@ -3,7 +3,6 @@ package de.mherrmann.famkidmem.backend.service.ccms;
 import de.mherrmann.famkidmem.backend.Application;
 import de.mherrmann.famkidmem.backend.body.admin.ResponseBodyGetVideos;
 import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentFileBase64;
-import de.mherrmann.famkidmem.backend.body.content.ResponseBodyContentIndex;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyAddVideo;
 import de.mherrmann.famkidmem.backend.body.edit.RequestBodyUpdateVideo;
 import de.mherrmann.famkidmem.backend.entity.*;
