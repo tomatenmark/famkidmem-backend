@@ -21,8 +21,7 @@ public class CustomErrorController implements ErrorController {
     public ResponseEntity<ResponseBodyError> handleError(HttpServletRequest request) {
         HttpStatus httpStatus = ErrorResponseUtil.getErrorStatus(request);
         ResponseBodyError errorResponse = ErrorResponseUtil.getErrorResponse(httpStatus);
-        String uri = request.getRequestURI();
-        LOGGER.error("Request error: status:{}; message:{}; uri:{}", httpStatus.value(), errorResponse.getMessage(), uri);
+        LOGGER.error("Request error: status:{}; message:{}", httpStatus.value(), errorResponse.getMessage());
         if("head".equalsIgnoreCase(request.getMethod())){
             return ResponseEntity.status(httpStatus).build();
         }

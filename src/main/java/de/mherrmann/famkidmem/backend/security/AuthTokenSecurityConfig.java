@@ -1,5 +1,6 @@
 package de.mherrmann.famkidmem.backend.security;
 
+import de.mherrmann.famkidmem.backend.Application;
 import de.mherrmann.famkidmem.backend.utils.Bcrypt;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -29,7 +30,7 @@ public class AuthTokenSecurityConfig extends WebSecurityConfigurerAdapter {
             String principal = (String) authentication.getPrincipal();
             String principalHash = Bcrypt.hash("wrong");
             try {
-               principalHash = new String(Files.readAllBytes(Paths.get("./ccms_auth_token_hash")));
+               principalHash = new String(Files.readAllBytes(Paths.get(Application.filesDir+"ccms_auth_token_hash")));
             } catch (IOException e) {
                 e.printStackTrace();
             }

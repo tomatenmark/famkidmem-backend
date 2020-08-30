@@ -20,10 +20,11 @@ This repository contains the sources for the FamKidMem Web-backend.\
 
 # Run
 **java -jar famkidmem-web-backend...jar [--files-dir <path-to-files>]**\
-\# where path to files is: Path to directory where the files (thumbnails, m3u8, ts) should be stored.
+\# where <path-to-files> is: Path to directory where the files (thumbnails, m3u8, ts)
+should be stored (default: ./files/).
 
 # ApiKey
-You will need a file named **ccms_auth_token_hash** in same directory like the jar file.\
+You will need a file named **ccms_auth_token_hash** in <path-to-files>.\
 This file has to contain a bcrypt hash of desired auth_token for /ccms/... paths.\
 This is needed to authorize the ccms application.\
 The ccms application has to send the auth_token in header **CCMS-AUTH-TOKEN**

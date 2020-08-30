@@ -184,14 +184,15 @@ public class TestUtils {
     }
 
     public void createAuthTokenHashFile() throws IOException {
-        new File("./ccms_auth_token_hash").createNewFile();
-        FileWriter fileWriter = new FileWriter("./ccms_auth_token_hash");
+        createTestFilesDirectory();
+        new File("./files/ccms_auth_token_hash").createNewFile();
+        FileWriter fileWriter = new FileWriter("./files/ccms_auth_token_hash");
         fileWriter.write("$2a$13$3c7JEfBO9uTpvILcHFj4tuDR7krJQPgFMH7vzPRIMU3eLZL9NgKMS");
         fileWriter.close();
     }
 
     public void deleteAuthTokenHashFile() {
-        new File("./ccms_auth_token_hash").delete();
+        new File("./files/ccms_auth_token_hash").delete();
     }
 
     public void createTestFilesDirectory(){

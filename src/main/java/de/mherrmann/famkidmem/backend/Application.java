@@ -28,9 +28,14 @@ public class Application {
     }
 
     private static void checkFilesDirAvailable(){
-        File file = new File(filesDir);
-        if(!file.exists() || !file.isDirectory() || !file.canRead() || !file.canWrite()){
+        File files = new File(filesDir);
+        File hashFile = new File(filesDir+"ccms_auth_token_hash");
+        if(!files.exists() || !files.isDirectory() || !files.canRead() || !files.canWrite()){
             System.err.println("Fatal ERROR: defined filesDir does not exist, is not a directory or is not accessible! Shutting down");
+            System.exit(1);
+        }
+        if(!hashFile.exists() || hashFile.isDirectory() || !hashFile.canRead()){
+            System.err.println("Fatal ERROR: defined filesDir has no accessible ccms_auth_token_hash! Shutting down");
             System.exit(1);
         }
     }

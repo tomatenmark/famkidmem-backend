@@ -78,15 +78,6 @@ public class FileUploadControllerTest {
         shouldFail(multipartFile, "error: Can not save empty file.");
     }
 
-    @Test
-    public void shouldFailCausedByIOError() throws Exception {
-        MockMultipartFile multipartFile = new MockMultipartFile("file", TEST_NAME,
-                "text/plain", TEST_CONTENT.getBytes());
-        testUtils.deleteTestFiles();
-
-        shouldFail(multipartFile, "error: Could not save file. I/O Error");
-    }
-
     private void shouldFail(MockMultipartFile multipartFile, String expectedResponse) throws Exception {
         File directory = new File(TEST_DIRECTORY);
         int filesBefore = directory.exists() ? directory.list().length : -1;
