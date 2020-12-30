@@ -19,11 +19,11 @@ public class UserEntity {
     private boolean init; //indicates the user has to change username and password after login
     private boolean reset; //indicates the user has to change password after login
 
-    private UserEntity(){}
+    protected UserEntity(){}
 
     public UserEntity(String username, String displayName, String passwordKeySalt, String loginHashHash, String masterKey) {
         this.id = UUID.randomUUID().toString();
-        this.username = username;
+        this.username = username.replaceAll("[^a-zA-Z0-9._=\\-]", "_");
         this.displayName = displayName;
         this.passwordKeySalt = passwordKeySalt;
         this.loginHashHash = loginHashHash;

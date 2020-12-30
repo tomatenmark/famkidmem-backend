@@ -92,7 +92,7 @@ public class UserService {
 
     public String getMasterKey(String accessToken) throws SecurityException {
         UserEntity user = getUser(accessToken, "get masterKey");
-        LOGGER.info("Successfully got masterKey for user {]", user.getUsername());
+        LOGGER.info("Successfully got masterKey for user {}", user.getUsername());
         return user.getMasterKey();
     }
 
@@ -100,6 +100,7 @@ public class UserService {
                                           String newPasswordKeySalt, String newMasterKey) throws SecurityException {
 
         String oldUsername = user.getUsername();
+        newUsername = newUsername.replaceAll("[^a-zA-Z0-9._=\\-]", "_");
         user.setUsername(newUsername);
         if(newLoginHash != null){
             user.setLoginHashHash(Bcrypt.hash(newLoginHash));
