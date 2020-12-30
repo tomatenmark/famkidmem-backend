@@ -2,7 +2,7 @@
 'Selbstgedrehte Videos'
 
 # Backend
-This repository contains the sources for the FamKidMem Web-backend.\
+This repository contains the sources for the FamKidMem Web-backend.
 
 
 # Features
