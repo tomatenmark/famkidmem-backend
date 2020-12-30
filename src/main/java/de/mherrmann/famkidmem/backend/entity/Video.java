@@ -48,7 +48,7 @@ public class Video {
     @JoinColumn(name = "m3u8_id", referencedColumnName = "id")
     private FileEntity m3u8;
 
-    private Video(){}
+    protected Video(){}
 
     public Video(
             String title, String description, int durationInSeconds, boolean recordedInCologne, boolean recordedInGardelegen,

@@ -18,7 +18,7 @@ public class Person {
     @Transient
     private boolean enabled;
 
-    private Person() {}
+    protected Person() {}
 
     public Person(String name) {
         this.id = UUID.randomUUID().toString();

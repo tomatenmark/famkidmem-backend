@@ -15,7 +15,7 @@ public class Key {
     private String key;
     private String iv;
 
-    private Key(){}
+    protected Key(){}
 
     public Key(String key, String iv) {
         this.id = UUID.randomUUID().toString();

@@ -18,7 +18,7 @@ public class Year {
     @Transient
     private boolean enabled;
 
-    private Year() {}
+    protected Year() {}
 
     public Year(int value) {
         this.id = UUID.randomUUID().toString();

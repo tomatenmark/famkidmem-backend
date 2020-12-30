@@ -20,7 +20,7 @@ public class FileEntity {
 
     private String filename;
 
-    private FileEntity(){}
+    protected FileEntity(){}
 
     public FileEntity(Key key, String filename) {
         this.id = UUID.randomUUID().toString();

@@ -19,7 +19,7 @@ public class UserSession {
 
     private Timestamp created;
 
-    private UserSession(){}
+    protected UserSession(){}
 
     public UserSession(UserEntity user, String accessToken, boolean permanent){
         this.id = UUID.randomUUID().toString();
