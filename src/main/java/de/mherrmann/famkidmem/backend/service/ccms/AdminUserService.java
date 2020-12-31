@@ -36,6 +36,11 @@ public class AdminUserService {
     public void addUser(RequestBodyAddUser addUserRequest) throws AddEntityException {
         doChecks(addUserRequest);
         String loginHashHash = Bcrypt.hash(addUserRequest.getLoginHash());
+        String username = addUserRequest.getUsername();
+        if(username.matches("[^a-zA-Z0-9._=\\-]")){
+            LOGGER.error("Could not add user. Invalid username {}", username);
+            throw new AddEntityException("Could not add user. Invalid username " + username);
+        }
         UserEntity user = new UserEntity(addUserRequest.getUsername(), addUserRequest.getDisplayName(), addUserRequest.getPasswordKeySalt(), loginHashHash,
                 addUserRequest.getMasterKey());
         user.setInit(true);
