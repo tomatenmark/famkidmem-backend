@@ -48,7 +48,7 @@ public class UserController {
     @PostMapping(value = "/change/username")
     public ResponseEntity<ResponseBody> changeUsername(@RequestBody RequestBodyAuthorizedChangeUsername usernameChange) {
         try {
-            userService.changeUsername(usernameChange.getAccessToken(), usernameChange.getNewUsername());
+            userService.changeUsername(usernameChange.getAccessToken(), usernameChange.getNewUsername(), usernameChange.getNewLoginHash());
             return ResponseEntity.ok(new ResponseBody("ok", "Successfully changed username"));
         } catch(Exception ex){
             return ResponseEntity.badRequest().body(new ResponseBody("error", ex.getMessage(), ex));

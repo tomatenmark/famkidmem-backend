@@ -23,7 +23,7 @@ public class UserEntity {
 
     public UserEntity(String username, String displayName, String passwordKeySalt, String loginHashHash, String masterKey) {
         this.id = UUID.randomUUID().toString();
-        this.username = username.replaceAll("[^a-zA-Z0-9._=\\-]", "_");
+        this.username = username;
         this.displayName = displayName;
         this.passwordKeySalt = passwordKeySalt;
         this.loginHashHash = loginHashHash;

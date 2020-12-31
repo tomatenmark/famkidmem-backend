@@ -73,9 +73,9 @@ public class UserService {
         }
     }
 
-    public void changeUsername(String accessToken, String newUsername) throws SecurityException {
+    public void changeUsername(String accessToken, String newUsername, String newLoginHash) throws SecurityException {
         UserEntity user = getUser(accessToken, "change username and/or password");
-        changeUsernameAndOrPassword(user, newUsername, null, user.getPasswordKeySalt(), user.getMasterKey());
+        changeUsernameAndOrPassword(user, newUsername, newLoginHash, user.getPasswordKeySalt(), user.getMasterKey());
     }
 
     public void changePassword(String accessToken, String newLoginHash, String newPasswordKeySalt, String newMasterKey) throws SecurityException {
@@ -100,10 +100,14 @@ public class UserService {
                                           String newPasswordKeySalt, String newMasterKey) throws SecurityException {
 
         String oldUsername = user.getUsername();
-        newUsername = newUsername.replaceAll("[^a-zA-Z0-9._=\\-]", "_");
+        if(newUsername.matches("[^a-zA-Z0-9._=\\-]")){
+            LOGGER.error("Could not change username and/or password. Invalid username {}", newUsername);
+            throw new SecurityException("change username and/or password (invalid username)");
+        }
         user.setUsername(newUsername);
         if(newLoginHash != null){
-            user.setLoginHashHash(Bcrypt.hash(newLoginHash));
+            String newLoginHashHash = Bcrypt.hash(newLoginHash);
+            user.setLoginHashHash(newLoginHashHash);
         }
         user.setMasterKey(newMasterKey);
         user.setPasswordKeySalt(newPasswordKeySalt);

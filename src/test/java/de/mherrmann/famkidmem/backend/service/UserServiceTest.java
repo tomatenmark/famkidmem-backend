@@ -174,7 +174,7 @@ public class UserServiceTest {
         Exception exception = null;
 
         try {
-            userService.changeUsername(accessToken, "newValue");
+            userService.changeUsername(accessToken, "newValue", "newHash");
         } catch(Exception ex){
             exception = ex;
         }
@@ -189,7 +189,7 @@ public class UserServiceTest {
         Exception exception = null;
 
         try {
-            userService.changeUsername("wrong", "newValue");
+            userService.changeUsername("wrong", "newValue", "newHash");
         } catch(Exception ex){
             exception = ex;
         }
