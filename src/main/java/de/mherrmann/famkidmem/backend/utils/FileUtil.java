@@ -48,7 +48,7 @@ public class FileUtil {
             return ResponseEntity
                     .ok()
                     .contentLength(length)
-                    .contentType(MediaType.parseMediaType(mimeType))
+                    .contentType(filename.endsWith(".ts") ? MediaType.parseMediaType("video/vnd.dlna.mpeg-tts") : MediaType.parseMediaType(mimeType))
                     .body(new ByteArrayResource(byteArray));
         } catch(IOException ex){
             LOGGER.error("Could not get ts file contents. File: {}. There was an error reading the file.", filename);
